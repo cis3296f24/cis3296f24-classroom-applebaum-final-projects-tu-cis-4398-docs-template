@@ -1,5 +1,7 @@
 import { Text, View } from "react-native";
 import { Auth } from '../components/Auth';
+import { Box } from '@/components/ui/box';
+
 
 export default function Index() {
   return (
@@ -10,6 +12,14 @@ export default function Index() {
         alignItems: "center",
       }}
     >
+
+      <Box
+        className="bg-primary-500 p-5"
+      >
+        <Text className='text-typography-0'>
+          This is the Box
+        </Text>
+      </Box>
       <Auth />
     </View>
   );
