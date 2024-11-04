@@ -43,14 +43,28 @@ Discuss what you need to develop this project. This includes background informat
         <a href="https://github.com/ApplebaumIan">
             <img src="https://avatars.githubusercontent.com/u/9451941?v=4" width="100;" alt="ApplebaumIan"/>
             <br />
-            <sub><b>Ian Tyler Applebaum</b></sub>
+            <sub><b>Josh Rhee</b></sub>
         </a>
     </td>
     <td align="center">
         <a href="https://github.com/leighflagg">
             <img src="https://avatars.githubusercontent.com/u/77810293?v=4" width="100;" alt="leighflagg"/>
             <br />
-            <sub><b>Null</b></sub>
+            <sub><b>Sophie </b></sub>
+        </a>
+    </td></tr>
+    <td align="center">
+        <a href="https://github.com/leighflagg">
+            <img src="https://avatars.githubusercontent.com/u/77810293?v=4" width="100;" alt="leighflagg"/>
+            <br />
+            <sub><b>Josh </b></sub>
+        </a>
+    </td></tr>
+    <td align="center">
+        <a href="https://github.com/leighflagg">
+            <img src="https://avatars.githubusercontent.com/u/77810293?v=4" width="100;" alt="leighflagg"/>
+            <br />
+            <sub><b>Omar </b></sub>
         </a>
     </td></tr>
 </table>
