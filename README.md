@@ -4,7 +4,7 @@
 # Bassline Burn
 [![Report Issue on Jira](https://img.shields.io/badge/Report%20Issues-Jira-0052CC?style=flat&logo=jira-software)](https://temple-cis-projects-in-cs.atlassian.net/jira/software/c/projects/BASSB/issues?jql=project%20%3D%20%22BASSB%22%20ORDER%20BY%20created%20DESC)
 [![Deploy Docs](https://github.com/ApplebaumIan/tu-cis-4398-docs-template/actions/workflows/deploy.yml/badge.svg)](https://github.com/cis3296f24/applebaum-final-projects-bassline-burn/actions/workflows/deploy.yml)
-[![Documentation Website Link](https://img.shields.io/badge/-Documentation%20Website-brightgreen)](https://applebaumian.github.io/tu-cis-4398-docs-template/)
+[![Documentation Website Link](https://img.shields.io/badge/-Documentation%20Website-brightgreen)](https://bookish-rotary-phone-977r56xjvww4cpqvg-3000.app.github.dev/basseline-burnnnn/)
 
 
 </div>
@@ -53,7 +53,20 @@ This project just requires Unity and an IDE to edit C# code in. There are a vast
             <sub><b>Gabriel Lantigua</b></sub>
         </a> 
     </td>
-    
+    <td align="center"> 
+        <a href="https://github.com/Random76520">
+            <img src="https://avatars.githubusercontent.com/u/123013478?s=400&v=4" width="100;" alt="Augustin"/>
+            <br />
+            <sub><b>Jonathan Augustin</b></sub>
+        </a> 
+    </td>
+    <td align="center"> 
+        <a href="https://github.com/Gunlords">
+            <img src="https://avatars.githubusercontent.com/u/180465432?v=4" width="100;" alt="Ankur"/>
+            <br />
+            <sub><b>Ankur Chowdhury</b></sub>
+        </a> 
+    </td>
     
 
 </table>
