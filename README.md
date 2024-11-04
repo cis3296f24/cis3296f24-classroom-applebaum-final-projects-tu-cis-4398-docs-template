@@ -44,8 +44,18 @@ This project just requires Unity and an IDE to edit C# code in. There are a vast
             <img src="https://avatars.githubusercontent.com/u/156946433?s=96&v=4" width="100;" alt="ChristopherBrousseau"/>
             <br />
             <sub><b>Christopher Brousseau</b></sub>
-        </a>
+        </a>  
     </td>
+    <td align="center"> 
+        <a href="https://github.com/glantig1">
+            <img src="https://avatars.githubusercontent.com/u/143743234?v=4&size=64" width="100;" alt="glantig1"/>
+            <br />
+            <sub><b>Gabriel Lantigua</b></sub>
+        </a> 
+    </td>
+    
+    
+
 </table>
 
 [//]: # ( readme: collaborators -end )
