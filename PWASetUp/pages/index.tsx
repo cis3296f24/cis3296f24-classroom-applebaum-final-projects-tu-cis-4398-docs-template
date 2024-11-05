@@ -5,32 +5,32 @@ const Index = () => (
 	<Page>
 		<Section>
 			<h2 className='text-xl font-semibold text-zinc-800 dark:text-zinc-200'>
-				We grow a lot of rice.
+				Record AND GET SHOCKED
 			</h2>
 
 			<div className='mt-2'>
-				<p className='text-zinc-600 dark:text-zinc-400'>
-					You love rice, and so does the rest of the world. In the crop year
-					2008/2009, the milled rice production volume amounted to over{' '}
-					<span className='font-medium text-zinc-900 dark:text-zinc-50'>
-						448 million tons
-					</span>{' '}
-					worldwide.
-				</p>
-
-				<br />
-
-				<p className='text-sm text-zinc-600 dark:text-zinc-400'>
-					<a
-						href='https://github.com/mvllow/next-pwa-template'
-						className='underline'
-					>
-						Source
-					</a>
-				</p>
+				<button onClick={getLocalStream}>get microphone access</button>
+				<button >starts the recording</button>
 			</div>
 		</Section>
 	</Page>
 )
+
+function getLocalStream(): void {
+	navigator.mediaDevices
+		.getUserMedia({ video: false, audio: true})
+		.then((stream: MediaStream) => {
+			(window as any).localStream = stream;
+			const localAudio = document.getElementById('localAudio') as HTMLAudioElement;
+			if (localAudio){
+				(localAudio).srcObject = stream; 
+				(localAudio).autoplay = true; 
+			}
+		})
+		.catch ((err: Error) =>{
+			console.error('You got an error:  ${err.message}');
+		})
+}
+
 
 export default Index
