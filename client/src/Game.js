@@ -1,68 +1,76 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
-const Game = () => {
-  const [role, setRole] = useState(null);
-  const [status, setStatus] = useState('Enter your name to join the game.');
-  const [players, setPlayers] = useState([]);
-  const [playerName, setPlayerName] = useState('');
-  const [socket, setSocket] = useState(null);
+function Game() {
+    const [isHost, setIsHost] = useState(false);
+    const [messages, setMessages] = useState([]);
+    const [role, setRole] = useState(null);
+    const [playerName, setPlayerName] = useState(''); // State to store player name
+    const [isJoined, setIsJoined] = useState(false); // Track if player has joined the game
+    const ws = useRef(null);
 
-  const handleJoinGame = () => {
-    if (!playerName) return;
+    useEffect(() => {
+        ws.current = new WebSocket('ws://localhost:4000');
 
-    const newSocket = new WebSocket('ws://localhost:4000');
+        ws.current.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            
+            if (data.type === 'host') {
+                setIsHost(true);
+                setMessages(prev => [...prev, data.message]);
+            } else if (data.type === 'player' || data.type === 'message') {
+                setMessages(prev => [...prev, data.message]);
+            } else if (data.type === 'role') {
+                setRole(data.role);
+                setMessages(prev => [...prev, `You are assigned the role of ${data.role}`]);
+            }
+        };
 
-    newSocket.onopen = () => {
-      setStatus(`Connected as: ${playerName}`);
-      newSocket.send(JSON.stringify({ type: 'join', name: playerName })); // Send join message to server
+        return () => {
+            ws.current.close();
+        };
+    }, []);
+
+    const handleJoinGame = () => {
+        if (playerName.trim()) {
+            ws.current.send(JSON.stringify({ type: 'join', name: playerName }));
+            setIsJoined(true); // Mark as joined to hide join controls
+        }
     };
 
-    newSocket.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-
-      if (message.type === 'role') {
-        setRole(message.role);
-        setStatus(`You are assigned as: ${message.role}`);
-      } else if (message.type === 'message') {
-        console.log(message.message);
-        setPlayers((prev) => [...prev, message.message]); // Update players list
-      } else if (message.type === 'error') {
-        setStatus(message.message);
-      }
+    const startGame = () => {
+        if (isHost) {
+            ws.current.send(JSON.stringify({ type: 'start' }));
+        }
     };
 
-    newSocket.onclose = () => {
-      setStatus('Disconnected from the game');
-      setPlayers([]); // Clear players on disconnection
-    };
-
-    setSocket(newSocket); // Store the socket for later use
-  };
-
-  return (
-    <div style={{ textAlign: 'center', padding: '20px' }}>
-      <h1>Mafia Game</h1>
-      <p>{status}</p>
-      {!role && (
+    return (
         <div>
-          <input
-            type="text"
-            value={playerName}
-            onChange={(e) => setPlayerName(e.target.value)}
-            placeholder="Enter your name"
-          />
-          <button onClick={handleJoinGame}>Join Game</button>
+            <h2>Game Messages</h2>
+            <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
+            
+            {!isJoined ? (
+                <div>
+                    <input
+                        type="text"
+                        placeholder="Enter your name"
+                        value={playerName}
+                        onChange={(e) => setPlayerName(e.target.value)}
+                    />
+                    <button onClick={handleJoinGame}>Join Game</button>
+                </div>
+            ) : (
+                <>
+                    {isHost && <button onClick={startGame}>Start Game</button>}
+                    
+                    {role && (
+                        <div>
+                            <h3>Your Role: {role}</h3>
+                        </div>
+                    )}
+                </>
+            )}
         </div>
-      )}
-      {role && <h2>Your Role: {role}</h2>}
-      <h3>Players in the game:</h3>
-      <ul>
-        {players.map((player, index) => (
-          <li key={index}>{player}</li>
-        ))}
-      </ul>
-    </div>
-  );
-};
+    );
+}
 
 export default Game;
