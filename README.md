@@ -67,6 +67,14 @@ This project just requires Unity and an IDE to edit C# code in. There are a vast
             <sub><b>Ankur Chowdhury</b></sub>
         </a> 
     </td>
+    <td align="center"> 
+        <a href="https://github.com/tus40499">
+            <img src="https://avatars.githubusercontent.com/u/157192065?v=4" width="100;" alt="JackMartin"/>
+            <br />
+            <sub><b>Jack Martin</b></sub>
+        </a> 
+    </td>
+    
     
 
 </table>
