@@ -73,7 +73,6 @@ public class GameManager : MonoBehaviour
         raceOngoing = false;
         Debug.Log("Race Ended! Final Time: " + elapsedTime);
 
-        // Optional: Show race results or reset game state
     }
 
     public void ResetGame()
