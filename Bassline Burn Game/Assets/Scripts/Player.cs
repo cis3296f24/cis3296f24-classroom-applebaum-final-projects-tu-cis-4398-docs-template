@@ -6,12 +6,20 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     private Radio radio;
-    public float base_acceleration = 10f;
-    public float base_maxSpeed = 20f;
-    public float base_steering = 200f;
+    public float base_acceleration = 5f;
+    public float base_maxSpeed = 10f;
+    public float base_steering = 3.5f;
+    public float base_drift = 0.95f;
     public float base_boostAcceleration = 1.5f;
     public float base_boostMaxSpeed = 1.5f;
     public float base_maxBoostTime = 100f;
+
+    // funny new variables
+    public float someDirection = 0;
+    public float someRotation = 0;
+
+    
+
 
     public float acceleration;
     public float maxSpeed;
@@ -20,6 +28,7 @@ public class Player : MonoBehaviour
     public float boostMaxSpeed;
     public float maxBoostTime;
     public float currentBoostTime = 0;
+    public float drift;
     private Rigidbody2D rb;
 
     void Start()
@@ -30,6 +39,7 @@ public class Player : MonoBehaviour
         boostAcceleration = base_boostAcceleration * base_acceleration;
         boostMaxSpeed = base_boostMaxSpeed * base_boostMaxSpeed;
         maxBoostTime = base_maxBoostTime;
+        drift = base_drift;
 
         rb = GetComponent<Rigidbody2D>();
         radio = GetComponent<Radio>();
@@ -52,22 +62,62 @@ public class Player : MonoBehaviour
         float moveInput = Input.GetAxis("Vertical");
         float turnInput = Input.GetAxis("Horizontal");
 
-        // Accelerate the car
-        if (moveInput > 0)
-        {
-            rb.AddForce(transform.up * moveInput * acceleration);
+        /// Moving the car ///
+        
+        // according to the tutorial this is useful for potential future mechanics but breaks our code
+        // someDirection = Vector2.Dot(transform.up, rb.velocity);
+        // if(someDirection>maxSpeed&& moveInput>0){
+        //     return;
+        // }
+        // if(someDirection<-maxSpeed *0.5f && moveInput<0){
+        //     return;
+        // }
+        // if(rb.velocity.sqrMagnitude>maxSpeed*maxSpeed&& acceleration>0){
+        //     return;
+        // } 
+
+
+        // is supposed to create a drag to slow the car down after inputs released
+        if(acceleration == 0){
+            rb.drag = Mathf.Lerp(rb.drag,3.0f,Time.deltaTime*3);
         }
-        else if (moveInput < 0)
-        {
-            rb.AddForce(transform.up * moveInput * acceleration * 0.5f); // reverse speed is slower
+        else{
+            rb.drag = 0;
         }
 
-        // Limit the car's speed
-        rb.velocity = Vector2.ClampMagnitude(rb.velocity, maxSpeed);
+        // acceleration 
+        Vector2 moveVector = transform.up * moveInput * acceleration;
+        if (moveInput > 0){
+            rb.AddForce(moveVector, ForceMode2D.Force); // forward acceleration
+        }
+        else if (moveInput < 0){
+            rb.AddForce(moveVector*0.5f, ForceMode2D.Force); // reverse acceleration (is slower)
+        }
+        
+        rb.velocity = Vector2.ClampMagnitude(rb.velocity, maxSpeed);   // Limit the car's speed
 
-        // Steering the car
+        // adds an effective drift vector on turns   
+        Vector2 forwardVelocity = transform.up * Vector2.Dot(rb.velocity,transform.up);
+        Vector2 rightVelocity = transform.right * Vector2.Dot(rb.velocity,transform.right);
+        rb.velocity = forwardVelocity + rightVelocity * drift;
+        
+        /// Moving the car ///
+
+
+
+        /// Steering the car ///
+        
+        float turnSpeedReq = rb.velocity.magnitude/8; // calculates a minimum velocity requirement for turning 
+        turnSpeedReq = Mathf.Clamp01(turnSpeedReq); // updates a minimum velocity requirement for turning 
+        
         float speedFactor = rb.velocity.magnitude / maxSpeed;  // reduces turning at higher speeds
-        rb.rotation -= turnInput * steering * speedFactor * Time.deltaTime;
+        //rb.rotation -= turnInput * steering * speedFactor * turnSpeedReq * Time.deltaTime;
+        
+        someRotation -= turnInput * steering * speedFactor * turnSpeedReq * Time.deltaTime; //calculates rotation angle 
+        rb.MoveRotation(someRotation); // applied rotation angle force
+        
+        /// Steering the car ///
+        
         
 
 
@@ -93,12 +143,14 @@ public class Player : MonoBehaviour
             boostAcceleration =  base_boostAcceleration * base_acceleration * 1.1f;
             boostMaxSpeed = base_boostMaxSpeed * base_boostMaxSpeed *1.25f;
             maxSpeed = base_maxSpeed * 1.25f;
+            drift = base_drift;
         }else if(currentStation == 1){
             steering = base_steering;
             acceleration = base_acceleration*1.1f;
             boostAcceleration =  base_boostAcceleration * base_acceleration * 1.25f;
             boostMaxSpeed = base_boostMaxSpeed * base_boostMaxSpeed *1.1f;
             maxSpeed = base_maxSpeed;
+            drift = base_drift * 1.1f;
         }
     }
 /// <>
