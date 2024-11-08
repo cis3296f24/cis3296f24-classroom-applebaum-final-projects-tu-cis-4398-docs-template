@@ -11,9 +11,9 @@ public class Player : MonoBehaviour
     public float base_maxSpeed = 10f;
     public float base_steering = 3.5f;
     public float base_drift = 0.95f;
-    public float base_boostAcceleration = 1.5f;
-    public float base_boostMaxSpeed = 1.5f;
-    public float base_maxBoostTime = 100f;
+    public float base_boostAcceleration;
+    public float base_boostMaxSpeed;
+    public float base_maxBoostTime;
 
     // funny new variables
     public float someDirection = 0;
@@ -49,16 +49,11 @@ public class Player : MonoBehaviour
     private float elapsedTime;
     public int lapsCompleted = 1;
     private bool passedCheckpoint = false;
+    public float boostMultiplier;
 
     void Start()
     {
-        acceleration = base_acceleration;
-        maxSpeed = base_maxSpeed;
-        steering = base_steering;
-        boostAcceleration = base_boostAcceleration * base_acceleration;
-        boostMaxSpeed = base_boostMaxSpeed * base_boostMaxSpeed;
-        maxBoostTime = base_maxBoostTime;
-        drift = base_drift;
+        
 
         rb = GetComponent<Rigidbody2D>();
         radio = GetComponent<Radio>();
@@ -73,11 +68,11 @@ public class Player : MonoBehaviour
         if(gm.raceOngoing){
             if(Input.GetKeyDown(KeyCode.Q)){
                 radio.NavigateStations(true);
-                ChangeStats(radio.currentStation);
+                
             }
             if(Input.GetKeyDown(KeyCode.E)){
                 radio.NavigateStations(false);
-                ChangeStats(radio.currentStation);
+                
             }
 
             
@@ -151,16 +146,17 @@ public class Player : MonoBehaviour
 
 
             // attempt at boost
-            if(Input.GetKeyDown(KeyCode.Space) && currentBoostTime >= 0){
-                acceleration = boostAcceleration;
-                maxSpeed = boostMaxSpeed;
-                currentBoostTime -= Time.deltaTime;
+            if(Input.GetKey(KeyCode.Space) && currentBoostTime >= 0){
+                boostMultiplier = 3f;
+                someMaxSpeed = 15f;
+                currentBoostTime -= Time.deltaTime * 2f;
             }else{
-                acceleration = base_acceleration;
-                maxSpeed = base_maxSpeed;
-                if(currentBoostTime <= maxBoostTime){
+                boostMultiplier = 1f;
+                someMaxSpeed = 10f;
+                if(currentBoostTime < maxBoostTime){
                     currentBoostTime += Time.deltaTime;
                 }
+                ChangeStats(radio.currentStation);
             }
         }
         // attempt at boost
@@ -196,7 +192,7 @@ public class Player : MonoBehaviour
         else{
             rb.drag = 0;
         }
-        Vector2 engineForceVector = transform.up *moveInput * base_acceleration;
+        Vector2 engineForceVector = transform.up *moveInput * base_acceleration * boostMultiplier;
         rb.AddForce(engineForceVector,ForceMode2D.Force);
     }
 
@@ -224,7 +220,7 @@ public class Player : MonoBehaviour
         }else if(currentStation == 1){
             base_acceleration = 5f;
             someMaxSpeed = 5f;
-            driftFactor = 0.95f;
+            driftFactor = 0.94f;
         }
     }
 
