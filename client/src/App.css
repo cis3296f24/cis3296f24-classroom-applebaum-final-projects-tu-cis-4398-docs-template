@@ -1,5 +1,9 @@
 .App {
   text-align: center;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 .App-logo {
@@ -26,6 +30,61 @@
 
 .App-link {
   color: #61dafb;
+}
+
+.App .gameTitle {
+  display: flex;
+  flex-direction: column;
+  background-color: #282c34;
+  color: #ff6347; /* Lighter red for better readability */
+  font-family: 'Courier New', monospace;
+  margin-bottom: 20px;
+}
+
+.limiter {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.container-login100 {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  background: #f2f2f2;
+}
+
+.wrap-login100 {
+  width: 390px;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  padding: 77px 55px 33px 55px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+.wrap-login100 button {
+  outline: none;
+  border: none;
+  background: black;
+  color: red;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.wrap-login100 button:hover {
+  background: red;
+  color: black;
+}
+
+.loginButton-wrap {
+  display: flex;
+  justify-content: center;
+  padding-top: 13px;
 }
 
 @keyframes App-logo-spin {

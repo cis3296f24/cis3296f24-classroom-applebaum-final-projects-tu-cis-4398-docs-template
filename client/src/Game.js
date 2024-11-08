@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function Game() {
     const [isHost, setIsHost] = useState(false);
@@ -7,6 +8,9 @@ function Game() {
     const [playerName, setPlayerName] = useState(''); // State to store player name
     const [isJoined, setIsJoined] = useState(false); // Track if player has joined the game
     const ws = useRef(null);
+    const navigate = useNavigate(); // Hook for navigation
+
+  
 
     useEffect(() => {
         ws.current = new WebSocket('ws://localhost:4000');
@@ -43,31 +47,55 @@ function Game() {
         }
     };
 
+    const goToStartGame = () => {
+        navigate('/startgame', { state: { ws: ws.current } });
+      };
+    
+
     return (
         <div>
-            <h2>Game Messages</h2>
-            <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
+            <div className="gameTitle">
+                <h2>Mafia Uhh...</h2>
+            </div>
             
             {!isJoined ? (
                 <div>
-                    <input
-                        type="text"
-                        placeholder="Enter your name"
-                        value={playerName}
-                        onChange={(e) => setPlayerName(e.target.value)}
-                    />
-                    <button onClick={handleJoinGame}>Join Game</button>
-                </div>
-            ) : (
-                <>
-                    {isHost && <button onClick={startGame}>Start Game</button>}
-                    
-                    {role && (
-                        <div>
-                            <h3>Your Role: {role}</h3>
+                    <div class="limiter">
+                        <div class="container-login100">
+                            <div class="wrap-login100">
+                                <input
+                                    type="text"
+                                    placeholder="Enter your name"
+                                    value={playerName}
+                                    onChange={(e) => setPlayerName(e.target.value)}
+                                />
+                                <div class="loginButton-wrap">
+                                    <button class = "lgn-btn" onClick={handleJoinGame}>Join Game</button>
+                                </div>
+                            </div>
                         </div>
-                    )}
-                </>
+                    </div>
+                </div>
+                
+            ) : (
+                <div>
+                    <div class="limiter">
+                        <div class="container-login100">
+                            <div class="wrap-login100">
+                                <>
+                                    <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
+                                    {isHost && <button onClick={goToStartGame}>Start Game</button>}
+                                    
+                                    {role && (
+                                        <div>
+                                            <h3>Your Role: {role}</h3>
+                                        </div>
+                                    )}
+                                </>
+                            </div>
+                        </div>
+                    </div>
+                </div>        
             )}
         </div>
     );

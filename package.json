@@ -4,5 +4,11 @@
   },
   "scripts": {
     "start": "concurrently \"npm start --prefix server\" \"npm start --prefix client\""
+  },
+  "dependencies": {
+    "express": "^4.21.1",
+    "react-router-dom": "^6.28.0",
+    "react-router-native": "^6.28.0",
+    "ws": "^8.18.0"
   }
 }
