@@ -2,6 +2,8 @@ import Page from '@/components/page'
 import Section from '@/components/section'
 import { Button } from '@nextui-org/react'
 import { useEffect } from 'react'
+import RingDevice from '@/components/Ring';
+
 
 const Index = () => {
 
@@ -18,7 +20,8 @@ const Index = () => {
 			<div id="speech">
 				<Button color = 'primary' id="start"> Start speaking </Button> 
 				<Button color = 'primary' id="stop"> Stop speaking </Button>
-        <button onClick={vibrationPattern} > Vibrate</button>
+        <br></br>
+        <Button color = 'primary' onClick={vibrationPattern} > Vibrate</Button>
         <RingDevice/>
         <p id="output"></p>
         <p id="detectedWords"></p>
@@ -55,7 +58,7 @@ function speechToText(): void {
 
   //wordbank
   const wordbank: string[] = [
-    "abbo",
+    "ass",
     "abo",
     "beeyotch",
     "biatch",
@@ -78,6 +81,7 @@ function speechToText(): void {
     "dumb",
     "dyke",
     "eskimo",
+    "fuck",
     "fag",
     "faggot",
     "fatass",
@@ -164,11 +168,19 @@ function speechToText(): void {
         
         output.innerText = transcript;
 
+        const wordsInTranscript = transcript.toLowerCase().split(/\s+/);
+        const lastWord = wordsInTranscript[wordsInTranscript.length - 1];
+        console.log("lastWord");
+        if (wordbank.includes(lastWord)) {
+          vibrationPattern();
+        }
+
       // Check if any word in the wordbank is present in the transcript
       const foundWords = wordbank.filter(word => transcript.toLowerCase().includes(word));
       if (detectedWordsOutput) {
         detectedWordsOutput.innerText = "Detected words: " + foundWords.join(', ');
       }
+
     }
   });
 
@@ -207,23 +219,24 @@ function speechToText(): void {
       recognition.stop();
     });
   }
-  let patterns = [
-    2000, //vibrate one time for 2 seconds
-    [2000, 1000, 2000, 1000, 2000, 1000, 2000],
-    [400, 200, 400, 200, 400, 200, 800, 200, 800, 200, 400, 200, 400, 200, 200, 200], //vibrate "Twinkle, Twinkle, Little Star"
-    [150, 50, 150, 50, 300, 100, 150, 50, 150, 50, 300, 100, 150, 50, 150, 50], //vibrate "Super Mario Bros" theme
-    [300, 200, 300, 200, 300, 400, 300, 200, 300, 200, 300, 400, 300, 200, 600, 200] //vibrate "Jingle Bells"
-    ];
-    
-    function vibrationPattern(){
-    if (!window.navigator.vibrate){
-      alert("Your device does not support the Vibration API. Try on an Android phone!");
-    }
-    else {
-      window.navigator.vibrate(patterns[2]);
-      alert("Poop ")
-    }
 }
 
-  
+function vibrationPattern(): void {
+  const patterns = [
+    2000,
+    [2000, 1000, 2000, 1000, 2000, 1000, 2000],
+    [400, 200, 400, 200, 400, 200, 800, 200, 800, 200, 400, 200, 400, 200, 200, 200],
+    [150, 50, 150, 50, 300, 100, 150, 50, 150, 50, 300, 100, 150, 50, 150, 50],
+    [300, 200, 300, 200, 300, 400, 300, 200, 300, 200, 300, 400, 300, 200, 600, 200]
+  ];
+
+  if (!window.navigator.vibrate) {
+    alert("Your device does not support the Vibration API. Try on an Android phone!");
+  } else {
+    window.navigator.vibrate(patterns[2]);
+    alert("Poop This thing just vibrated and stuff yay!");
+  }
+}
+
+
 export default Index

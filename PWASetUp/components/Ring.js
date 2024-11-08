@@ -1,4 +1,6 @@
 import React, { useRef } from 'react';
+import { Button } from '@nextui-org/react'
+
 
 const RingDevice = () => {
     const audioRef = useRef(null);
@@ -12,9 +14,8 @@ const RingDevice = () => {
 
     return (
         <div>
-            <button onClick={ringDevice}>Ring Device</button>
-            <audio ref={audioRef} src="PWASetUp/assests/Dramatic funny fart sound effect - rusty.mp3" preload="auto"></audio>
-            
+            <Button color = 'primary' onClick={ringDevice}>Ring Device</Button>
+            <audio ref={audioRef} src="PWASetUp/assests/fart.mp3" preload="auto"></audio>
         </div>
     );
 };
