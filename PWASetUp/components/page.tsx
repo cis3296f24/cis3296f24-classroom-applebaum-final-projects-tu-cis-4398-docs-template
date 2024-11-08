@@ -1,5 +1,4 @@
 import Head from 'next/head'
-import Appbar from '@/components/appbar'
 import BottomNav from '@/components/bottom-nav'
 
 interface Props {
@@ -11,11 +10,11 @@ const Page = ({ title, children }: Props) => (
 	<>
 		{title ? (
 			<Head>
-				<title>Rice Bowl | {title}</title>
+				<title>SpeakSense | {title}</title>
 			</Head>
 		) : null}
 
-		<Appbar />
+		<BottomNav />
 
 		<main
 			/**
@@ -26,8 +25,6 @@ const Page = ({ title, children }: Props) => (
 		>
 			<div className='p-6'>{children}</div>
 		</main>
-
-		<BottomNav />
 	</>
 )
 
