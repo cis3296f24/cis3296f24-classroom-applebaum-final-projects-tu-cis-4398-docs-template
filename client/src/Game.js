@@ -6,6 +6,8 @@ function Game() {
     const [role, setRole] = useState(null);
     const [playerName, setPlayerName] = useState(''); // State to store player name
     const [isJoined, setIsJoined] = useState(false); // Track if player has joined the game
+    const [showHelp, setShowHelp] = useState(false); // State to manage help view
+    const [rolesList, setRolesList] = useState([]); // State to dynamically store roles
     const ws = useRef(null);
 
     useEffect(() => {
@@ -21,7 +23,10 @@ function Game() {
                 setMessages(prev => [...prev, data.message]);
             } else if (data.type === 'role') {
                 setRole(data.role);
-                setMessages(prev => [...prev, `You are assigned the role of ${data.role}`]);
+                setMessages(prev => [...prev, `You are assigned the role of ${data.role}: ${data.description}`]);
+            } else if (data.type === 'rolesList') {
+                // Dynamically set roles from server
+                setRolesList(data.roles);
             }
         };
 
@@ -41,6 +46,11 @@ function Game() {
         if (isHost) {
             ws.current.send(JSON.stringify({ type: 'start' }));
         }
+    };
+
+    // Toggle Help view
+    const toggleHelp = () => {
+        setShowHelp(!showHelp);
     };
 
     return (
@@ -65,6 +75,22 @@ function Game() {
                     {role && (
                         <div>
                             <h3>Your Role: {role}</h3>
+                        </div>
+                    )}
+
+                    {/* Help Button */}
+                    <button onClick={toggleHelp}>Help</button>
+
+                    {/* Display Help */}
+                    {showHelp && (
+                        <div>
+                            <h3>Character Roles</h3>
+                            {rolesList.map((role, index) => (
+                                <div key={index}>
+                                    <h4>{role.name}</h4>
+                                    <p>{role.description}</p>
+                                </div>
+                            ))}
                         </div>
                     )}
                 </>
