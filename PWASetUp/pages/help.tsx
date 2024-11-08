@@ -1,15 +1,14 @@
 import Page from '@/components/page'
 import Section from '@/components/section'
 
-const Recipes = () => (
+const Help = () => (
 	<Page>
 		<Section>
-			<h2 className='text-xl font-semibold'>Ingredients</h2>
+			<h2 className='text-xl font-semibold'>Help</h2>
 
 			<div className='mt-2'>
 				<p className='text-zinc-600 dark:text-zinc-400'>
-					Like any good recipe, we appreciate community offerings to cultivate a
-					delicous dish.
+					HELP ME HELP ME
 				</p>
 			</div>
 		</Section>
@@ -20,20 +19,17 @@ const Recipes = () => (
 			<ul className='list-disc space-y-2 px-6 py-2'>
 				<li className='text-sm text-zinc-600 dark:text-zinc-400'>
 					<a href='https://unsplash.com' className='underline'>
-						Unsplash
+						help
 					</a>{' '}
-					for high quality images
+					for help 
 				</li>
 
 				<li className='text-sm text-zinc-600 dark:text-zinc-400'>
-					<a href='https://teenyicons.com' className='underline'>
-						Teenyicons
-					</a>{' '}
-					for lovely icons
+					for help
 				</li>
 			</ul>
 		</Section>
 	</Page>
 )
 
-export default Recipes
+export default Help

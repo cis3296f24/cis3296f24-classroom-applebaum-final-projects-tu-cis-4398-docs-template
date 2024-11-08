@@ -1,5 +1,6 @@
 import Page from '@/components/page'
 import Section from '@/components/section'
+import { Button } from '@nextui-org/react'
 import { useEffect } from 'react'
 
 const Index = () => {
@@ -14,14 +15,10 @@ const Index = () => {
 				Record AND GET SHOCKED
 			</h2>
 
-			<div className='mt-2'>
-				<button onClick={getLocalStream}>get microphone access</button>
-			</div>
-
 			<div id="speech">
-				<p id="output"></p>
-				<button id="start"> -- Start speaking -- </button>
-				<button id="stop"> -- Stop speaking -- </button>
+				<Button color = 'primary' id="start"> Start speaking </Button> 
+				<Button color = 'primary' id="stop"> Stop speaking </Button>
+        <p id="output"></p>
 			</div>
 
 		</Section>
@@ -94,22 +91,6 @@ function speechToText(): void {
       recognition.stop();
     });
   }
-}
-
-function getLocalStream(): void {
-	navigator.mediaDevices
-		.getUserMedia({ video: false, audio: true})
-		.then((stream: MediaStream) => {
-			(window as any).localStream = stream;
-			const localAudio = document.getElementById('localAudio') as HTMLAudioElement;
-			if (localAudio){
-				(localAudio).srcObject = stream; 
-				(localAudio).autoplay = true; 
-			}
-		})
-		.catch ((err: Error) =>{
-			console.error('You got an error:  ${err.message}');
-		})
 }
 
   
