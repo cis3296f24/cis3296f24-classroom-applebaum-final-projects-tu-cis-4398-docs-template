@@ -85,8 +85,8 @@ public class Player : MonoBehaviour
             turnInput = Input.GetAxis("Horizontal");
 
             elapsedTime += Time.deltaTime;
-            int minutes = Mathf.FloorToInt(elapsedTime / 60);
-            int seconds = Mathf.FloorToInt(elapsedTime % 60);
+            int minutes = Mathf.FloorToInt(elapsedTime / 3600);
+            int seconds = Mathf.FloorToInt(elapsedTime % 3600);
             timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
 
             /// Moving the car ///
