@@ -8,7 +8,7 @@ public class CameraController : MonoBehaviour
     private float smoothTime = 0.05f;
     private Vector3 velocity = Vector3.zero;
     [SerializeField] private Transform target;
-    public void FixedUpdate()
+    public void Update()
     {
         Vector3 targetPosition = target.position + offset;
         transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, smoothTime);
