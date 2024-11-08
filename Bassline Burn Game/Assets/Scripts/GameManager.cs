@@ -1,18 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
 
-    [SerializeField] TextMeshProUGUI timerText;
-    [SerializeField] TextMeshProUGUI countdownText;
-    [SerializeField] int countdownTime = 3;
+    public Text timerText;
+    public Text countdownText;
+    public int countdownTime = 3;
 
     private float elapsedTime;
-    private bool raceOngoing = false;
+    public bool raceOngoing = false;
 
     private void Awake()
     {
@@ -35,14 +35,7 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (raceOngoing)
-        {
-            // Update the race timer
-            elapsedTime += Time.deltaTime;
-            int minutes = Mathf.FloorToInt(elapsedTime / 60);
-            int seconds = Mathf.FloorToInt(elapsedTime % 60);
-            timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
-        }
+        
     }
 
     IEnumerator CountdownToStart()
