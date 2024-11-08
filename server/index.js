@@ -44,6 +44,7 @@ wss.on('connection', (ws) => {
             if (players[0].ws === ws) {
                 assignRoles(players);
                 players.forEach(player => {
+                    player.ws.send(JSON.stringify({ type: 'toggleHelpOff'}));
                     player.ws.send(JSON.stringify({ type: 'message', message: 'The game has started!' }));
                 });
             } else {
