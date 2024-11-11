@@ -9,7 +9,7 @@ function Game() {
     const ws = useRef(null);
 
     useEffect(() => {
-        ws.current = new WebSocket('ws://localhost:4000');
+        ws.current = new WebSocket('wss://mafia-uhh.onrender.com:4000/ws');
 
         ws.current.onmessage = (event) => {
             const data = JSON.parse(event.data);
