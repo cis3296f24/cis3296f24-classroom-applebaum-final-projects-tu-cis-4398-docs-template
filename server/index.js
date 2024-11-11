@@ -14,6 +14,10 @@ let players = [];
 // Serve static files if you have a front-end in /public
 app.use(express.static('public'));
 
+app.get('/', (req, res) => {
+    res.send('Server is up and running ! ! !');
+});
+
 // Handle WebSocket connections
 wss.on('connection', (ws) => {
 
