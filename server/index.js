@@ -4,7 +4,7 @@ const WebSocket = require('ws');
 
 const app = express();
 const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+const wss = new WebSocket.Server({ server, path: '/ws' });
 
 const cors = require('cors');
 app.use(cors());
@@ -16,6 +16,9 @@ app.use(express.static('public'));
 
 // Handle WebSocket connections
 wss.on('connection', (ws) => {
+
+    console.log("New WebSocket connection established"); // Add this log
+
     let playerName;
 
     ws.on('message', (message) => {
@@ -74,7 +77,8 @@ function assignRoles(players) {
 }
 
 // Start server
-const PORT = 4000;
+// possible env file for port
+const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
