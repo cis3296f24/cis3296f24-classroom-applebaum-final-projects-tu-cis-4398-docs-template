@@ -41,7 +41,7 @@ wss.on('connection', (ws) => {
             if (players[0].ws === ws) {
                 assignRoles(players);
                 players.forEach(player => {
-                    player.ws.send(JSON.stringify({ type: 'message', message: 'The game has started!' }));
+                    player.ws.send(JSON.stringify({ type: 'start', message: 'The game has started!' }));
                 });
             } else {
                 ws.send(JSON.stringify({ type: 'error', message: 'Only the host can start the game.' }));

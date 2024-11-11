@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useWebSocket } from './WebSocketContext'; // Import the custom hook
 
 function Game() {
     const [isHost, setIsHost] = useState(false);
@@ -7,85 +8,89 @@ function Game() {
     const [role, setRole] = useState(null);
     const [playerName, setPlayerName] = useState(''); // State to store player name
     const [isJoined, setIsJoined] = useState(false); // Track if player has joined the game
-    const ws = useRef(null);
+    const ws = useWebSocket(); // Get the WebSocket instance from context
     const navigate = useNavigate(); // Hook for navigation
 
-  
-
+    // Listen for messages from the WebSocket
     useEffect(() => {
-        ws.current = new WebSocket('ws://localhost:4000');
+        if (ws) {
+            const handleMessage = (event) => {
+                const data = JSON.parse(event.data);
 
-        ws.current.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            
-            if (data.type === 'host') {
-                setIsHost(true);
-                setMessages(prev => [...prev, data.message]);
-            } else if (data.type === 'player' || data.type === 'message') {
-                setMessages(prev => [...prev, data.message]);
-            } else if (data.type === 'role') {
-                setRole(data.role);
-                setMessages(prev => [...prev, `You are assigned the role of ${data.role}`]);
-            }
-        };
+                if (data.type === 'host') {
+                    setIsHost(true);
+                    sessionStorage.setItem("isHost", true);
+                    setMessages((prev) => [...prev, data.message]);
+                } else if (data.type === 'player' || data.type === 'message') {
+                    setMessages((prev) => [...prev, data.message]);
+                } else if (data.type === 'role') {
+                    setRole(data.role);
+                    sessionStorage.setItem("role", data.role);
+                    setMessages((prev) => [...prev, `You are assigned the role of ${data.role}`]);
+                }else if (data.type === 'start') {
+                    navigate('/startgame');
+                }
 
-        return () => {
-            ws.current.close();
-        };
-    }, []);
+            };
+
+            // Set the message handler for WebSocket
+            ws.addEventListener('message', handleMessage);
+
+        }
+    }, [ws]); // Re-run the effect if the WebSocket instance changes
 
     const handleJoinGame = () => {
-        if (playerName.trim()) {
-            ws.current.send(JSON.stringify({ type: 'join', name: playerName }));
+        if (playerName.trim() && ws) {
+            ws.send(JSON.stringify({ type: 'join', name: playerName }));
             setIsJoined(true); // Mark as joined to hide join controls
         }
     };
 
     const startGame = () => {
-        if (isHost) {
-            ws.current.send(JSON.stringify({ type: 'start' }));
+        if (isHost && ws) {
+            ws.send(JSON.stringify({ type: 'start' }));
         }
     };
 
     const goToStartGame = () => {
-        navigate('/startgame', { state: { ws: ws.current } });
-      };
-    
+        startGame();
+    };
 
     return (
         <div>
             <div className="gameTitle">
-                <h2>Mafia Uhh...</h2>
+                <h2>MafiUhh...</h2>
             </div>
-            
+
             {!isJoined ? (
                 <div>
-                    <div class="limiter">
-                        <div class="container-login100">
-                            <div class="wrap-login100">
+                    <div className="limiter">
+                        <div className="container-login100">
+                            <div className="wrap-login100">
                                 <input
                                     type="text"
                                     placeholder="Enter your name"
                                     value={playerName}
                                     onChange={(e) => setPlayerName(e.target.value)}
                                 />
-                                <div class="loginButton-wrap">
-                                    <button class = "lgn-btn" onClick={handleJoinGame}>Join Game</button>
+                                <div className="loginButton-wrap">
+                                    <button className="lgn-btn" onClick={handleJoinGame}>
+                                        Join Game
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                
             ) : (
                 <div>
-                    <div class="limiter">
-                        <div class="container-login100">
-                            <div class="wrap-login100">
+                    <div className="limiter">
+                        <div className="container-login100">
+                            <div className="wrap-login100">
                                 <>
                                     <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
                                     {isHost && <button onClick={goToStartGame}>Start Game</button>}
-                                    
+
                                     {role && (
                                         <div>
                                             <h3>Your Role: {role}</h3>
@@ -95,7 +100,7 @@ function Game() {
                             </div>
                         </div>
                     </div>
-                </div>        
+                </div>
             )}
         </div>
     );
