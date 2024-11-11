@@ -6,6 +6,9 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
+const cors = require('cors');
+app.use(cors());
+
 let players = [];
 
 // Serve static files if you have a front-end in /public
