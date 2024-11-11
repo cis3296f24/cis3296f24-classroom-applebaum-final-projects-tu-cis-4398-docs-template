@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useWebSocket } from './WebSocketContext'; // Import the custom hook
-import { useLocation } from 'react-router-dom';
+import RoleDisplay from './roleDisplay';
 
 function StartGame() {
   const ws = useWebSocket(); // Get the WebSocket instance and connection status
   const [messages, setMessages] = useState([]);
-  const location = useLocation(); // Get the location object
   const isHost = sessionStorage.getItem("isHost");
   const role = sessionStorage.getItem("role");
 
@@ -38,7 +37,9 @@ function StartGame() {
 
   return (
     <div>
-      <h1>Game Started!</h1>
+        <div className="gameTitle">
+          <h2>MafiUhh...</h2>
+        </div>
       {/* Display messages */}
       <div>
         {messages.map((msg, index) => (
@@ -54,7 +55,7 @@ function StartGame() {
       {/* Display the user's role */}
       {role && (
         <div>
-          <h3>Your Role: {role}</h3>
+          <RoleDisplay role={role}/>
         </div>
       )}
     </div>
