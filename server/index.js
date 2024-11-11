@@ -5,15 +5,25 @@ const roles = require('./mafiaParameters');
 
 const app = express();
 const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+const wss = new WebSocket.Server({ server, path: '/ws' });
+
+const cors = require('cors');
+app.use(cors());
 
 let players = [];
 
 // Serve static files if you have a front-end in /public
 app.use(express.static('public'));
 
+app.get('/', (req, res) => {
+    res.send('Server is up and running ! ! !');
+});
+
 // Handle WebSocket connections
 wss.on('connection', (ws) => {
+
+    console.log("New WebSocket connection established"); // Add this log
+
     let playerName;
 
     ws.send(JSON.stringify({ type: 'rolesList', roles }));
@@ -75,7 +85,9 @@ function assignRoles(players) {
     });
 }
 
-const PORT = 4000;
+// Start server
+// possible env file for port
+const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
