@@ -10,8 +10,19 @@ function Game() {
     const [rolesList, setRolesList] = useState([]);     // uses state to store the entire roles list
     const ws = useRef(null);
 
+    const [isLocal, setIsLocal] = useState(false);
+
     useEffect(() => {
-        ws.current = new WebSocket('wss://mafia-uhh-server.onrender.com/ws');
+        if (isLocal) {
+            ws.current = new WebSocket('ws://localhost:4000/ws');
+        }
+        else {
+            ws.current = new WebSocket('wss://mafia-uhh-server.onrender.com/ws');
+        }
+
+        console.log(ws.current);
+
+        //ws.current = new WebSocket('wss://mafia-uhh-server.onrender.com/ws');
 
         ws.current.onmessage = (event) => {             // parses the incoming event type
             const data = JSON.parse(event.data);
