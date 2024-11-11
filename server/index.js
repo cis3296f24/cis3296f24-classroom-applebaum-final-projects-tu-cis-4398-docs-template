@@ -1,6 +1,7 @@
 const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
+const roles = require('./mafiaParameters');
 
 const app = express();
 const server = http.createServer(app);
@@ -24,6 +25,8 @@ wss.on('connection', (ws) => {
     console.log("New WebSocket connection established"); // Add this log
 
     let playerName;
+
+    ws.send(JSON.stringify({ type: 'rolesList', roles }));
 
     ws.on('message', (message) => {
         const data = JSON.parse(message);
@@ -51,6 +54,7 @@ wss.on('connection', (ws) => {
             if (players[0].ws === ws) {
                 assignRoles(players);
                 players.forEach(player => {
+                    player.ws.send(JSON.stringify({ type: 'toggleHelpOff'}));
                     player.ws.send(JSON.stringify({ type: 'message', message: 'The game has started!' }));
                 });
             } else {
@@ -67,16 +71,17 @@ wss.on('connection', (ws) => {
     });
 });
 
-// Role assignment function
 function assignRoles(players) {
-    const roles = ['Mafia', 'Citizen', 'Citizen', 'Citizen', 'Citizen'];
-    const shuffledRoles = roles.slice(0, players.length); // Take only as many roles as there are players
+    const sortedRoles = roles.slice(0, players.length); 
 
-    shuffledRoles.sort(() => Math.random() - 0.5); // Shuffle roles
+        for (let currentIndex = sortedRoles.length - 1; currentIndex > 0; currentIndex--) {
+            const randomIndex = Math.floor(Math.random() * (currentIndex + 1));
+            [sortedRoles[currentIndex], sortedRoles[randomIndex]] = [sortedRoles[randomIndex], sortedRoles[currentIndex]];
+        }
 
     players.forEach((player, index) => {
-        const role = shuffledRoles[index];
-        player.ws.send(JSON.stringify({ type: 'role', role: role }));
+        const { name, description } = sortedRoles[index];
+        player.ws.send(JSON.stringify({ type: 'role', role: name, description: description }));
     });
 }
 
