@@ -2,11 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --primary: rgb(99, 102, 241);
+}
+
 body {
-  @apply min-h-screen select-none bg-zinc-50 text-zinc-900 antialiased p-safe dark:bg-zinc-900 dark:text-zinc-50;
-  -webkit-overflow-scrolling: touch;
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
+  min-height: 100vh;
+  background-color: #f4f4f5;
+  color: #18181b;
+}
+
+.dark body {
+  background-color: #18181b;
+  color: #f4f4f5;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #18181b;
+    color: #f4f4f5;
+  }
 }
 
 /* Analytics Dashboard Styles */
@@ -18,6 +33,10 @@ body {
   transform: translateY(-5px);
 }
 
+.fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -27,8 +46,4 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.fade-in {
-  animation: fadeIn 0.5s ease-out forwards;
 }
