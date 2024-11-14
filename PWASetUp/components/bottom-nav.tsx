@@ -20,14 +20,20 @@ const BottomNav = () => {
   const router = useRouter()
 
   return (
-    <Navbar shouldHideOnScroll>
+    <Navbar shouldHideOnScroll className="fixed top-0 w-full">
       <NavbarBrand>
-        <span>SpeakSense</span>
+        <span className="font-bold text-inherit">SpeakSense</span>
       </NavbarBrand>
-      <NavbarContent>
+      <NavbarContent className="hidden sm:flex gap-4" justify="center">
         {links.map((link) => (
-          <NavbarItem key={link.label}>
-            <Link href={link.href}>
+          <NavbarItem 
+            key={link.label}
+            isActive={router.pathname === link.href}
+          >
+            <Link 
+              href={link.href}
+              className={router.pathname === link.href ? 'text-primary' : ''}
+            >
               {link.label}
             </Link>
           </NavbarItem>
