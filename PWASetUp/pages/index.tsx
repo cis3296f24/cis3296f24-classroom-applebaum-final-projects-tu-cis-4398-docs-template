@@ -2,7 +2,7 @@ import Page from '../components/page';
 import Section from '../components/section';
 import { Button } from '@nextui-org/react';
 import { useEffect } from 'react';
-import RingDevice from '@/components/Ring';
+import RingDevice from '../components/Ring'
 
 // Type definitions for Speech Recognition
 interface SpeechRecognitionEvent {
