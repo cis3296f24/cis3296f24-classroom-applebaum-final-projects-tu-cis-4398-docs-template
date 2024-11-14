@@ -1,10 +1,13 @@
+import React from 'react'
 import Head from 'next/head'
+
 import BottomNav from '@/components/bottom-nav'
 import Appbar from './appbar'
 
+
 interface Props {
-	title?: string
-	children: React.ReactNode
+  title?: string;
+  children: React.ReactNode;
 }
 
 const Page = ({ title, children }: Props) => (

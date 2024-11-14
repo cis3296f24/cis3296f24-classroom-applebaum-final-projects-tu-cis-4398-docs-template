@@ -1,3 +1,4 @@
+
 import type { AppProps } from 'next/app';
 import { ThemeProvider } from 'next-themes';
 import '@/styles/globals.css';
@@ -5,12 +6,16 @@ import { NextUIProvider } from '@nextui-org/react';
 import * as React from 'react';
 
 
-export default function App({ Component, pageProps }: AppProps) {
+function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <ThemeProvider attribute='class' defaultTheme='system' disableTransitionOnChange>
+    <NextThemesProvider attribute="class" defaultTheme="system">
       <NextUIProvider>
-        <Component {...pageProps} />
+        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
+          <Component {...pageProps} />
+        </div>
       </NextUIProvider>
-    </ThemeProvider>
-  );
+    </NextThemesProvider>
+  )
 }
+
+export default MyApp
