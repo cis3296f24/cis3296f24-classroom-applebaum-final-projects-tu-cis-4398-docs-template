@@ -4,10 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Player : MonoBehaviour
+public class Player2 : MonoBehaviour
 {
     private Radio radio;
-    
     public float base_acceleration = 5f;
     public float base_maxSpeed = 10f;
     public float base_steering = 3.5f;
@@ -54,7 +53,6 @@ public class Player : MonoBehaviour
 
     void Start()
     {
-        
         rb = GetComponent<Rigidbody2D>();
         radio = GetComponent<Radio>();
         ChangeStats(radio.currentStation);
