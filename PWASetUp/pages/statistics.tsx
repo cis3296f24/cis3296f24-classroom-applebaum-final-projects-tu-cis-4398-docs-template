@@ -1,6 +1,8 @@
 import React from 'react'
-import { Card, CardBody } from "@nextui-org/react"
-import BottomNav from '../components/bottom-nav'
+import Page from '@/components/page'
+import Section from '@/components/section'
+import { Card, CardBody, Spacer, CardHeader, Divider, CardFooter } from "@nextui-org/react"
+import CardStack from '@/components/card-stack'
 import { Line, Bar, Doughnut } from 'react-chartjs-2'
 import {
   Chart,
@@ -37,15 +39,20 @@ const Statistics = () => {
 
   return (
     <>
-      <BottomNav />
-      <div className="p-8 pt-20">
-        <h1 className="text-2xl font-bold mb-6">Speech Analytics Dashboard</h1>
+      <Page>
+		<Section>
+      	<div className="p-8 pt-20">
+        	<h1 className="text-2xl font-bold mb-6">Statistics Dashboard</h1>
         
+		<div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+		<CardStack/> 
+		<CardStack/>
+		</div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <Card className="bg-gradient-to-br from-indigo-500 to-indigo-600">
             <CardBody>
               <div className="text-white">
-                <p className="text-sm">Total Words Today</p>
+                <p className="text-sm">Total Words</p>
                 <h3 className="text-2xl font-bold">{speechData.totalWords}</h3>
               </div>
             </CardBody>
@@ -79,6 +86,8 @@ const Statistics = () => {
           </Card>
         </div>
       </div>
+	  </Section>
+    </Page>
     </>
   )
 }
