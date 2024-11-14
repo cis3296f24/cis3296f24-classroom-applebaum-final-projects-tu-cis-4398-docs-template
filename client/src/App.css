@@ -67,6 +67,7 @@
 }
 
 .wrap-login100 button {
+  margin-top:10px;
   outline: none;
   border: none;
   background: black;
@@ -91,7 +92,7 @@
   width: 100%;
   padding: 50px 0;
   text-align: center;
-  background-color: lightblue;
+  background-color: #EE9D9D  ;
   margin-top: 20px;
 }
 

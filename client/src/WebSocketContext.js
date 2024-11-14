@@ -11,9 +11,19 @@ export const WebSocketProvider = ({ children }) => {
   const [ws, setWs] = useState(null);  // Track the WebSocket instance in state
   const wsRef = useRef(null);
 
+  const isLocal = useState(true);
+
+
   useEffect(() => {
     // Create WebSocket connection
-    wsRef.current = new WebSocket('ws://localhost:4000');
+    if (isLocal) {
+        wsRef.current = new WebSocket('ws://localhost:4000/ws');
+    }
+    else {
+        wsRef.current = new WebSocket('wss://mafia-uhh-server.onrender.com/ws');
+    }
+
+    console.log(wsRef.current);
 
     // Handle the 'open' event - WebSocket connection has been established
     wsRef.current.onopen = () => {
@@ -39,6 +49,7 @@ export const WebSocketProvider = ({ children }) => {
     // Clean up WebSocket connection on unmount
     return () => {
         if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+            console.log('Closing WebSocket connection...');
             wsRef.current.close();
           }
         };

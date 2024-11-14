@@ -14,11 +14,8 @@ function StartGame() {
     if (!ws) {
       console.log("WebSocket is not initialized");
       return;
-    }
-    console.log("Received isHost:", isHost);
-    console.log("Received role:", role);
-
-      ws.onmessage = (event) => {
+    }else{
+      const handleMessage = (event) => {
         try {
           const data = JSON.parse(event.data);
           setMessages((prevMessages) => [...prevMessages, data.message]); // Add new message
@@ -26,13 +23,13 @@ function StartGame() {
           console.error("Error processing WebSocket message:", e);
         }
     }
-
-    // Cleanup the WebSocket message handler
+    ws.addEventListener('message', handleMessage)
+    
     return () => {
-      if (ws) {
-        ws.onmessage = null; // Remove the message handler when the component unmounts
-      }
+      ws.removeEventListener('message', handleMessage);
     };
+  }
+
   }, [ws, isHost, role]); // Re-run the effect if WebSocket instance changes
 
   return (
@@ -40,7 +37,6 @@ function StartGame() {
         <div className="gameTitle">
           <h2>MafiUhh...</h2>
         </div>
-      {/* Display messages */}
       <div>
         {messages.map((msg, index) => (
           <p key={index}>{msg}</p>

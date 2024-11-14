@@ -9,7 +9,7 @@ function App() {
   return (
     <WebSocketProvider> {/* Wrap the App with WebSocketProvider */}
       <BrowserRouter basname="/app">
-        <div class = "App">
+        <div className = "App">
           <Routes>
             <Route path="/" element={<Game />} /> {/* Game component is rendered at the root route */}
             <Route path="/startgame" element={<StartGame />} /> {/* StartGame component at the /startgame route */}

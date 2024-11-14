@@ -7,12 +7,25 @@ function RoleDisplay({ role }) {
     setIsVisible((prev) => !prev);  // Toggle the visibility
   };
 
+      // Helper function to get the image source based on the role
+  const getRoleImage = () => {
+    if (role === 'Mafia') {
+      return '/mafia.jpg';  // Path to the mafia image in the public folder
+    } else if (role === 'Citizen') {
+      return '/citizen.jpg';  // Path to the citizen image in the public folder
+    }
+    return null;  // No image if no role assigned
+  };
+
   return (
     <div>
       <div className="roleDisplay">
         {isVisible && (
           <div className="roleBox">
-            {role}
+            <div>
+                <h3>Your Role: {role}</h3>
+                <img src={getRoleImage()} alt={role} style={{ width: '300px', marginTop: '20px' }} />
+            </div>
           </div>
         )}
         

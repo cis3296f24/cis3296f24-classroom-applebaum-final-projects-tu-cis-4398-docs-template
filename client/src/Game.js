@@ -10,15 +10,15 @@ function Game() {
     const [isJoined, setIsJoined] = useState(false);    // uses state to determine if a player has joined the game
     const [showHelp, setShowHelp] = useState(false);    // uses state to toggle the help menu
     const [rolesList, setRolesList] = useState([]);     // uses state to store the entire roles list
-    const ws = useRef(null);
+    const ws = useWebSocket(); // Get the WebSocket instance from context
+    const navigate = useNavigate(); // Hook for navigation
+
 
     // Listen for messages from the WebSocket
     useEffect(() => {
-            if (ws) {
-                const handleMessage = (event) => {
-            }
-            ws.current.onmessage = (event) => {
-            const data = JSON.parse(event.data);
+        if (ws) {
+            const handleMessage = (event) => {
+                const data = JSON.parse(event.data);
             
             if (data.type === 'host') {
                 setIsHost(true);
@@ -36,17 +36,23 @@ function Game() {
                 setShowHelp(false);                     // universal toggle-off for the help menu
             }else if (data.type === 'start') {
                 navigate('/startgame');
+            }
 
-        };
+            };
+            ws.addEventListener('message', handleMessage)
 
-        return () => {
-            ws.current.close();
-        };
-    }, []);
+            return () => {
+                    ws.removeEventListener('message', handleMessage);
+            };
+        }
+
+
+    }, [ws, navigate]); // Re-run the effect if the WebSocket instance changes
+
 
     const handleJoinGame = () => {
         if (playerName.trim() && ws) {
-            ws.current.send(JSON.stringify({ type: 'join', name: playerName }));
+            ws.send(JSON.stringify({ type: 'join', name: playerName }));
             setIsJoined(true); // Mark as joined to hide join controls
         }
     };
@@ -64,15 +70,7 @@ function Game() {
     const goToStartGame = () => {
         startGame();
     };
-    // Helper function to get the image source based on the role
-    const getRoleImage = () => {
-        if (role === 'Mafia') {
-            return '/mafia.jpg';  // Path to the mafia image in the public folder
-        } else if (role === 'Citizen') {
-            return '/citizen.jpg';  // Path to the citizen image in the public folder
-        }
-        return null;  // No image if no role assigned
-    };
+
 
     return (
         <div>
@@ -101,39 +99,32 @@ function Game() {
                     </div>
                 </div>
             ) : (
-                <div>
-                    <div className="limiter">
-                        <div className="container-login100">
-                            <div className="wrap-login100">
-                                <>
+                    <div>
+                        <div className="limiter">
+                            <div className="container-login100">
+                                <div className="wrap-login100">
+        
                                     <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
                                     {isHost && <button onClick={goToStartGame}>Start Game</button>}
 
-                                    {role && (
+                                    <div>
+                                        <button onClick={toggleHelp}>Help</button>
+                                    </div>
+                                    {showHelp && (
                                         <div>
-                                            <h3>Your Role: {role}</h3>
-                                            <img src={getRoleImage()} alt={role} style={{ width: '300px', marginTop: '20px' }} />
-                        </div>
-                    )}
-
-                    <button onClick={toggleHelp}>Help</button>
-
-                    {showHelp && (
-                        <div>
-                            <h3>Character Roles</h3>
-                            {rolesList.map((role, index) => (
-                                <div key={index}>
-                                    <h4>{role.name}</h4>
-                                    <p>{role.description}</p>
-                                </div>
-                            ))}
-                        </div>
+                                            <h3>Character Roles</h3>
+                                            {rolesList.map((role, index) => (
+                                                <div key={index}>
+                                                    <h4>{role.name}</h4>
+                                                    <p>{role.description}</p>
+                                                </div>
+                                            ))}
+                                        </div>
                                     )}
-                                </>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
             )}
         </div>
     );

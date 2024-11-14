@@ -58,9 +58,13 @@ wss.on('connection', (ws) => {
                     player.ws.send(JSON.stringify({ type: 'start'}));
                     player.ws.send(JSON.stringify({ type: 'message', message: 'The game has started!' }));
                 });
-            } else {
+    
+            }else {
                 ws.send(JSON.stringify({ type: 'error', message: 'Only the host can start the game.' }));
             }
+        }else if(data.type == 'test'){
+            ws.send(JSON.stringify({ type: 'test', message: 'hey' }));
+
         }
     });
 
