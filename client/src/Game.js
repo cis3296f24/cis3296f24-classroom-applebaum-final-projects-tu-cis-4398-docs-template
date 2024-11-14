@@ -8,15 +8,19 @@ function Game() {
     const [isJoined, setIsJoined] = useState(false);    // uses state to determine if a player has joined the game
     const [showHelp, setShowHelp] = useState(false);    // uses state to toggle the help menu
     const [rolesList, setRolesList] = useState([]);     // uses state to store the entire roles list
-    const ws = useRef(null);
-
+    
+    const [players, setPlayers] = useState([]);         // uses state to store the player list for voting
+    const [voting, setVoting] = useState(false);        // uses state to determine when voting occurs
+    const [votes, setVotes] = useState({});             // uses state to store a player's vote
     const [isLocal, setIsLocal] = useState(false);
+    const [eliminatedPlayers, setEliminatedPlayers] = useState([]);     // uses state to store a list of eliminated players
+
+    const ws = useRef(null);
 
     useEffect(() => {
         if (isLocal) {
             ws.current = new WebSocket('ws://localhost:4000/ws');
-        }
-        else {
+        } else {
             ws.current = new WebSocket('wss://mafia-uhh-server.onrender.com/ws');
         }
 
@@ -24,9 +28,9 @@ function Game() {
 
         //ws.current = new WebSocket('wss://mafia-uhh-server.onrender.com/ws');
 
-        ws.current.onmessage = (event) => {             // parses the incoming event type
+        ws.current.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            
+
             if (data.type === 'host') {
                 setIsHost(true);
                 setMessages(prev => [...prev, data.message]);
@@ -36,9 +40,22 @@ function Game() {
                 setRole(data.role);
                 setMessages(prev => [...prev, `You are assigned the role of ${data.role}`]);
             } else if (data.type === 'rolesList') {
-                setRolesList(data.roles);               // for the entire roles list (not one unit)
-            } else if (data.type === 'toggleHelpOff') { 
-                setShowHelp(false);                     // universal toggle-off for the help menu
+                setRolesList(data.roleDesc);
+            } else if (data.type === 'toggleHelpOff') {
+                setShowHelp(false);
+            } else if (data.type === 'startVoting') {
+                setVoting(true);                                                                    // turns on voting
+                setPlayers(data.players);
+                setVotes({});                                                                       // reset vote tally for players
+            } else if (data.type === 'voteResults') {
+                setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]);                     // adds the eliminated player to the array
+                setVoting(false);                                                                   // turns off voting (can be useful for next phase implementation)
+                setMessages(prev => [...prev, `${data.eliminatedPlayer} has been eliminated!`]);
+                setVotes({});                                                                       // reset vote tally for players
+            } else if (data.type === 'voteTie') {
+                setVoting(false);                                                                   // turns off voting
+                setMessages(prev => [...prev, data.message]);                                       // reset vote tally for players
+                setVotes({});
             }
         };
 
@@ -46,6 +63,8 @@ function Game() {
             ws.current.close();
         };
     }, []);
+
+    //const alivePlayers = players.filter(player => !eliminatedPlayers.includes(player));             // stores the alive players (will be useful for win conditions)
 
     const handleJoinGame = () => {
         if (playerName.trim()) {
@@ -63,22 +82,29 @@ function Game() {
     const toggleHelp = () => {
         setShowHelp(!showHelp);
     };
+
+    const voteForPlayer = (playerName) => {
+        if (votes[playerName] || eliminatedPlayers.includes(playerName)) return;    // checks to see if a player already voted or dead; prevents a player voting more than once
+
+        setVotes({ ...votes, [playerName]: true });                                 // stores the votes for players and sets whether they have voted to true
     
-    // Helper function to get the image source based on the role
+        ws.current.send(JSON.stringify({ type: 'vote', playerName: playerName }));  // sends the player's vote to the server
+    };
+
     const getRoleImage = () => {
         if (role === 'Mafia') {
-            return '/mafia.jpg';  // Path to the mafia image in the public folder
+            return '/mafia.jpg';                                                    // Path to the mafia image in the public folder
         } else if (role === 'Citizen') {
-            return '/citizen.jpg';  // Path to the citizen image in the public folder
+            return '/citizen.jpg';                                                  // Path to the citizen image in the public folder
         }
-        return null;  // No image if no role assigned
+        return null;                                                                // No image if no role assigned
     };
 
     return (
         <div>
             <h2>Game Messages</h2>
             <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
-            
+
             {!isJoined ? (
                 <div>
                     <input
@@ -105,11 +131,22 @@ function Game() {
                     {showHelp && (
                         <div>
                             <h3>Character Roles</h3>
-                            {rolesList.map((role, index) => (
+                            {rolesList.map((roleDesc, index) => (
                                 <div key={index}>
-                                    <h4>{role.name}</h4>
-                                    <p>{role.description}</p>
+                                    <h4>{roleDesc.name}</h4>
+                                    <p>{roleDesc.description}</p>
                                 </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {voting && !eliminatedPlayers.includes(playerName) && (
+                        <div>
+                            <h3>Vote to Eliminate a Player</h3>
+                            {players.map(player => (
+                                <button key={player} onClick={() => voteForPlayer(player)} disabled={eliminatedPlayers.includes(player)}>
+                                    {player}
+                                </button>
                             ))}
                         </div>
                     )}
