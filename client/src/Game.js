@@ -22,20 +22,21 @@ function Game() {
             
             if (data.type === 'host') {
                 setIsHost(true);
-                sessionStorage.setItem("isHost", true);
+                //sessionStorage.setItem("isHost", true);
                 setMessages(prev => [...prev, data.message]);
             } else if (data.type === 'player' || data.type === 'message') {
                 setMessages(prev => [...prev, data.message]);
             } else if (data.type === 'role') {
                 setRole(data.role);
-                sessionStorage.setItem("role", data.role);
+                //sessionStorage.setItem("role", data.role);
                 setMessages(prev => [...prev, `You are assigned the role of ${data.role}`]);
             } else if (data.type === 'rolesList') {
-                setRolesList(data.roles);               // for the entire roles list (not one unit)
+                setRolesList(data.roles);     
+                //sessionStorage.setItem("role", data.role);         // for the entire roles list (not one unit)
             } else if (data.type === 'toggleHelpOff') { 
                 setShowHelp(false);                     // universal toggle-off for the help menu
             }else if (data.type === 'start') {
-                navigate('/startgame');
+                navigate('/startgame', { state: { role, playerName, isHost} });
             }
 
             };
@@ -47,7 +48,7 @@ function Game() {
         }
 
 
-    }, [ws, navigate]); // Re-run the effect if the WebSocket instance changes
+    }, [ws, navigate, role, playerName, isHost]); // Re-run the effect if the WebSocket instance changes
 
 
     const handleJoinGame = () => {
