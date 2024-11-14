@@ -1,8 +1,8 @@
-import Page from '../components/page'
-import Section from '../components/section'
-import { Button } from '@nextui-org/react'
-import { useEffect } from 'react'
-import RingDevice from '../components/Ring.js'
+import Page from '../components/page';
+import Section from '../components/section';
+import { Button } from '@nextui-org/react';
+import { useEffect } from 'react';
+import RingDevice from '@/components/Ring';
 
 // Type definitions for Speech Recognition
 interface SpeechRecognitionEvent {
@@ -53,8 +53,8 @@ const Index = () => {
         </div>
       </Section>
     </Page>
-  )
-}
+  );
+};
 
 function speechToText(): void {
   const output = document.getElementById('output') as HTMLElement | null;
@@ -62,97 +62,42 @@ function speechToText(): void {
   const stopButton = document.getElementById('stop') as HTMLButtonElement | null;
   const detectedWordsOutput = document.getElementById('detectedWords') as HTMLElement | null;
 
-  // Check if the SpeechRecognition API is available in the browser first 
   const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
-  //if not, then alert
   if (!SpeechRecognition) {
     alert("Your browser does not support the SpeechRecognition API");
     return;
   }
 
-  //recognizing english speech with results that are continuous and can be added to later
   const recognition = new SpeechRecognition();
   recognition.lang = 'en-US';
   recognition.interimResults = true;
   recognition.continuous = true;
 
-  //wordbank
   const wordbank: string[] = [
-    "ass",
-    "bitch",
-    "chink",
-    "coon",
-    "crazy",
-    "crip",
-    "cuck",
-    "cunt",
-    "dick",
-    "douche",
-    "douchebag",
-    "dyke",
-    "fag",
-    "faggot",
-    "fatass",
-    "fuck",
-    "gook",
-    "gyp",
-    "gypsy",
-    "half-breed",
-    "halfbreed",
-    "homo",
-    "hooker",
-    "inbred",
-    "idiot",
-    "insane",
-    "insanity",
-    "lesbo",
-    "negress",
-    "negro",
-    "nig",
-    "nigga",
-    "nigger",
-    "pajeet",
-    "prostitute",
-    "pussie",
-    "pussy",
-    "retard",
-    "shemale",
-    "shit",
-    "skank",
-    "slut",
-    "soyboy",
-    "spade",
-    "sperg",
-    "spic",
-    "tard",
-    "tits",
-    "tit",
-    "titty",
-    "trannie",
-    "tranny",
-    "twat",
-    "whore",
-    "wigger",
-  ]
+    "ass", "bitch", "chink", "coon", "crazy", "crip", "cuck", "cunt", "dick",
+    "douche", "douchebag", "dyke", "fag", "faggot", "fatass", "fuck", "gook",
+    "gyp", "gypsy", "half-breed", "halfbreed", "homo", "hooker", "inbred", "idiot",
+    "insane", "insanity", "lesbo", "negress", "negro", "nig", "nigga", "nigger",
+    "pajeet", "prostitute", "pussie", "pussy", "retard", "shemale", "shit", "skank",
+    "slut", "soyboy", "spade", "sperg", "spic", "tard", "tits", "tit", "titty",
+    "trannie", "tranny", "twat", "whore", "wigger"
+  ];
 
-  //making a transcript of words - use this to check dictionary 
   recognition.addEventListener('result', (event: SpeechRecognitionEvent) => {
     if (output) {
       const transcript = Array.from(event.results)
         .map(result => result[0].transcript)
         .join('');
-
+        
       output.innerText = transcript;
 
       const wordsInTranscript = transcript.toLowerCase().split(/\s+/);
       const lastWord = wordsInTranscript[wordsInTranscript.length - 1];
-      console.log("lastWord");
       if (wordbank.includes(lastWord)) {
         vibrationPattern();
       }
 
-      // Check if any word in the wordbank is present in the transcript
       const foundWords = wordbank.filter(word => transcript.toLowerCase().includes(word));
       if (detectedWordsOutput) {
         detectedWordsOutput.innerText = "Detected words: " + foundWords.join(', ');
@@ -160,38 +105,22 @@ function speechToText(): void {
     }
   });
 
-  //when you click, lets start
   recognition.addEventListener('start', () => {
-    console.log('Speech recognition started');
-    alert('started speech');
-    if (startButton) {
-      startButton.disabled = true;
-    }
-    if (stopButton) {
-      stopButton.disabled = false;
-    }
+    if (startButton) startButton.disabled = true;
+    if (stopButton) stopButton.disabled = false;
   });
 
-  //alert when ended
   recognition.addEventListener('end', () => {
-    alert('ended speech');
-    console.log('Speech recognition ended');
-    if (startButton) {
-      startButton.disabled = false;
-    }
-    if (stopButton) {
-      stopButton.disabled = true;
-    }
+    if (startButton) startButton.disabled = false;
+    if (stopButton) stopButton.disabled = true;
   });
 
-  //on click start voice recognition
   if (startButton) {
     startButton.addEventListener('click', () => {
       recognition.start();
     });
   }
 
-  //on click stop voice recognition
   if (stopButton) {
     stopButton.addEventListener('click', () => {
       recognition.stop();
@@ -212,7 +141,7 @@ function vibrationPattern(): void {
     alert("Your device does not support the Vibration API. Try on an Android phone!");
   } else {
     window.navigator.vibrate(patterns[2]);
-    alert("Poop This thing just vibrated and stuff yay!");
+    alert("This thing just vibrated!");
   }
 }
 
