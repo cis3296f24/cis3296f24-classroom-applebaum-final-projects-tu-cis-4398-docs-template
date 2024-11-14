@@ -11,6 +11,7 @@ const cors = require('cors');
 app.use(cors());
 
 let players = [];
+let playersRoles = {};
 
 app.use(express.static('public'));
 
@@ -78,12 +79,24 @@ function assignRoles(players) {                                                 
 
     players.forEach((player, index) => {
         const roleName = sortedRoles[index].name;
+        if (isMafia(roleName)) {                                                        // sets player roles to either Mafia or Citizen for death text
+            playersRoles[player.name] = 'MAFIA';
+        } else {
+            playersRoles[player.name] = 'CITIZEN';
+        }   
         player.ws.send(JSON.stringify({ type: 'role', role: roleName }));                                                   // sends the roles for each player to the server side
     });
 }
 
 let votes = {};                                                                         // stores whether an individual has voted or not
 let voteCounts = {};                                                                    // stores the vote tally for each player
+
+function isMafia(role) {                                                                // this function is for checking if a role is Mafia or not, can be modified for when more roles are added
+    if (role === 'Mafia') {
+        return true;
+    }
+    return false
+}
 
 function handleVoting(playerName, votedPlayer) {
     if (players.find(player => player.name === playerName && player.eliminated)) {      // checks if the player has already been eliminated so they can't vote then
@@ -122,7 +135,7 @@ function handleVoting(playerName, votedPlayer) {
             });
         } else if (eliminatedPlayer) {
             players.forEach(player => {
-                player.ws.send(JSON.stringify({ type: 'voteResults', eliminatedPlayer }));  // sends the eliminated player to the server
+                player.ws.send(JSON.stringify({ type: 'voteResults', eliminatedPlayer: eliminatedPlayer, eliminatedRole: playersRoles[eliminatedPlayer] }));  // sends the eliminated player to the server
             });
 
             players.forEach(player => {                                                     // updates the status of the eliminated player for everyone

@@ -12,7 +12,7 @@ function Game() {
     const [players, setPlayers] = useState([]);         // uses state to store the player list for voting
     const [voting, setVoting] = useState(false);        // uses state to determine when voting occurs
     const [votes, setVotes] = useState({});             // uses state to store a player's vote
-    const [isLocal, setIsLocal] = useState(false);
+    const [isLocal, setIsLocal] = useState(true);
     const [eliminatedPlayers, setEliminatedPlayers] = useState([]);     // uses state to store a list of eliminated players
 
     const ws = useRef(null);
@@ -50,7 +50,7 @@ function Game() {
             } else if (data.type === 'voteResults') {
                 setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]);                     // adds the eliminated player to the array
                 setVoting(false);                                                                   // turns off voting (can be useful for next phase implementation)
-                setMessages(prev => [...prev, `${data.eliminatedPlayer} has been eliminated!`]);
+                setMessages(prev => [...prev, `${data.eliminatedPlayer} has been eliminated! They were a ${data.eliminatedRole}!`]);
                 setVotes({});                                                                       // reset vote tally for players
             } else if (data.type === 'voteTie') {
                 setVoting(false);                                                                   // turns off voting
