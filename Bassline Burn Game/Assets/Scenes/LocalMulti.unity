@@ -2889,7 +2889,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa77a20931801445bb15fb1a477bffdf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
+  target: {fileID: 1953527208}
   distanceMultiplier: 3
   responsiveness: 0.1
   maxOffset: 5
@@ -4143,29 +4143,29 @@ MonoBehaviour:
   base_maxSpeed: 10
   base_steering: 3.5
   base_drift: 0.95
-  base_boostAcceleration: 0
-  base_boostMaxSpeed: 0
-  base_maxBoostTime: 0
+  base_boostAcceleration: 1.5
+  base_boostMaxSpeed: 1.5
+  base_maxBoostTime: 100
   someDirection: 0
   someRotation: 0
-  acceleration: 0
-  maxSpeed: 0
-  steering: 0
-  boostAcceleration: 0
-  boostMaxSpeed: 0
-  maxBoostTime: 0
-  currentBoostTime: 0
+  acceleration: 2
+  maxSpeed: 5
+  steering: 500
+  boostAcceleration: 10
+  boostMaxSpeed: 15
+  maxBoostTime: 3
+  currentBoostTime: 3
   drift: 0
   moveInput: 0
   turnInput: 0
   rotationAngle: 0
-  someMaxSpeed: 0
+  someMaxSpeed: 8
   velocityVsUp: 0
   turnFactor: 3.5
   driftFactor: 0.95
-  timerText: {fileID: 0}
-  lapsText: {fileID: 0}
-  finishedText: {fileID: 0}
+  timerText: {fileID: 1359816266}
+  lapsText: {fileID: 364854039}
+  finishedText: {fileID: 991250037}
   lapsCompleted: 1
   boostMultiplier: 0
 --- !u!114 &1953527206

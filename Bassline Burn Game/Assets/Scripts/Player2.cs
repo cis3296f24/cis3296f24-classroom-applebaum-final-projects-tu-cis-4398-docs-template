@@ -74,8 +74,8 @@ public class Player2 : MonoBehaviour
             }
 
             
-            moveInput = Input.GetAxis("Vertical");
-            turnInput = Input.GetAxis("Horizontal");
+            moveInput = Input.GetAxis("Vertical2");
+            turnInput = Input.GetAxis("Horizontal2");
 
             elapsedTime += Time.deltaTime;
             int minutes = Mathf.FloorToInt(elapsedTime / 3600);
