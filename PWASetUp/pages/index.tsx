@@ -3,6 +3,7 @@ import Section from '@/components/section'
 import { Button } from '@nextui-org/react'
 import { useEffect } from 'react'
 import RingDevice from '@/components/Ring';
+import db from '@/database.js';
 
 
 const Index = () => {
@@ -101,7 +102,6 @@ function speechToText(): void {
     "skank",
     "slut",
     "soyboy",
-    "spade",
     "sperg",
     "spic",
     "tard",
@@ -113,6 +113,9 @@ function speechToText(): void {
     "twat",
     "whore",
     "wigger",
+    "hello",
+    "we",
+    "you"
   ]
 
 
@@ -130,7 +133,32 @@ function speechToText(): void {
         console.log("lastWord");
         if (wordbank.includes(lastWord)) {
           vibrationPattern();
+
+          // Check if the word exists in the database
+          let wordEntry = db.words.where("word").equals(lastWord).first();
+
+          if (wordbank.includes(lastWord)) {
+            vibrationPattern();
+
+            // Check if the word exists in the database
+            let wordEntry = db.words.get({ word: lastWord });
+            if (wordEntry !== undefined) {
+              console.log(`Word entry exists`);
+            }
+            if (wordEntry !== undefined) {
+                // If the word exists and has a valid count, increment the count
+                console.log(`We have registered this word alreay yay`);
+                const newCount = wordEntry.count + 1;
+                db.words.update(wordEntry.id, { count: newCount });
+                console.log(`Count for "${lastWord}": ${newCount}`);
+            } else {
+                // If the word doesn't exist or has no count, add it with count 1
+                db.words.add({word: lastWord, count: 1, timestamp: Date.now()});
+                console.log(`Count for "${lastWord}": ${wordEntry.count}`);
+            }
         }
+      }
+        
 
       // Check if any word in the wordbank is present in the transcript
       const foundWords = wordbank.filter(word => transcript.toLowerCase().includes(word));
