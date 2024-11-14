@@ -26,13 +26,17 @@ function StartGame() {
     if (!ws) {
       console.log("WebSocket is not initialized");
       return;
-    }else{
+    }else if(ws){
+      if(!voting){
+        ws.send(JSON.stringify({ type: 'startVote'}));
+      }
       const handleMessage = (event) => {
-        try {
+          console.log("event!");
           const data = JSON.parse(event.data);
           if (data.type === 'rolesList') {
               setRolesList(data.roleDesc);
           } else if (data.type === 'startVoting') {
+              console.log("voting!");
               setVoting(true);                                                                    // turns on voting
               setPlayers(data.players);
               setVotes({});                                                                       // reset vote tally for players
@@ -47,26 +51,27 @@ function StartGame() {
               setVotes({});
           }
           setMessages((prevMessages) => [...prevMessages, data.message]); // Add new message
-        } catch (e) {
-          console.error("Error processing WebSocket message:", e);
-        }
     }
+
     ws.addEventListener('message', handleMessage)
 
     return () => {
-      ws.removeEventListener('message', handleMessage);
+            ws.removeEventListener('message', handleMessage);
     };
+
   }
 
-  }, [ws, isHost, role]); // Re-run the effect if WebSocket instance changes
+  }, [ws]); // Re-run the effect if WebSocket instance changes
+
 
   const voteForPlayer = (playerName) => {
     if (votes[playerName] || eliminatedPlayers.includes(playerName)) return;    // checks to see if a player already voted or dead; prevents a player voting more than once
 
     setVotes({ ...votes, [playerName]: true });                                 // stores the votes for players and sets whether they have voted to true
 
-    ws.current.send(JSON.stringify({ type: 'vote', playerName: playerName }));  // sends the player's vote to the server
+    ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));  // sends the player's vote to the server
 };
+
 
   return (
     <div className="startGame">
@@ -83,7 +88,7 @@ function StartGame() {
       {role && (
           <RoleDisplay role={role}/>
       )}
-
+      {console.log(voting)}
       {voting && !eliminatedPlayers.includes(playerName) && (
                               <div>
                                   <h3>Vote to Eliminate a Player</h3>
