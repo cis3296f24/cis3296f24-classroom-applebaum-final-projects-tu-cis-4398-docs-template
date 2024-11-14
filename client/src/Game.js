@@ -12,7 +12,7 @@ function Game() {
     const [players, setPlayers] = useState([]);         // uses state to store the player list for voting
     const [voting, setVoting] = useState(false);        // uses state to determine when voting occurs
     const [votes, setVotes] = useState({});             // uses state to store a player's vote
-    const [isLocal, setIsLocal] = useState(true);
+    const [isLocal, setIsLocal] = useState(false);
     const [eliminatedPlayers, setEliminatedPlayers] = useState([]);     // uses state to store a list of eliminated players
 
     const ws = useRef(null);
