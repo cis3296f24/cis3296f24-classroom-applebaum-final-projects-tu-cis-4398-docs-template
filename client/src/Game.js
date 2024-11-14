@@ -74,13 +74,12 @@ function Game() {
 
     return (
         <div>
-            <div className="gameTitle">
-                <h2>MafiUhh...</h2>
-            </div>
 
             {!isJoined ? (
-                <div>
-                    <div className="limiter">
+                <div className="login">
+                    <div className="gameTitle">
+                                <h2>MAFIUHH...</h2>
+                        </div>
                         <div className="container-login100">
                             <div className="wrap-login100">
                                 <input
@@ -96,11 +95,12 @@ function Game() {
                                 </div>
                             </div>
                         </div>
-                    </div>
                 </div>
             ) : (
-                    <div>
-                        <div className="limiter">
+                <div className="login">
+                <div className="gameTitle">
+                            <h2>MAFIUHH...</h2>
+                    </div>
                             <div className="container-login100">
                                 <div className="wrap-login100">
         
@@ -111,10 +111,14 @@ function Game() {
                                         <button onClick={toggleHelp}>Help</button>
                                     </div>
                                     {showHelp && (
-                                        <div>
+                                        <div className ="helpbox">
                                             <h3>Character Roles</h3>
-                                            {rolesList.map((role, index) => (
-                                                <div key={index}>
+                                            {rolesList
+                                                .filter((value, index, self) =>
+                                                    index === self.findIndex((t) => t.name === value.name)  // Ensures distinct roles by name
+                                                )
+                                                .map((role, index) => (
+                                                <div className="helplist" key={index}>
                                                     <h4>{role.name}</h4>
                                                     <p>{role.description}</p>
                                                 </div>
@@ -123,7 +127,6 @@ function Game() {
                                     )}
                                 </div>
                             </div>
-                        </div>
                     </div>
             )}
         </div>

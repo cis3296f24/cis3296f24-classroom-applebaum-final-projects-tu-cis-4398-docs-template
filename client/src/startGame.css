@@ -1,0 +1,83 @@
+.startGame{
+    display:flex;
+    flex-direction: column;
+    height: 90vh;
+    background: rgb(253, 253, 253);
+
+}
+.startGame .gameTitle {
+    display: flex;
+    background: #000000;
+    font-size: large;
+    justify-content: center;
+    color: #c61d1d; /* Lighter red for better readability */
+    font-family: Impact, fantasy;
+    padding-top: 10px;
+  }
+
+  .user{
+    position: absolute; /* Position it absolutely within the startGame container */
+    top: 100%; /* Places it directly below the .gameTitle */
+    left: 0;
+    margin-top: 100px;
+    z-index: 1000;
+  }
+
+  .roleDisplay{
+    display: flex;    
+    place-items: center;     /* Centers both horizontally and vertically */        /* Ensure the container takes up full height */
+    padding: 10px 25px 30px 25px;
+    flex-direction: column;
+  }
+
+  .roleBox h3{
+    display: flex;
+    font-size: large;
+    justify-content: center;
+    font-family: Impact, fantasy;
+    padding: 3px 50px 2px 50px;
+    border: 1px solid red;
+    margin-top: 3px;
+    margin-bottom: 2px;
+    border-radius: 2%;
+  }
+
+  .roleBox p{
+    font-size: small;
+    margin: 1px;
+  }
+
+  .roleBox{
+    display: flex;
+    flex-direction: column;
+    align-items: center;         /* Center children horizontally */
+    justify-content: center;     /* Center children vertically */
+    width: 90%;
+    height: 90%;
+    max-width: 200px;          /* Optional: limit max width for larger screens */
+    max-height: 200px;            /* Stretch vertically */
+    border-radius: 8px;
+    overflow: hidden;
+    padding: 10px 55px 10px 55px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.25);
+    box-sizing: border-box;
+    text-align: center;
+    background-color: #ffffff  ;
+    margin-top: 10px;
+    margin-bottom: 3px;
+  }
+  .roleBox img{
+    max-width: 75%;
+    max-height: 75%;
+  }
+
+  .roleDisplay button{
+    border-radius: 2px;
+    margin-top:10px;
+    outline: none;
+    border: none;
+    background: rgb(239, 194, 194);
+    color: rgb(151, 2, 2);
+    padding: 5px 10px;
+    font-size: 12px;
+  }

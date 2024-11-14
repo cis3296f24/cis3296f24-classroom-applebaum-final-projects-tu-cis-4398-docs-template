@@ -24,7 +24,7 @@ function StartGame() {
         }
     }
     ws.addEventListener('message', handleMessage)
-    
+
     return () => {
       ws.removeEventListener('message', handleMessage);
     };
@@ -33,26 +33,19 @@ function StartGame() {
   }, [ws, isHost, role]); // Re-run the effect if WebSocket instance changes
 
   return (
-    <div>
+    <div className="startGame">
         <div className="gameTitle">
           <h2>MafiUhh...</h2>
         </div>
-      <div>
-        {messages.map((msg, index) => (
-          <p key={index}>{msg}</p>
-        ))}
-      </div>
       {isHost && (
-        <div>
-          <h3>You are the host!</h3>
+        <div className="user">
+          Host
         </div>
       )}
 
       {/* Display the user's role */}
       {role && (
-        <div>
           <RoleDisplay role={role}/>
-        </div>
       )}
     </div>
   );

@@ -19,54 +19,66 @@
 
 .App-header {
   background-color: #282c34;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+  
 }
 
 .App-link {
   color: #61dafb;
 }
 
-.App .gameTitle {
+.gameTitle {
+  display: flex;
+  font-size: xx-large;
+  justify-content: center;
+  color: #c61d1d; /* Lighter red for better readability */
+  font-family: Impact, fantasy;
+  padding-top: 30px;
+}
+
+
+.login{
   display: flex;
   flex-direction: column;
-  background-color: #282c34;
-  color: #ff6347; /* Lighter red for better readability */
-  font-family: 'Courier New', monospace;
-  margin-bottom: 20px;
+  background-image: linear-gradient(rgb(0, 0, 0), rgb(227, 25, 25) 130%);
+  height: 100vh;
 }
 
-.limiter {
-  width: 100%;
-  margin: 0 auto;
-}
 
 .container-login100 {
-  width: 100%;
-  min-height: 100vh;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  padding: 15px;
-  background: #f2f2f2;
+  display: flex;    
+  place-items: center;     /* Centers both horizontally and vertically */        /* Ensure the container takes up full height */
+  padding: 10px 25px 30px 25px;
+  flex-direction: column;
+  height: 100vh;
 }
 
 .wrap-login100 {
-  width: 390px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;         /* Center children horizontally */
+  justify-content: center;     /* Center children vertically */
+  width: 90%;
+  height: 90%;
+  max-width: 480px;          /* Optional: limit max width for larger screens */
+  max-height: 480px;            /* Stretch vertically */
   background: #fff;
   border-radius: 10px;
   overflow: hidden;
-  padding: 77px 55px 33px 55px;
+  padding: 40px 55px 33px 55px;
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  overflow: auto;
+
 }
 
 .wrap-login100 button {
+  border-radius: 2px;
   margin-top:10px;
   outline: none;
   border: none;
@@ -74,7 +86,18 @@
   color: red;
   padding: 10px 20px;
   font-size: 16px;
-  cursor: pointer;
+}
+
+.wrap-login100 input{
+  height: 30px;
+  width: 200px;
+  border-radius: 0px;
+  border: none;
+  border-bottom: 1px solid rgb(191, 4, 4);
+}
+
+.wrap-login100 input:focus {
+  outline:none;
 }
 
 .wrap-login100 button:hover {
@@ -88,12 +111,24 @@
   padding-top: 13px;
 }
 
-.roleBox{
+
+.helpbox{
+  border-radius: 2px;
   width: 100%;
-  padding: 50px 0;
+  padding: 20px;
   text-align: center;
-  background-color: #EE9D9D  ;
   margin-top: 20px;
+  border: 1px solid #c61d1d;
+}
+
+.helpbox h3{
+  font-family: Helvetica;
+  font-weight: bolder;
+}
+.helplist h4,
+.helplist p {
+  margin: 0;  /* Remove any default margin */
+  padding: 5px; /* Remove any default padding */
 }
 
 @keyframes App-logo-spin {
@@ -104,3 +139,4 @@
     transform: rotate(360deg);
   }
 }
+

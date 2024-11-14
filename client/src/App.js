@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css';
+import './startGame.css';
 import Game from './Game';
 import StartGame from './startGame';  // Import the StartGame component
 import { WebSocketProvider } from './WebSocketContext';

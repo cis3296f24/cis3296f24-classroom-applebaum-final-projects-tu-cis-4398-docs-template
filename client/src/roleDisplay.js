@@ -18,18 +18,16 @@ function RoleDisplay({ role }) {
   };
 
   return (
-    <div>
       <div className="roleDisplay">
         {isVisible && (
           <div className="roleBox">
             <div>
-                <h3>Your Role: {role}</h3>
-                <img src={getRoleImage()} alt={role} style={{ width: '300px', marginTop: '20px' }} />
+                <h3> {role}</h3>
+                <img src={getRoleImage()} alt={role} />
             </div>
           </div>
         )}
         
-      </div>
       {isVisible && (
           <button onClick={toggleVisibility}>Hide Role</button>
         )}
