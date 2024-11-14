@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import BottomNav from '@/components/bottom-nav'
+import Appbar from './appbar'
 
 interface Props {
 	title?: string
@@ -13,9 +14,7 @@ const Page = ({ title, children }: Props) => (
 				<title>SpeakSense | {title}</title>
 			</Head>
 		) : null}
-
-		<BottomNav />
-
+		<Appbar />
 		<main
 			/**
 			 * Padding top = `appbar` height
@@ -25,6 +24,7 @@ const Page = ({ title, children }: Props) => (
 		>
 			<div className='p-6'>{children}</div>
 		</main>
+		<BottomNav />
 	</>
 )
 

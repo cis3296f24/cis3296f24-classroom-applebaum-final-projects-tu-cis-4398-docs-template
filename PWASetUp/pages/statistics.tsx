@@ -1,25 +1,20 @@
 import Page from '@/components/page'
 import Section from '@/components/section'
+import { Card, Spacer, CardBody, CardHeader, Divider, CardFooter } from '@nextui-org/react'
+import CardStack from '@/components/card-stack'
+
+
 
 const Statistics = () => (
 	<Page>
+		<h2 className='text-xl font-semibold'>Statistics</h2>
 		<Section>
-			<h2 className='text-xl font-semibold'>Story</h2>
-
-			<div className='mt-2'>
-				<p className='text-zinc-600 dark:text-zinc-400'>
-					&quot;statistics this&quot;
-				</p>
-
-				<br />
-
-				<p className='text-sm text-zinc-600 dark:text-zinc-400'>
-					<a href='https://twosentencestories.com/vision' className='underline'>
-						oh this
-					</a>
-					statistic!
-				</p>
+			<div className='grid grid-cols-1 md:grid-cols-2 gap-4 '>
+				<CardStack />
+				<CardStack />
 			</div>
+			
+
 		</Section>
 	</Page>
 )
