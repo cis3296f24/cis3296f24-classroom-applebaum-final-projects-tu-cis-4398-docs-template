@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useWebSocket } from './WebSocketContext'; // Import the custom hook
 
 function Game() {
-    const [isHost, setIsHost] = useState(false);        // uses state to determine if a player is the host (unlocks the start button)
+    const [isHost, setIsHost] = useState(false);// uses state to determine if a player is the host (unlocks the start button)
     const [messages, setMessages] = useState([]);       // uses state to change the message delivered to the player 
     const [role, setRole] = useState(null);             // uses state to change and store the player's role (default is NULL)
     const [playerName, setPlayerName] = useState('');   // uses state to change and store player names (default is '')
@@ -10,36 +12,31 @@ function Game() {
     const [rolesList, setRolesList] = useState([]);     // uses state to store the entire roles list
     const ws = useRef(null);
 
-    const [isLocal, setIsLocal] = useState(false);
-
+    // Listen for messages from the WebSocket
     useEffect(() => {
-        if (isLocal) {
-            ws.current = new WebSocket('ws://localhost:4000/ws');
-        }
-        else {
-            ws.current = new WebSocket('wss://mafia-uhh-server.onrender.com/ws');
-        }
-
-        console.log(ws.current);
-
-        //ws.current = new WebSocket('wss://mafia-uhh-server.onrender.com/ws');
-
-        ws.current.onmessage = (event) => {             // parses the incoming event type
+            if (ws) {
+                const handleMessage = (event) => {
+            }
+            ws.current.onmessage = (event) => {
             const data = JSON.parse(event.data);
             
             if (data.type === 'host') {
                 setIsHost(true);
+                sessionStorage.setItem("isHost", true);
                 setMessages(prev => [...prev, data.message]);
             } else if (data.type === 'player' || data.type === 'message') {
                 setMessages(prev => [...prev, data.message]);
             } else if (data.type === 'role') {
                 setRole(data.role);
+                sessionStorage.setItem("role", data.role);
                 setMessages(prev => [...prev, `You are assigned the role of ${data.role}`]);
             } else if (data.type === 'rolesList') {
                 setRolesList(data.roles);               // for the entire roles list (not one unit)
             } else if (data.type === 'toggleHelpOff') { 
                 setShowHelp(false);                     // universal toggle-off for the help menu
-            }
+            }else if (data.type === 'start') {
+                navigate('/startgame');
+
         };
 
         return () => {
@@ -48,15 +45,15 @@ function Game() {
     }, []);
 
     const handleJoinGame = () => {
-        if (playerName.trim()) {
+        if (playerName.trim() && ws) {
             ws.current.send(JSON.stringify({ type: 'join', name: playerName }));
-            setIsJoined(true);
+            setIsJoined(true); // Mark as joined to hide join controls
         }
     };
 
     const startGame = () => {
-        if (isHost) {
-            ws.current.send(JSON.stringify({ type: 'start' }));
+        if (isHost && ws) {
+            ws.send(JSON.stringify({ type: 'start' }));
         }
     };
 
@@ -64,6 +61,9 @@ function Game() {
         setShowHelp(!showHelp);
     };
     
+    const goToStartGame = () => {
+        startGame();
+    };
     // Helper function to get the image source based on the role
     const getRoleImage = () => {
         if (role === 'Mafia') {
@@ -76,27 +76,43 @@ function Game() {
 
     return (
         <div>
-            <h2>Game Messages</h2>
-            <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
-            
+            <div className="gameTitle">
+                <h2>MafiUhh...</h2>
+            </div>
+
             {!isJoined ? (
                 <div>
-                    <input
-                        type="text"
-                        placeholder="Enter your name"
-                        value={playerName}
-                        onChange={(e) => setPlayerName(e.target.value)}
-                    />
-                    <button onClick={handleJoinGame}>Join Game</button>
+                    <div className="limiter">
+                        <div className="container-login100">
+                            <div className="wrap-login100">
+                                <input
+                                    type="text"
+                                    placeholder="Enter your name"
+                                    value={playerName}
+                                    onChange={(e) => setPlayerName(e.target.value)}
+                                />
+                                <div className="loginButton-wrap">
+                                    <button className="lgn-btn" onClick={handleJoinGame}>
+                                        Join Game
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             ) : (
-                <>
-                    {isHost && <button onClick={startGame}>Start Game</button>}
-                    
-                    {role && (
-                        <div>
-                            <h3>Your Role: {role}</h3>
-                            <img src={getRoleImage()} alt={role} style={{ width: '300px', marginTop: '20px' }} />
+                <div>
+                    <div className="limiter">
+                        <div className="container-login100">
+                            <div className="wrap-login100">
+                                <>
+                                    <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
+                                    {isHost && <button onClick={goToStartGame}>Start Game</button>}
+
+                                    {role && (
+                                        <div>
+                                            <h3>Your Role: {role}</h3>
+                                            <img src={getRoleImage()} alt={role} style={{ width: '300px', marginTop: '20px' }} />
                         </div>
                     )}
 
@@ -112,8 +128,12 @@ function Game() {
                                 </div>
                             ))}
                         </div>
-                    )}
-                </>
+                                    )}
+                                </>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );
