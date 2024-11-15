@@ -13,7 +13,6 @@ export const WebSocketProvider = ({ children }) => {
 
   const [isLocal, setIsLocal] = useState(false);
 
-
   useEffect(() => {
     // Create WebSocket connection
     if (isLocal) {
