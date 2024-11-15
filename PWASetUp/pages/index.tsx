@@ -118,47 +118,61 @@ function speechToText(): void {
     "you"
   ]
   
-  const detectedWordsSet = new Set<string>();
-  let debounceTimeout: NodeJS.Timeout | null = null;
+  let sessionWordCounts = new Map<string, number>();
+  let detectedWordsList: string[] = [];
 
-  recognition.addEventListener('result', (event: SpeechRecognitionEvent) => {
-    if (output) {
-      const transcript = Array.from(event.results)
-        .map(result => result[0].transcript)
-        .join('');
+// Function to add or increment word count in the database
+async function updateWordCount(word: string) {
+  const wordEntry = await db.words.get({ word });
+  
+  if (wordEntry) {
+    // If word already exists in database, increment count
+    await db.words.update(wordEntry.id, { count: wordEntry.count + 1 });
+    console.log(`Incremented count for "${word}" to ${wordEntry.count + 1}`);
+  } else {
+    // If word is new, add it to the database with count 1
+    await db.words.add({ word, count: 1, timestamp: Date.now() });
+    console.log(`Added "${word}" with count 1`);
+  }
+}
 
-      output.innerText = transcript;
 
-      const wordsInTranscript = transcript.toLowerCase().split(/\s+/);
-      const lastWord = wordsInTranscript[wordsInTranscript.length - 1];
+recognition.addEventListener('result', async (event: SpeechRecognitionEvent) => {
+  const transcript = Array.from(event.results)
+    .map(result => result[0].transcript)
+    .join(' ')
+    .toLowerCase();
 
-      if (debounceTimeout) clearTimeout(debounceTimeout);
+  // Display full transcript on the screen
+  if (output) {
+    output.innerText = transcript;
+  }
 
-      debounceTimeout = setTimeout(() => {
-        if (wordbank.includes(lastWord)) {
-          detectedWordsSet.add(lastWord);
-          vibrationPattern();
+  const wordsInTranscript = transcript.split(/\s+/);
 
-          db.words.get({ word: lastWord }).then(wordEntry => {
-            if (wordEntry) {
-              const newCount = wordEntry.count + 1;
-              db.words.update(wordEntry.id, { count: newCount });
-              console.log(`Count for "${lastWord}": ${newCount}`);
-            } else {
-              db.words.add({ word: lastWord, count: 1, timestamp: Date.now() });
-              console.log(`Added "${lastWord}" with count 1`);
-            }
-          });
-
-          // Check if any word in the wordbank is present in the transcript
-          const foundWords = wordbank.filter(word => transcript.toLowerCase().includes(word));
-          if (detectedWordsOutput) {
-            detectedWordsOutput.innerText = "Detected words: " + foundWords.join(', ');
-          }
-        }
-      }, 1000);
+  for (const word of wordsInTranscript) {
+    const currentSessionCount = sessionWordCounts.get(word) || 0;
+  
+    // Count occurrences of the word in the current transcript
+    const currentTranscriptCount = wordsInTranscript.filter(w => w === word).length;
+  
+    // If the word appears more times than it was previously counted, process it
+    if (currentTranscriptCount > currentSessionCount) {
+      sessionWordCounts.set(word, currentTranscriptCount);
+      await updateWordCount(word); // Increment count for all words
+  
+      // Special handling for words in the wordbank
+      if (wordbank.includes(word)) {
+        vibrationPattern();
+        detectedWordsList.push(`${word} (${currentTranscriptCount})`);
+      }
     }
-  });
+  }
+
+  if (detectedWordsOutput) {
+    detectedWordsOutput.innerText = "Detected words: " + detectedWordsList.join(', ');
+  }
+});
 
   //when you click, lets 
   recognition.addEventListener('start', () => {
