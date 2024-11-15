@@ -10,6 +10,19 @@
 </div>
 
 
+## Features
+- localhost hosting for testing
+- pictures for each role (civilian/mafia)
+- help button that opens a menu that describes each role
+- ability to input your name when joining the game
+- ability to start the game
+- timer display while voting
+- voting functionality
+- first player to join becomes the host
+- the game can assign roles to the players
+- backend structure for game phases
+
+
 ## Keywords
 
 Section #, as well as any words that quickly give your peers insights into the application like programming language, development platform, type of application, etc.
