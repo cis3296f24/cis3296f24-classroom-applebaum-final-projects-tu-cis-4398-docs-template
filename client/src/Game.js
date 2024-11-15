@@ -20,25 +20,24 @@ function Game() {
             const handleMessage = (event) => {
                 const data = JSON.parse(event.data);
             
-            if (data.type === 'host') {
-                setIsHost(true);
-                //sessionStorage.setItem("isHost", true);
-                setMessages(prev => [...prev, data.message]);
-            } else if (data.type === 'player' || data.type === 'message') {
-                setMessages(prev => [...prev, data.message]);
-            } else if (data.type === 'role') {
-                setRole(data.role);
-                //sessionStorage.setItem("role", data.role);
-                setMessages(prev => [...prev, `You are assigned the role of ${data.role}`]);
-            } else if (data.type === 'rolesList') {
-                setRolesList(data.roleDesc);     
-                //sessionStorage.setItem("role", data.role);         // for the entire roles list (not one unit)
-            } else if (data.type === 'toggleHelpOff') { 
-                setShowHelp(false);                     // universal toggle-off for the help menu
-            }else if (data.type === 'start') {
-                navigate('/startgame', { state: { role, playerName, isHost} });
-            }
-
+                if (data.type === 'host') {
+                    setIsHost(true);
+                    //sessionStorage.setItem("isHost", true);
+                    setMessages(prev => [...prev, data.message]);
+                } else if (data.type === 'player' || data.type === 'message') {
+                    setMessages(prev => [...prev, data.message]);
+                } else if (data.type === 'role') {
+                    setRole(data.role);
+                    //sessionStorage.setItem("role", data.role);
+                    setMessages(prev => [...prev, `You are assigned the role of ${data.role}`]);
+                } else if (data.type === 'rolesList') {
+                    setRolesList(data.roleDesc);     
+                    //sessionStorage.setItem("role", data.role);         // for the entire roles list (not one unit)
+                } else if (data.type === 'toggleHelpOff') { 
+                    setShowHelp(false);                     // universal toggle-off for the help menu
+                } else if (data.type === 'start') {
+                    navigate('/startgame', { state: { role, playerName, isHost} });
+                } 
             };
             ws.addEventListener('message', handleMessage)
 
@@ -49,7 +48,13 @@ function Game() {
 
 
     }, [ws, navigate, role, playerName, isHost]); // Re-run the effect if the WebSocket instance changes
-
+    
+    function isMafia(role) {
+        if (role != "Citizen") {
+            return true;
+        }
+        return false;
+    }
 
     const handleJoinGame = () => {
         if (playerName.trim() && ws) {
