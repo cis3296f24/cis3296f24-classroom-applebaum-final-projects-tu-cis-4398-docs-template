@@ -2,24 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-	@apply min-h-screen select-none bg-zinc-50 text-zinc-900 antialiased p-safe dark:bg-zinc-900 dark:text-zinc-50;
 
-	/* PWA enhancements */
-	-webkit-overflow-scrolling: touch;
-	-webkit-tap-highlight-color: transparent;
-	-webkit-touch-callout: none;
+body {
+  @apply min-h-screen select-none bg-zinc-50 text-zinc-900 antialiased p-safe dark:bg-zinc-900 dark:text-zinc-50;
+  -webkit-overflow-scrolling: touch;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
 }
 
-/*
-Brand Colors
+/* Analytics Dashboard Styles */
+.card-hover-effect {
+  transition: transform 0.2s ease-in-out;
+}
 
-Green
-#01ff6b
+.card-hover-effect:hover {
+  transform: translateY(-5px);
+}
 
-Darkish blue
-#256688
+/* Fade-in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-Darker Blue
-#2a4a5b
-*/
+.fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Brand Colors */
+:root {
+  --brand-green: #01ff6b;
+  --brand-darkish-blue: #256688;
+  --brand-darker-blue: #2a4a5b;
+}
+cardHeader, cardBody{
+	justify-content: center;
+	justify-items: center;
+}
