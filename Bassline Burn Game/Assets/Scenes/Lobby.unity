@@ -377,6 +377,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RoomPrefab: {fileID: 146869839510687713, guid: cec22e00e4be26340804b0cd6ba6263d, type: 3}
+  AllRooms:
+  - {fileID: 0}
 --- !u!1 &158458330
 GameObject:
   m_ObjectHideFlags: 0
