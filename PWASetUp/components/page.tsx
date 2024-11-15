@@ -1,7 +1,7 @@
 import React from 'react'
 import Head from 'next/head'
 
-import BottomNav from '@/components/bottom-nav'
+import BottomNav from './bottom-nav'
 import Appbar from './appbar'
 
 

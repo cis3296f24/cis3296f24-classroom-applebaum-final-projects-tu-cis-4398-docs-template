@@ -1,8 +1,8 @@
 import React from 'react'
-import Page from '@/components/page'
-import Section from '@/components/section'
+import Page from '../components/page'
+import Section from '../components/section'
 import { Card, CardBody, Spacer, CardHeader, Divider, CardFooter } from "@nextui-org/react"
-import CardStack from '@/components/card-stack'
+import CardStack from '../components/card-stack'
 import { Line, Bar, Doughnut } from 'react-chartjs-2'
 import {
   Chart,
