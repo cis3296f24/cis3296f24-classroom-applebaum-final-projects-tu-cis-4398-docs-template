@@ -11,6 +11,7 @@ const cors = require('cors');
 app.use(cors());
 
 let players = [];
+let playersRoles = {};
 
 app.use(express.static('public'));
 
@@ -83,6 +84,7 @@ function assignRoles(players) {                                                 
 
     players.forEach((player, index) => {
         const roleName = sortedRoles[index].name;
+        playersRoles[player.name] = roleName;                                                                               // add dictionary with player and role association
         player.ws.send(JSON.stringify({ type: 'role', role: roleName }));                                                   // sends the roles for each player to the server side
     });
 }
@@ -126,8 +128,9 @@ function handleVoting(playerName, votedPlayer) {
                 player.ws.send(JSON.stringify({ type: 'voteTie', message: 'There was a tie. No player is eliminated this round.' }));
             });
         } else if (eliminatedPlayer) {
+            console.log("Role: ", playersRoles[eliminatedPlayer])
             players.forEach(player => {
-                player.ws.send(JSON.stringify({ type: 'voteResults', eliminatedPlayer }));  // sends the eliminated player to the server
+                player.ws.send(JSON.stringify({ type: 'voteResults', eliminatedPlayer: eliminatedPlayer, eliminatedRole: playersRoles[eliminatedPlayer] }));  // sends the eliminated player to the server
             });
 
             players.forEach(player => {                                                     // updates the status of the eliminated player for everyone

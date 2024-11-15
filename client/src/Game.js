@@ -35,8 +35,21 @@ function Game() {
                 //sessionStorage.setItem("role", data.role);         // for the entire roles list (not one unit)
             } else if (data.type === 'toggleHelpOff') { 
                 setShowHelp(false);                     // universal toggle-off for the help menu
-            }else if (data.type === 'start') {
+            } else if (data.type === 'start') {
                 navigate('/startgame', { state: { role, playerName, isHost} });
+            } else if (data.type === 'voteResults') {
+                setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]);                     // adds the eliminated player to the array
+                setVoting(false);                                                                   // turns off voting (can be useful for next phase implementation)
+                if (isMafia(data.eliminatedRole)) {                                                 // 
+                    setMessages(prev => [...prev, `${data.eliminatedPlayer} has been eliminated! They were a MAFIA!`]);
+                } else {
+                    setMessages(prev => [...prev, `${data.eliminatedPlayer} has been eliminated! They were a CITIZEN!`]);
+                }
+                setVotes({});                                                                       // reset vote tally for players
+            } else if (data.type === 'voteTie') {
+                setVoting(false);                                                                   // turns off voting
+                setMessages(prev => [...prev, data.message]);                                       // reset vote tally for players
+                setVotes({});
             }
 
             };
@@ -49,7 +62,13 @@ function Game() {
 
 
     }, [ws, navigate, role, playerName, isHost]); // Re-run the effect if the WebSocket instance changes
-
+    
+    function isMafia(role) {
+        if (role != "Citizen") {
+            return true;
+        }
+        return false;
+    }
 
     const handleJoinGame = () => {
         if (playerName.trim() && ws) {

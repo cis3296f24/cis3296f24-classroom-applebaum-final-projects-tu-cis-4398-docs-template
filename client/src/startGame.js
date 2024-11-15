@@ -17,39 +17,40 @@ function StartGame() {
   const location = useLocation();
   const { role, playerName, isHost } = location.state;
 
-
-
-
   // Listen for messages from the WebSocket (and update state)
   useEffect(() => {
     if (!ws) {
       console.log("WebSocket is not initialized");
       return;
-    }else if(ws){
+    } else if(ws){
       if(!voting){
         ws.send(JSON.stringify({ type: 'startVote'}));
       }
       const handleMessage = (event) => {
-          console.log("event!");
-          const data = JSON.parse(event.data);
-          if (data.type === 'rolesList') {
-              setRolesList(data.roleDesc);
-          } else if (data.type === 'startVoting') {
-              console.log("voting!");
-              setVoting(true);                                                                    // turns on voting
-              setPlayers(data.players);
-              setVotes({});                                                                       // reset vote tally for players
-          } else if (data.type === 'voteResults') {
-              setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]);                     // adds the eliminated player to the array
-              setVoting(false);                                                                   // turns off voting (can be useful for next phase implementation)
-              setMessages(prev => [...prev, `${data.eliminatedPlayer} has been eliminated!`]);
-              setVotes({});                                                                       // reset vote tally for players
-          } else if (data.type === 'voteTie') {
-              setVoting(false);                                                                   // turns off voting
-              setMessages(prev => [...prev, data.message]);                                       // reset vote tally for players
-              setVotes({});
-          }
-          setMessages((prevMessages) => [...prevMessages, data.message]); // Add new message
+        console.log("event!");
+        const data = JSON.parse(event.data);
+        if (data.type === 'rolesList') {
+          setRolesList(data.roleDesc);
+        } else if (data.type === 'startVoting') {
+            console.log("voting!");
+            setVoting(true);                                                                    // turns on voting
+            setPlayers(data.players);
+            setVotes({});                                                                       // reset vote tally for players
+        } else if (data.type === 'voteResults') {
+            setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]);                     // adds the eliminated player to the array
+            if (isMafia(data.eliminatedRole)) {                                                 // 
+                setMessages(prev => [...prev, `${data.eliminatedPlayer} has been eliminated! They were a MAFIA!`]);
+            } else {
+                setMessages(prev => [...prev, `${data.eliminatedPlayer} has been eliminated! They were a CITIZEN!`]);
+            }
+            setVoting(false);                                                                   // turns off voting (can be useful for next phase implementation)
+            setVotes({});                                                                       // reset vote tally for players
+        } else if (data.type === 'voteTie') {
+            setVoting(false);                                                                   // turns off voting
+            setMessages(prev => [...prev, data.message]);                                       // reset vote tally for players
+            setVotes({});
+        }
+        setMessages((prevMessages) => [...prevMessages, data.message]); // Add new message
     }
 
     ws.addEventListener('message', handleMessage)
@@ -61,6 +62,13 @@ function StartGame() {
   }
 
   }, [ws]); // Re-run the effect if WebSocket instance changes
+
+  function isMafia(role) {
+    if (role !== "Citizen") {
+        return true;
+    }
+    return false;
+  }
 
 
   const voteForPlayer = (playerName) => {
@@ -87,17 +95,26 @@ function StartGame() {
       {role && (
           <RoleDisplay role={role}/>
       )}
+      {/* Display the elimination messages after voting */}
+      <div>
+        {messages.length > 0 && (
+          <div>
+            <h3>Game Updates:</h3>
+            <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
+          </div>
+        )}
+      </div>
       {console.log(voting)}
       {voting && !eliminatedPlayers.includes(playerName) && (
-                              <div>
-                                  <h3>Vote to Eliminate a Player</h3>
-                                  {players.map(player => (
-                                      <button key={player} onClick={() => voteForPlayer(player)} disabled={eliminatedPlayers.includes(player)}>
-                                          {player}
-                                      </button>
-                                  ))}
-                              </div>
-                          )}
+        <div>
+            <h3>Vote to Eliminate a Player</h3>
+            {players.map(player => (
+                <button key={player} onClick={() => voteForPlayer(player)} disabled={eliminatedPlayers.includes(player)}>
+                    {player}
+                </button>
+            ))}
+        </div>
+      )}
     </div>
   );
 }
