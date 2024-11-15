@@ -89,7 +89,7 @@ function Game() {
                                     value={playerName}
                                     onChange={(e) => setPlayerName(e.target.value)}
                                 />
-                                <div className="loginButton-wrap">
+                                <div className="glow">
                                     <button className="lgn-btn" onClick={handleJoinGame}>
                                         Join Game
                                     </button>
@@ -107,7 +107,7 @@ function Game() {
         
                                     <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
 
-                                    <div className="join">
+                                    <div className="glow">
                                         {isHost && <button onClick={goToStartGame}>Start Game</button>}
                                     </div>
 

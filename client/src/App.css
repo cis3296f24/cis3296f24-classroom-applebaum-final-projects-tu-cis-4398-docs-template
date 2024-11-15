@@ -107,7 +107,7 @@
   padding-top: 13px;
 }
 
-.join button:hover {
+.glow button:hover {
   background: red;
   color: black;
 }
