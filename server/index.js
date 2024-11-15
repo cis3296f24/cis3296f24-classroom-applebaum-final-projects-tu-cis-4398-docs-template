@@ -62,7 +62,17 @@ wss.on('connection', (ws) => {
             players.forEach(player => {
                 player.ws.send(JSON.stringify({ type: 'startVoting', players: players.map(p => p.name) }));
             });             // sends the start vote message
-        }
+        } else if(data.type === 'changePhase'){
+            if(data.phase == 'NIGHT'){
+                players.forEach(player => {
+                    player.ws.send(JSON.stringify({ type: 'NIGHT'}));
+                });  
+            }else{
+                players.forEach(player => {
+                    player.ws.send(JSON.stringify({ type: 'DAY'}));
+                });  
+            }          
+        } 
     });
 
     ws.on('close', () => {

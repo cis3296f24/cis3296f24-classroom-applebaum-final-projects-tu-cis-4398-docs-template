@@ -14,6 +14,11 @@ function StartGame() {
   const [rolesList, setRolesList] = useState([]);     // uses state to store the entire roles list
   const [eliminatedPlayers, setEliminatedPlayers] = useState([]);     // uses state to store a list of eliminated players
 
+  const [isDay, setIsDay] = useState(true);
+
+  const [timeLeft, setTimeLeft] = useState(10); // Starting timer value
+  const [isActive, setIsActive] = useState(true);
+
   const location = useLocation();
   const { role, playerName, isHost } = location.state;
 
@@ -48,6 +53,14 @@ function StartGame() {
               setVoting(false);                                                                   // turns off voting
               setMessages(prev => [...prev, data.message]);                                       // reset vote tally for players
               setVotes({});
+          } else if (data.type === 'NIGHT') {
+            setVoting(false);                                                                   // turns off voting
+            setIsDay(false); 
+            startTimer(10);                              
+          } else if (data.type === 'DAY') {
+            setVoting(false);                                                                   // turns off voting
+            setIsDay(true); 
+            startTimer(10);                              
           }
           setMessages((prevMessages) => [...prevMessages, data.message]); // Add new message
     }
@@ -63,6 +76,31 @@ function StartGame() {
   }, [ws]); // Re-run the effect if WebSocket instance changes
 
 
+//timer
+  useEffect(() => {
+    let timer;
+    if (isActive && timeLeft > 0) {
+      // Set an interval that decreases the time every second
+      timer = setInterval(() => {
+        setTimeLeft((prevTime) => prevTime - 1);
+      }, 1000);
+      console.log(timeLeft);
+    } else if (timeLeft === 0) {
+      phaseChange();
+      clearInterval(timer); // Clear the interval when time reaches 0
+      setIsActive(false);    // Stop the timer
+    }
+
+    // Cleanup interval on component unmount or when timer is inactive
+    return () => clearInterval(timer);
+  }, [isActive, timeLeft]);
+
+  const startTimer = (time) => {
+    setTimeLeft(time)
+    setIsActive(true);
+  };
+
+
   const voteForPlayer = (playerName) => {
     if (votes[playerName] || eliminatedPlayers.includes(playerName)) return;    // checks to see if a player already voted or dead; prevents a player voting more than once
 
@@ -71,33 +109,73 @@ function StartGame() {
     ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));  // sends the player's vote to the server
 };
 
+const phaseChange = () => {
+  if(isHost){
+    if(isDay){
+      ws.send(JSON.stringify({ type: 'changePhase', phase: 'NIGHT' }));  // change phase for all
+    }else{
+      ws.send(JSON.stringify({ type: 'changePhase', phase: 'DAY' }));  // change phase for all
+    }
+  }
+}
 
   return (
-    <div className="startGame">
-        <div className="gameTitle">
-          <h2>MafiUhh...</h2>
-        </div>
-      {isHost && (
-        <div className="user">
-          Host
-        </div>
-      )}
+    <div>
+      {(isDay) &&
+      <div className="startGameDay">
+          <div className="gameTitle">
+            <h2>MafiUhh...</h2>
+          </div>
+        {isHost && (
+          <div className="user">
+            Host
+          </div>
+        )}
 
-      {/* Display the user's role */}
-      {role && (
-          <RoleDisplay role={role}/>
-      )}
-      {console.log(voting)}
-      {voting && !eliminatedPlayers.includes(playerName) && (
-                              <div>
-                                  <h3>Vote to Eliminate a Player</h3>
-                                  {players.map(player => (
-                                      <button key={player} onClick={() => voteForPlayer(player)} disabled={eliminatedPlayers.includes(player)}>
-                                          {player}
-                                      </button>
-                                  ))}
-                              </div>
-                          )}
+        {/* Display the user's role */}
+        {role && (
+            <RoleDisplay role={role}/>
+        )}
+        {voting && !eliminatedPlayers.includes(playerName) && (
+                                <div>
+                                    <h3>Vote to Eliminate a Player</h3>
+                                    {players.map(player => (
+                                        <button key={player} onClick={() => voteForPlayer(player)} disabled={eliminatedPlayers.includes(player)}>
+                                            {player}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+      </div>
+      }
+
+      {(!isDay) &&
+            <div className="startGameNight">
+                <div className="gameTitle">
+                  <h2>MafiUhh...</h2>
+                </div>
+              {isHost && (
+                <div className="user">
+                  Host
+                </div>
+              )}
+
+              {/* Display the user's role */}
+              {role && (
+                  <RoleDisplay role={role}/>
+              )}
+              {voting && !eliminatedPlayers.includes(playerName) && (
+                                      <div>
+                                          <h3>Vote to Eliminate a Player</h3>
+                                          {players.map(player => (
+                                              <button key={player} onClick={() => voteForPlayer(player)} disabled={eliminatedPlayers.includes(player)}>
+                                                  {player}
+                                              </button>
+                                          ))}
+                                      </div>
+                                  )}
+            </div>
+            }
     </div>
   );
 }
