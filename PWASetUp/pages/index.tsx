@@ -117,55 +117,46 @@ function speechToText(): void {
     "we",
     "you"
   ]
+  
+  const detectedWordsSet = new Set<string>();
+  let debounceTimeout: NodeJS.Timeout | null = null;
 
-
-  //making a transcript of words - use this to check dictionary 
   recognition.addEventListener('result', (event: SpeechRecognitionEvent) => {
     if (output) {
       const transcript = Array.from(event.results)
         .map(result => result[0].transcript)
         .join('');
-        
-        output.innerText = transcript;
 
-        const wordsInTranscript = transcript.toLowerCase().split(/\s+/);
-        const lastWord = wordsInTranscript[wordsInTranscript.length - 1];
-        console.log("lastWord");
+      output.innerText = transcript;
+
+      const wordsInTranscript = transcript.toLowerCase().split(/\s+/);
+      const lastWord = wordsInTranscript[wordsInTranscript.length - 1];
+
+      if (debounceTimeout) clearTimeout(debounceTimeout);
+
+      debounceTimeout = setTimeout(() => {
         if (wordbank.includes(lastWord)) {
+          detectedWordsSet.add(lastWord);
           vibrationPattern();
 
-          // Check if the word exists in the database
-          let wordEntry = db.words.where("word").equals(lastWord).first();
-
-          if (wordbank.includes(lastWord)) {
-            vibrationPattern();
-
-            // Check if the word exists in the database
-            let wordEntry = db.words.get({ word: lastWord });
-            if (wordEntry !== undefined) {
-              console.log(`Word entry exists`);
-            }
-            if (wordEntry !== undefined) {
-                // If the word exists and has a valid count, increment the count
-                console.log(`We have registered this word alreay yay`);
-                const newCount = wordEntry.count + 1;
-                db.words.update(wordEntry.id, { count: newCount });
-                console.log(`Count for "${lastWord}": ${newCount}`);
+          db.words.get({ word: lastWord }).then(wordEntry => {
+            if (wordEntry) {
+              const newCount = wordEntry.count + 1;
+              db.words.update(wordEntry.id, { count: newCount });
+              console.log(`Count for "${lastWord}": ${newCount}`);
             } else {
-                // If the word doesn't exist or has no count, add it with count 1
-                db.words.add({word: lastWord, count: 1, timestamp: Date.now()});
-                console.log(`Count for "${lastWord}": ${wordEntry.count}`);
+              db.words.add({ word: lastWord, count: 1, timestamp: Date.now() });
+              console.log(`Added "${lastWord}" with count 1`);
             }
+          });
+
+          // Check if any word in the wordbank is present in the transcript
+          const foundWords = wordbank.filter(word => transcript.toLowerCase().includes(word));
+          if (detectedWordsOutput) {
+            detectedWordsOutput.innerText = "Detected words: " + foundWords.join(', ');
+          }
         }
-      }
-        
-
-      // Check if any word in the wordbank is present in the transcript
-      const foundWords = wordbank.filter(word => transcript.toLowerCase().includes(word));
-      if (detectedWordsOutput) {
-        detectedWordsOutput.innerText = "Detected words: " + foundWords.join(', ');
-      }
-
+      }, 1000);
     }
   });
 
