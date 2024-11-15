@@ -48,15 +48,20 @@ wss.on('connection', (ws) => {
             if (players[0].ws === ws) {
                 assignRoles(players);
                 players.forEach(player => {
-                    player.ws.send(JSON.stringify({ type: 'toggleHelpOff' }));
+                    player.ws.send(JSON.stringify({ type: 'toggleHelpOff'}));
+                    player.ws.send(JSON.stringify({ type: 'start'}));
                     player.ws.send(JSON.stringify({ type: 'message', message: 'The game has started!' }));
-                    player.ws.send(JSON.stringify({ type: 'startVoting', players: players.map(p => p.name) }));             // sends the start vote message
                 });
-            } else {
+    
+            }else {
                 ws.send(JSON.stringify({ type: 'error', message: 'Only the host can start the game.' }));
             }
         } else if (data.type === 'vote') {
             handleVoting(playerName, data.playerName);                                                                      // when the vote message is received it runs the voting function
+        } else if(data.type === 'startVote'){
+            players.forEach(player => {
+                player.ws.send(JSON.stringify({ type: 'startVoting', players: players.map(p => p.name) }));
+            });             // sends the start vote message
         }
     });
 

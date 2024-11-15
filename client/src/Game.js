@@ -1,156 +1,137 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useWebSocket } from './WebSocketContext'; // Import the custom hook
 
 function Game() {
-    const [isHost, setIsHost] = useState(false);        // uses state to determine if a player is the host (unlocks the start button)
+    const [isHost, setIsHost] = useState(false);// uses state to determine if a player is the host (unlocks the start button)
     const [messages, setMessages] = useState([]);       // uses state to change the message delivered to the player 
     const [role, setRole] = useState(null);             // uses state to change and store the player's role (default is NULL)
     const [playerName, setPlayerName] = useState('');   // uses state to change and store player names (default is '')
     const [isJoined, setIsJoined] = useState(false);    // uses state to determine if a player has joined the game
     const [showHelp, setShowHelp] = useState(false);    // uses state to toggle the help menu
     const [rolesList, setRolesList] = useState([]);     // uses state to store the entire roles list
-    
-    const [players, setPlayers] = useState([]);         // uses state to store the player list for voting
-    const [voting, setVoting] = useState(false);        // uses state to determine when voting occurs
-    const [votes, setVotes] = useState({});             // uses state to store a player's vote
-    const [isLocal, setIsLocal] = useState(false);
-    const [eliminatedPlayers, setEliminatedPlayers] = useState([]);     // uses state to store a list of eliminated players
+    const ws = useWebSocket(); // Get the WebSocket instance from context
+    const navigate = useNavigate(); // Hook for navigation
 
-    const ws = useRef(null);
 
+    // Listen for messages from the WebSocket
     useEffect(() => {
-        if (isLocal) {
-            ws.current = new WebSocket('ws://localhost:4000/ws');
-        } else {
-            ws.current = new WebSocket('wss://mafia-uhh-server.onrender.com/ws');
-        }
-
-        console.log(ws.current);
-
-        //ws.current = new WebSocket('wss://mafia-uhh-server.onrender.com/ws');
-
-        ws.current.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-
+        if (ws) {
+            const handleMessage = (event) => {
+                const data = JSON.parse(event.data);
+            
             if (data.type === 'host') {
                 setIsHost(true);
+                //sessionStorage.setItem("isHost", true);
                 setMessages(prev => [...prev, data.message]);
             } else if (data.type === 'player' || data.type === 'message') {
                 setMessages(prev => [...prev, data.message]);
             } else if (data.type === 'role') {
                 setRole(data.role);
+                //sessionStorage.setItem("role", data.role);
                 setMessages(prev => [...prev, `You are assigned the role of ${data.role}`]);
             } else if (data.type === 'rolesList') {
-                setRolesList(data.roleDesc);
-            } else if (data.type === 'toggleHelpOff') {
-                setShowHelp(false);
-            } else if (data.type === 'startVoting') {
-                setVoting(true);                                                                    // turns on voting
-                setPlayers(data.players);
-                setVotes({});                                                                       // reset vote tally for players
-            } else if (data.type === 'voteResults') {
-                setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]);                     // adds the eliminated player to the array
-                setVoting(false);                                                                   // turns off voting (can be useful for next phase implementation)
-                setMessages(prev => [...prev, `${data.eliminatedPlayer} has been eliminated!`]);
-                setVotes({});                                                                       // reset vote tally for players
-            } else if (data.type === 'voteTie') {
-                setVoting(false);                                                                   // turns off voting
-                setMessages(prev => [...prev, data.message]);                                       // reset vote tally for players
-                setVotes({});
+                setRolesList(data.roleDesc);     
+                //sessionStorage.setItem("role", data.role);         // for the entire roles list (not one unit)
+            } else if (data.type === 'toggleHelpOff') { 
+                setShowHelp(false);                     // universal toggle-off for the help menu
+            }else if (data.type === 'start') {
+                navigate('/startgame', { state: { role, playerName, isHost} });
             }
-        };
 
-        return () => {
-            ws.current.close();
-        };
-    }, []);
+            };
+            ws.addEventListener('message', handleMessage)
 
-    //const alivePlayers = players.filter(player => !eliminatedPlayers.includes(player));             // stores the alive players (will be useful for win conditions)
+            return () => {
+                    ws.removeEventListener('message', handleMessage);
+            };
+        }
+
+
+    }, [ws, navigate, role, playerName, isHost]); // Re-run the effect if the WebSocket instance changes
+
 
     const handleJoinGame = () => {
-        if (playerName.trim()) {
-            ws.current.send(JSON.stringify({ type: 'join', name: playerName }));
-            setIsJoined(true);
+        if (playerName.trim() && ws) {
+            ws.send(JSON.stringify({ type: 'join', name: playerName }));
+            setIsJoined(true); // Mark as joined to hide join controls
         }
     };
 
     const startGame = () => {
-        if (isHost) {
-            ws.current.send(JSON.stringify({ type: 'start' }));
+        if (isHost && ws) {
+            ws.send(JSON.stringify({ type: 'start' }));
         }
     };
 
     const toggleHelp = () => {
         setShowHelp(!showHelp);
     };
-
-    const voteForPlayer = (playerName) => {
-        if (votes[playerName] || eliminatedPlayers.includes(playerName)) return;    // checks to see if a player already voted or dead; prevents a player voting more than once
-
-        setVotes({ ...votes, [playerName]: true });                                 // stores the votes for players and sets whether they have voted to true
     
-        ws.current.send(JSON.stringify({ type: 'vote', playerName: playerName }));  // sends the player's vote to the server
+    const goToStartGame = () => {
+        startGame();
     };
 
-    const getRoleImage = () => {
-        if (role === 'Mafia') {
-            return '/mafia.jpg';                                                    // Path to the mafia image in the public folder
-        } else if (role === 'Citizen') {
-            return '/citizen.jpg';                                                  // Path to the citizen image in the public folder
-        }
-        return null;                                                                // No image if no role assigned
-    };
 
     return (
         <div>
-            <h2>Game Messages</h2>
-            <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
 
             {!isJoined ? (
-                <div>
-                    <input
-                        type="text"
-                        placeholder="Enter your name"
-                        value={playerName}
-                        onChange={(e) => setPlayerName(e.target.value)}
-                    />
-                    <button onClick={handleJoinGame}>Join Game</button>
+                <div className="login">
+                    <div className="gameTitle">
+                                <h2>MAFIUHH...</h2>
+                        </div>
+                        <div className="container-login100">
+                            <div className="wrap-login100">
+                                <input
+                                    type="text"
+                                    placeholder="Enter your name"
+                                    value={playerName}
+                                    onChange={(e) => setPlayerName(e.target.value)}
+                                />
+                                <div className="glow">
+                                    <button className="lgn-btn" onClick={handleJoinGame}>
+                                        Join Game
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                 </div>
             ) : (
-                <>
-                    {isHost && <button onClick={startGame}>Start Game</button>}
-                    
-                    {role && (
-                        <div>
-                            <h3>Your Role: {role}</h3>
-                            <img src={getRoleImage()} alt={role} style={{ width: '300px', marginTop: '20px' }} />
-                        </div>
-                    )}
+                <div className="login">
+                <div className="gameTitle">
+                            <h2>MAFIUHH...</h2>
+                    </div>
+                            <div className="container-login100">
+                                <div className="wrap-login100">
+        
+                                    <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
 
-                    <button onClick={toggleHelp}>Help</button>
+                                    <div className="glow">
+                                        {isHost && <button onClick={goToStartGame}>Start Game</button>}
+                                    </div>
 
-                    {showHelp && (
-                        <div>
-                            <h3>Character Roles</h3>
-                            {rolesList.map((roleDesc, index) => (
-                                <div key={index}>
-                                    <h4>{roleDesc.name}</h4>
-                                    <p>{roleDesc.description}</p>
+                                    <div>
+                                        <button onClick={toggleHelp}>Help</button>
+                                    </div>
+                                    {showHelp && (
+                                        <div className ="helpbox">
+                                            <h3>Character Roles</h3>
+                                            {rolesList
+                                                .filter((value, index, self) =>
+                                                    index === self.findIndex((t) => t.name === value.name)  // Ensures distinct roles by name
+                                                )
+                                                .map((roleDesc, index) => (
+                                                <div className="helplist" key={index}>
+                                                    <h4>{roleDesc.name}</h4>
+                                                    <p>{roleDesc.description}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
-                            ))}
-                        </div>
-                    )}
-
-                    {voting && !eliminatedPlayers.includes(playerName) && (
-                        <div>
-                            <h3>Vote to Eliminate a Player</h3>
-                            {players.map(player => (
-                                <button key={player} onClick={() => voteForPlayer(player)} disabled={eliminatedPlayers.includes(player)}>
-                                    {player}
-                                </button>
-                            ))}
-                        </div>
-                    )}
-                </>
+                            </div>
+                    </div>
             )}
         </div>
     );
