@@ -31,7 +31,7 @@ function Game() {
                 //sessionStorage.setItem("role", data.role);
                 setMessages(prev => [...prev, `You are assigned the role of ${data.role}`]);
             } else if (data.type === 'rolesList') {
-                setRolesList(data.roles);     
+                setRolesList(data.roleDesc);     
                 //sessionStorage.setItem("role", data.role);         // for the entire roles list (not one unit)
             } else if (data.type === 'toggleHelpOff') { 
                 setShowHelp(false);                     // universal toggle-off for the help menu
@@ -118,10 +118,10 @@ function Game() {
                                                 .filter((value, index, self) =>
                                                     index === self.findIndex((t) => t.name === value.name)  // Ensures distinct roles by name
                                                 )
-                                                .map((role, index) => (
+                                                .map((roleDesc, index) => (
                                                 <div className="helplist" key={index}>
-                                                    <h4>{role.name}</h4>
-                                                    <p>{role.description}</p>
+                                                    <h4>{roleDesc.name}</h4>
+                                                    <p>{roleDesc.description}</p>
                                                 </div>
                                             ))}
                                         </div>
