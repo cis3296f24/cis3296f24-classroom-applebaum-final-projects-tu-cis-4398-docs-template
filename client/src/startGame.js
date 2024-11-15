@@ -22,49 +22,47 @@ function StartGame() {
   const location = useLocation();
   const { role, playerName, isHost } = location.state;
 
+
+
+
   // Listen for messages from the WebSocket (and update state)
   useEffect(() => {
     if (!ws) {
       console.log("WebSocket is not initialized");
       return;
-    } else if(ws){
+    }else if(ws){
       if(!voting){
         ws.send(JSON.stringify({ type: 'startVote'}));
       }
       const handleMessage = (event) => {
-        console.log("event!");
-        const data = JSON.parse(event.data);
-        if (data.type === 'rolesList') {
-          setRolesList(data.roleDesc);
-        } else if (data.type === 'startVoting') {
-            console.log("voting!");
-            setVoting(true);                                                                    // turns on voting
-            setPlayers(data.players);
-            setVotes({});                                                                       // reset vote tally for players
-        } else if (data.type === 'voteResults') {
-            setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]);                     // adds the eliminated player to the array
-            if (isMafia(data.eliminatedRole)) {                                                 // 
-                setMessages(prev => [...prev, `${data.eliminatedPlayer} has been eliminated! They were a MAFIA!`]);
-            } else {
-                setMessages(prev => [...prev, `${data.eliminatedPlayer} has been eliminated! They were a CITIZEN!`]);
-            }
-            setVoting(false);                                                                   // turns off voting (can be useful for next phase implementation)
-            setVotes({});                                                                       // reset vote tally for players
-        } else if (data.type === 'voteTie') {
-            setVoting(false);                                                                   // turns off voting
-            setMessages(prev => [...prev, data.message]);                                       // reset vote tally for players
-            setVotes({});
-        } else if (data.type === 'NIGHT') {
+          console.log("event!");
+          const data = JSON.parse(event.data);
+          if (data.type === 'rolesList') {
+              setRolesList(data.roleDesc);
+          } else if (data.type === 'startVoting') {
+              console.log("voting!");
+              setVoting(true);                                                                    // turns on voting
+              setPlayers(data.players);
+              setVotes({});                                                                       // reset vote tally for players
+          } else if (data.type === 'voteResults') {
+              setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]);                     // adds the eliminated player to the array
+              setVoting(false);                                                                   // turns off voting (can be useful for next phase implementation)
+              setMessages(prev => [...prev, `${data.eliminatedPlayer} has been eliminated!`]);
+              setVotes({});                                                                       // reset vote tally for players
+          } else if (data.type === 'voteTie') {
+              setVoting(false);                                                                   // turns off voting
+              setMessages(prev => [...prev, data.message]);                                       // reset vote tally for players
+              setVotes({});
+          } else if (data.type === 'NIGHT') {
             setVoting(false);                                                                   // turns off voting
             setIsDay(false); 
             startTimer(10);                              
-        } else if (data.type === 'DAY') {
+          } else if (data.type === 'DAY') {
             setVoting(false);                                                                   // turns off voting
             setIsDay(true); 
             startTimer(10);                              
-        }
-        setMessages((prevMessages) => [...prevMessages, data.message]); // Add new message
-
+          }
+          setMessages((prevMessages) => [...prevMessages, data.message]); // Add new message
     }
 
     ws.addEventListener('message', handleMessage)
@@ -76,13 +74,6 @@ function StartGame() {
   }
 
   }, [ws]); // Re-run the effect if WebSocket instance changes
-
-  function isMafia(role) {
-    if (role !== "Citizen") {
-        return true;
-    }
-    return false;
-  }
 
 
 //timer
@@ -141,6 +132,13 @@ const phaseChange = () => {
           </div>
         )}
 
+        {/* Display the countdown timer */}
+      <div className="timerWrapper">
+        <div className="timer">
+          <div className="timerNumber">{timeLeft}</div>
+        </div>
+      </div>
+
         {/* Display the user's role */}
         {role && (
             <RoleDisplay role={role}/>
@@ -155,15 +153,15 @@ const phaseChange = () => {
           )}
         </div>
         {voting && !eliminatedPlayers.includes(playerName) && (
-            <div>
-                <h3>Vote to Eliminate a Player</h3>
-                {players.map(player => (
-                    <button key={player} onClick={() => voteForPlayer(player)} disabled={eliminatedPlayers.includes(player)}>
-                        {player}
-                    </button>
-                ))}
-            </div>
-        )}
+                                <div>
+                                    <h3>Vote to Eliminate a Player</h3>
+                                    {players.map(player => (
+                                        <button key={player} onClick={() => voteForPlayer(player)} disabled={eliminatedPlayers.includes(player)}>
+                                            {player}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
       </div>
       }
 
@@ -177,6 +175,18 @@ const phaseChange = () => {
                   Host
                 </div>
               )}
+
+              {/* Display the countdown timer */}
+              <div className="timerWrapper">
+                <div className="timer">
+                  <div className="timerNumber">{timeLeft}</div>
+                </div>
+              </div>
+
+              {/* Display the user's role */}
+              {role && (
+                  <RoleDisplay role={role}/>
+              )}
               {/* Display the elimination messages after voting */}
               <div>
                 {messages.length > 0 && (
@@ -186,21 +196,16 @@ const phaseChange = () => {
                   </div>
                 )}
               </div>
-              {/* Display the user's role */}
-              {role && (
-                  <RoleDisplay role={role}/>
-              )}
-
               {voting && !eliminatedPlayers.includes(playerName) && (
-                  <div>
-                      <h3>Vote to Eliminate a Player</h3>
-                      {players.map(player => (
-                          <button key={player} onClick={() => voteForPlayer(player)} disabled={eliminatedPlayers.includes(player)}>
-                              {player}
-                          </button>
-                      ))}
-                  </div>
-              )}
+                                      <div>
+                                          <h3>Vote to Eliminate a Player</h3>
+                                          {players.map(player => (
+                                              <button key={player} onClick={() => voteForPlayer(player)} disabled={eliminatedPlayers.includes(player)}>
+                                                  {player}
+                                              </button>
+                                          ))}
+                                      </div>
+                                  )}
             </div>
             }
     </div>
@@ -208,3 +213,4 @@ const phaseChange = () => {
 }
 
 export default StartGame;
+
