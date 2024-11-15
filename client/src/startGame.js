@@ -17,6 +17,9 @@ function StartGame() {
   const location = useLocation();
   const { role, playerName, isHost } = location.state;
 
+  //modify time left for timer here
+  const timeLeft = 60;
+
   // Listen for messages from the WebSocket (and update state)
   useEffect(() => {
     if (!ws) {
@@ -90,6 +93,13 @@ function StartGame() {
           Host
         </div>
       )}
+
+        {/* Display the countdown timer */}
+      <div className="timerWrapper">
+        <div className="timer">
+          <div className="timerNumber">{timeLeft}</div>
+        </div>
+      </div>
 
       {/* Display the user's role */}
       {role && (
