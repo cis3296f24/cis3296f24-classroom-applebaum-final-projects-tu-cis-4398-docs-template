@@ -1,9 +1,9 @@
-import Page from '@/components/page'
-import Section from '@/components/section'
+import Page from '../components/page'
+import Section from '../components/section'
 import { Button } from '@nextui-org/react'
 import { useEffect } from 'react'
-import RingDevice from '@/components/Ring';
-import db from '@/database.js';
+import RingDevice from '../components/Ring';
+import db from '../database.js';
 
 // Type definitions for Speech Recognition
 interface SpeechRecognitionEvent {
