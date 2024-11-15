@@ -100,15 +100,16 @@
   outline:none;
 }
 
-.wrap-login100 button:hover {
-  background: red;
-  color: black;
-}
 
 .loginButton-wrap {
   display: flex;
   justify-content: center;
   padding-top: 13px;
+}
+
+.join button:hover {
+  background: red;
+  color: black;
 }
 
 

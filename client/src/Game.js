@@ -106,7 +106,10 @@ function Game() {
                                 <div className="wrap-login100">
         
                                     <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
-                                    {isHost && <button onClick={goToStartGame}>Start Game</button>}
+
+                                    <div className="join">
+                                        {isHost && <button onClick={goToStartGame}>Start Game</button>}
+                                    </div>
 
                                     <div>
                                         <button onClick={toggleHelp}>Help</button>
