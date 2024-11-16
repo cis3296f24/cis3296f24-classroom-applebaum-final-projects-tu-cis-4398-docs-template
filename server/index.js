@@ -102,7 +102,7 @@ function handleVoting(playerName, targetPlayer) {
 
     const alivePlayers = players.filter(player => !player.eliminated);          // filters out the dead players and assigns the remaining to alivePlayers
     const votedPlayers = alivePlayers.filter(player => player.hasVoted);        // of the alive players, it filters out the players that have voted and assigns them into votedPLayers
-    console.log("Alive Players: ", alivePlayers);
+
     if (votedPlayers.length === alivePlayers.length) {                          // checks if the number of players who voted matches the number of alive players
         const voteCounts = {};                                                  // stores the vote tally for each player
 
