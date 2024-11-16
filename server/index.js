@@ -1,7 +1,8 @@
 const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
-const { roles, roleDesc } = require('./mafiaParameters');
+const { roles, roleDesc } = require('./mafiaParameters');       // pulls the list of roles to be sorted and role descriptions
+const Player = require('./player');                             // pulls in the player class
 
 const app = express();
 const server = http.createServer(app);
@@ -10,8 +11,7 @@ const wss = new WebSocket.Server({ server, path: '/ws' });
 const cors = require('cors');
 app.use(cors());
 
-let players = [];
-let playersRoles = {};
+let players = [];                                               // stores the Player objects (DO NOT MOVE THIS BELOW THIS POSITION OTHERWISE THERE IS A BUG)
 
 app.use(express.static('public'));
 
@@ -22,35 +22,37 @@ app.get('/', (req, res) => {
 wss.on('connection', (ws) => {
     console.log("New WebSocket connection established");
 
-    let playerName;
+    let playerName;                                             // stores the player name (inputted by the user)
 
-    ws.send(JSON.stringify({ type: 'rolesList', roleDesc }));
+    ws.send(JSON.stringify({ type: 'rolesList', roleDesc }));   // immediately sends the role descriptions to the frontend (for the help menu)
 
     ws.on('message', (message) => {
         const data = JSON.parse(message);
 
         if (data.type === 'join') {
-            playerName = data.name;
+            playerName = data.name;                             // assigns the name input from the user as their player name
 
-            players.push({ ws, name: playerName });
+            const newPlayer = new Player(playerName, null);     // initializes a new player object corresponding to the user
+            newPlayer.ws = ws;                                  // assigns the websocket to the player's object
+            players.push(newPlayer);                            // adds the player object to the players[]
 
             if (players.length === 1) {
-                ws.send(JSON.stringify({ type: 'host', message: 'You are the host' }));
+                ws.send(JSON.stringify({ type: 'host', message: 'You are the host' }));                                 // sends a message (through the websocket) to the first player that they are the host
             } else {
-                ws.send(JSON.stringify({ type: 'player', message: 'Connected to the game as ' + playerName }));
+                ws.send(JSON.stringify({ type: 'player', message: 'Connected to the game as ' + playerName }));         // sends this message (through the websocket) to the player otherwise
             }
 
             players.forEach(player => {
                 if (player.ws !== ws) {
-                    player.ws.send(JSON.stringify({ type: 'message', message: playerName + ' has joined the game!' }));
-                }
+                    player.ws.send(JSON.stringify({ type: 'message', message: playerName + ' has joined the game!' })); // sends a message to all other players' frontend that a new player has joined 
+                }                                                                                                       // (accomplished by comparing websockets)
             });
         } else if (data.type === 'start') {
-            if (players[0].ws === ws) {
-                assignRoles(players);
+            if (players[0].ws === ws) {                                                                                 // checks that the player who clicked the start button is the host
+                assignRoles(players);                                                                                   // runs the assignRoles() function using the # of people in the players[]
                 players.forEach(player => {
-                    player.ws.send(JSON.stringify({ type: 'toggleHelpOff'}));
-                    player.ws.send(JSON.stringify({ type: 'start'}));
+                    player.ws.send(JSON.stringify({ type: 'toggleHelpOff'}));                                           // sends the 'toggleHelpOff' tag to the frontend (see Game.js for use)
+                    player.ws.send(JSON.stringify({ type: 'start'}));                                                   // sends the 'start' tag to the frontend (see Game.js for use)
                     player.ws.send(JSON.stringify({ type: 'message', message: 'The game has started!' }));
                 });
     
@@ -58,102 +60,92 @@ wss.on('connection', (ws) => {
                 ws.send(JSON.stringify({ type: 'error', message: 'Only the host can start the game.' }));
             }
         } else if (data.type === 'vote') {
-            handleVoting(playerName, data.playerName);                                                                      // when the vote message is received it runs the voting function
-        } else if(data.type === 'startVote'){
+            handleVoting(playerName, data.playerName);                                                                  // when the vote message is received it runs the voting function
+        } else if(data.type === 'startVote'){                                                                           // listens for the signal to begin the voting phase
             players.forEach(player => {
-                player.ws.send(JSON.stringify({ type: 'startVoting', players: players.map(p => p.name) }));
-            });             // sends the start vote message
-        } else if(data.type === 'changePhase'){
-            if(data.phase == 'NIGHT'){
-                players.forEach(player => {
-                    player.ws.send(JSON.stringify({ type: 'NIGHT'}));
-                });  
-            }else{
-                players.forEach(player => {
-                    player.ws.send(JSON.stringify({ type: 'DAY'}));
-                });  
-            }          
-        } 
+                player.ws.send(JSON.stringify({ type: 'startVoting', players: players.map(p => p.name) }));             // sends the voting button signal to each player's frontend
+            });
+        }
     });
 
     ws.on('close', () => {
-        players = players.filter(player => player.ws !== ws);
+        players = players.filter(player => player.ws !== ws);                                                           // removes the player from the player[]
         players.forEach(player => {
-            player.ws.send(JSON.stringify({ type: 'message', message: playerName + ' has left the game.' }));
+            player.ws.send(JSON.stringify({ type: 'message', message: playerName + ' has left the game.' }));           // sends this message to everyone's frontend
         });
     });
 });
 
-function assignRoles(players) {                                                                                             // sorts the players
-    const sortedRoles = roles.slice(0, players.length);                                                                     // chooses the number of roles to sort based on the number of players
+function assignRoles(players) {                                                                                         // sorts the players
+    const sortedRoles = roles.slice(0, players.length);                                                                 // chooses the number of roles to sort based on the number of players in the join lobby
 
     for (let currentIndex = sortedRoles.length - 1; currentIndex > 0; currentIndex--) {
         const randomIndex = Math.floor(Math.random() * (currentIndex + 1));
-        [sortedRoles[currentIndex], sortedRoles[randomIndex]] = [sortedRoles[randomIndex], sortedRoles[currentIndex]];
+        [sortedRoles[currentIndex], sortedRoles[randomIndex]] = [sortedRoles[randomIndex], sortedRoles[currentIndex]];  // simple sorting method
     }
 
     players.forEach((player, index) => {
-        const roleName = sortedRoles[index].name;
-        playersRoles[player.name] = roleName;                                                                               // add dictionary with player and role association
-        player.ws.send(JSON.stringify({ type: 'role', role: roleName }));                                                   // sends the roles for each player to the server side
+        const roleName = sortedRoles[index].name;                                                                       // assigns the role given by the sorting method to roleName
+        player.role = roleName;
+        player.ws.send(JSON.stringify({ type: 'role', role: roleName }));                                               // sends the roles for each player to the server side
     });
 }
 
-let votes = {};                                                                         // stores whether an individual has voted or not
-let voteCounts = {};                                                                    // stores the vote tally for each player
+function handleVoting(playerName, targetPlayer) {
+    const votingPlayer = players.find(player => player.name === playerName);    // searches players[] and sets that player who was passed through as the voting player
 
-function handleVoting(playerName, votedPlayer) {
-    if (players.find(player => player.name === playerName && player.eliminated)) {      // checks if the player has already been eliminated so they can't vote then
+    if (!votingPlayer || votingPlayer.eliminated) {                             // if the voting player is undefined or dead, then they can't vote
         return;
     }
 
-    votes[playerName] = votedPlayer;                                                    // associates the player's vote with the person they voted for
+    votingPlayer.voteFor(targetPlayer);                                         // updates the voting player' object to signify they have voted, and they have voted for target player               
 
-    const alivePlayers = players.filter(player => !player.eliminated);                  // stores the alive players
+    const alivePlayers = players.filter(player => !player.eliminated);          // filters out the dead players and assigns the remaining to alivePlayers
+    const votedPlayers = alivePlayers.filter(player => player.hasVoted);        // of the alive players, it filters out the players that have voted and assigns them into votedPLayers
 
-    if (Object.keys(votes).length === alivePlayers.length) {                            // waits until all the alive players have voted before running the next step
-        voteCounts = {};
+    if (votedPlayers.length === alivePlayers.length) {                          // checks if the number of players who voted matches the number of alive players
+        const voteCounts = {};                                                  // stores the vote tally for each player
 
         alivePlayers.forEach(player => {
-            const votedFor = votes[player.name];                                        // links an individual's vote to the specific player
-            voteCounts[votedFor] = (voteCounts[votedFor] || 0) + 1;                     // adds the vote to the target's vote tally (defaults to 0 if no votes are received)
+            const votedFor = player.targetVote;
+            if (votedFor) {
+                voteCounts[votedFor] = (voteCounts[votedFor] || 0) + 1;         // adds a vote tally to the target player if there is a vote for them, otherwise it defaults to zero
+            }
         });
 
-        let maxVotes = -1;
-        let eliminatedPlayer = null;                                                    // sets the eliminated player for this round of voting to NULL
-        let tie = false;
+        let maxVotes = -1;                                                      // sets the initial vote count for every player to -1
+        let eliminatedPlayer = null;                                            // default sets the eliminated player for each round to null
+        let tie = false;                                                        // default sets the boolean flag for tie to false
 
-        for (const [player, voteCount] of Object.entries(voteCounts)) {
-            if (voteCount > maxVotes) {
-                maxVotes = voteCount;
-                eliminatedPlayer = player;
+        for (const [votedFor, count] of Object.entries(voteCounts)) {           // goes through ALL of the entires in voteCounts (one time run-through)
+            if (count > maxVotes) {                                             // checks to see if the current player's vote count is higher than the highest vote count
+                maxVotes = count;                                               // assigns the number of votes that person received to maxVotes
+                eliminatedPlayer = votedFor;                                    // sets the eliminated player to the person who received the most votes
                 tie = false;
-            } else if (voteCount === maxVotes) {
+            } else if (count === maxVotes) {
                 tie = true;
             }
         }
 
-        if (tie) {
+        if (tie) {                                                                              // runs if there is a tie
             players.forEach(player => {
                 player.ws.send(JSON.stringify({ type: 'voteTie', message: 'There was a tie. No player is eliminated this round.' }));
             });
-        } else if (eliminatedPlayer) {
-            console.log("Role: ", playersRoles[eliminatedPlayer])
+        } else if (eliminatedPlayer) {                                                          // runs if a player is eliminated
             players.forEach(player => {
-                player.ws.send(JSON.stringify({ type: 'voteResults', eliminatedPlayer: eliminatedPlayer, eliminatedRole: playersRoles[eliminatedPlayer] }));  // sends the eliminated player to the server
+                player.ws.send(JSON.stringify({ type: 'voteResults', eliminatedPlayer }));      // sends the eliminated player tag to everyone's front end with the username
             });
 
-            players.forEach(player => {                                                     // updates the status of the eliminated player for everyone
+            players.forEach(player => {
                 if (player.name === eliminatedPlayer) {
-                    player.eliminated = true;
+                    player.eliminate();                                                         // sets the status of the eliminated player to true
                 }
             });
         } else {
             console.error('[Error] No valid player eliminated.');
         }
 
-        votes = {};                                                 // resets the individual's vote (whether they have voted or not)
-        voteCounts = {};                                            // resets the total vote tally for each player
+        players.forEach(player => player.resetVote());                                          // resets the votes for each player
     }
 }
 
