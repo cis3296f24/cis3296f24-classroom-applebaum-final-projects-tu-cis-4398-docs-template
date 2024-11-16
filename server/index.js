@@ -76,6 +76,13 @@ wss.on('connection', (ws) => {
     });
 });
 
+function isMafia(role) {                                                                                                // function to check if a role is on the Mafia team, can be updated with added roles.
+    if (role === "Mafia") {
+        return true
+    }
+    return false;
+}
+
 function assignRoles(players) {                                                                                         // sorts the players
     const sortedRoles = roles.slice(0, players.length);                                                                 // chooses the number of roles to sort based on the number of players in the join lobby
 
@@ -102,7 +109,7 @@ function handleVoting(playerName, targetPlayer) {
 
     const alivePlayers = players.filter(player => !player.eliminated);          // filters out the dead players and assigns the remaining to alivePlayers
     const votedPlayers = alivePlayers.filter(player => player.hasVoted);        // of the alive players, it filters out the players that have voted and assigns them into votedPLayers
-
+    console.log("Alive Players: ", alivePlayers);
     if (votedPlayers.length === alivePlayers.length) {                          // checks if the number of players who voted matches the number of alive players
         const voteCounts = {};                                                  // stores the vote tally for each player
 
@@ -115,14 +122,16 @@ function handleVoting(playerName, targetPlayer) {
 
         let maxVotes = -1;                                                      // sets the initial vote count for every player to -1
         let eliminatedPlayer = null;                                            // default sets the eliminated player for each round to null
+        let elimnatedRole = null                                                // default sets the eliminated player role for each round to null
         let tie = false;                                                        // default sets the boolean flag for tie to false
 
         for (const [votedFor, count] of Object.entries(voteCounts)) {           // goes through ALL of the entires in voteCounts (one time run-through)
             if (count > maxVotes) {                                             // checks to see if the current player's vote count is higher than the highest vote count
                 maxVotes = count;                                               // assigns the number of votes that person received to maxVotes
                 eliminatedPlayer = votedFor;                                    // sets the eliminated player to the person who received the most votes
+                elimnatedRole = alivePlayers.find(player => player.name === eliminatedPlayer).role; // looks at alivePlayers for the player being eliminated, set eliminatedRole to that role.
                 tie = false;
-            } else if (count === maxVotes) {
+            } else if (count === maxVotes) {                                    // if max votes are equal, set a tie
                 tie = true;
             }
         }
@@ -133,7 +142,7 @@ function handleVoting(playerName, targetPlayer) {
             });
         } else if (eliminatedPlayer) {                                                          // runs if a player is eliminated
             players.forEach(player => {
-                player.ws.send(JSON.stringify({ type: 'voteResults', eliminatedPlayer }));      // sends the eliminated player tag to everyone's front end with the username
+                player.ws.send(JSON.stringify({ type: 'voteResults', eliminatedPlayer, elimnatedRole }));      // sends the eliminated player tag to everyone's front end with the username
             });
 
             players.forEach(player => {
