@@ -1,45 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { useWebSocket } from './WebSocketContext'; // Import the custom hook
+import { useWebSocket } from './WebSocketContext';                    // imports the custom hook
 import RoleDisplay from './roleDisplay';
 import { useLocation } from 'react-router-dom';
 
 function StartGame() {
-  const ws = useWebSocket(); // Get the WebSocket instance and connection status
+  const ws = useWebSocket();                                          // gets the WebSocket instance and connection status
   const [messages, setMessages] = useState([]);
-  //const isHost = sessionStorage.getItem("isHost");
-  //const role = sessionStorage.getItem("role");
-  const [players, setPlayers] = useState([]);         // uses state to store the player list for voting
-  const [voting, setVoting] = useState(false);        // uses state to determine when voting occurs
-  const [votes, setVotes] = useState({});             // uses state to store a player's vote
-  const [rolesList, setRolesList] = useState([]);     // uses state to store the entire roles list
+  const [players, setPlayers] = useState([]);                         // uses state to store the player list for voting
+  const [voting, setVoting] = useState(false);                        // uses state to determine when voting occurs
+  const [votes, setVotes] = useState({});                             // uses state to store a player's vote
+  const [rolesList, setRolesList] = useState([]);                     // uses state to store the entire roles list
   const [eliminatedPlayers, setEliminatedPlayers] = useState([]);     // uses state to store a list of eliminated players
 
   const [isDay, setIsDay] = useState(true);
 
-  const [timeLeft, setTimeLeft] = useState(10); // Starting timer value
-  const [isActive, setIsActive] = useState(true);
+  const [timeLeft, setTimeLeft] = useState(10);                       // starting timer value (defaults as 10 seconds)
+  const [isActive, setIsActive] = useState(true);                     // sets the default timer state to true/active
 
   const location = useLocation();
   const { role, playerName, isHost } = location.state;
 
-
-
-
-  // Listen for messages from the WebSocket (and update state)
-  useEffect(() => {
+  useEffect(() => {                                                    // listens for messages from the WebSocket (and update state)
     if (!ws) {
       console.log("WebSocket is not initialized");
       return;
     }else if(ws){
       if(!voting){
-        ws.send(JSON.stringify({ type: 'startVote'}));
+        ws.send(JSON.stringify({ type: 'startVote'}));                 // immediately after the start button is clicked, this sends the 'startVote' tag to the backend to activate the voting phase
       }
       const handleMessage = (event) => {
           console.log("event!");
           const data = JSON.parse(event.data);
           if (data.type === 'rolesList') {
-              setRolesList(data.roleDesc);
-          } else if (data.type === 'startVoting') {
+              setRolesList(data.roleDesc);                                                        // changes the roles list to match the roles descriptions as from mafiaParameter.js
+          } else if (data.type === 'startVoting') {                                               // this is for the start button
               console.log("voting!");
               setVoting(true);                                                                    // turns on voting
               setPlayers(data.players);
@@ -54,15 +48,15 @@ function StartGame() {
               setMessages(prev => [...prev, data.message]);                                       // reset vote tally for players
               setVotes({});
           } else if (data.type === 'NIGHT') {
-            setVoting(false);                                                                   // turns off voting
-            setIsDay(false); 
-            startTimer(10);                              
+            setVoting(false);                                                                     // turns off voting
+            setIsDay(false);                                                                      // sets the page phase to nighttime
+            startTimer(10);                                                                       
           } else if (data.type === 'DAY') {
-            setVoting(false);                                                                   // turns off voting
+            setVoting(false);                                                                     // turns off voting
             setIsDay(true); 
             startTimer(10);                              
           }
-          setMessages((prevMessages) => [...prevMessages, data.message]); // Add new message
+          //setMessages((prevMessages) => [...prevMessages, data.message]); <-- this line was sending duplicate messages to frontend, idk if it is needed or not?
     }
 
     ws.addEventListener('message', handleMessage)
@@ -73,26 +67,22 @@ function StartGame() {
 
   }
 
-  }, [ws]); // Re-run the effect if WebSocket instance changes
+  }, [ws]); // re-run the effect if WebSocket instance changes
 
-
-//timer
-  useEffect(() => {
+  useEffect(() => {                               // timer
     let timer;
     if (isActive && timeLeft > 0) {
-      // Set an interval that decreases the time every second
-      timer = setInterval(() => {
+      timer = setInterval(() => {                 // sets an interval that decreases the time every second
         setTimeLeft((prevTime) => prevTime - 1);
       }, 1000);
       console.log(timeLeft);
     } else if (timeLeft === 0) {
       phaseChange();
-      clearInterval(timer); // Clear the interval when time reaches 0
-      setIsActive(false);    // Stop the timer
+      clearInterval(timer);                       // clears the interval when time reaches 0
+      setIsActive(false);                         // stops the timer
     }
 
-    // Cleanup interval on component unmount or when timer is inactive
-    return () => clearInterval(timer);
+    return () => clearInterval(timer);            // cleanup interval on component unmount or when timer is inactive
   }, [isActive, timeLeft]);
 
   const startTimer = (time) => {
@@ -106,15 +96,15 @@ function StartGame() {
 
     setVotes({ ...votes, [playerName]: true });                                 // stores the votes for players and sets whether they have voted to true
 
-    ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));  // sends the player's vote to the server
+    ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));          // sends the player's vote to the server
 };
 
 const phaseChange = () => {
   if(isHost){
     if(isDay){
-      ws.send(JSON.stringify({ type: 'changePhase', phase: 'NIGHT' }));  // change phase for all
+      ws.send(JSON.stringify({ type: 'changePhase', phase: 'NIGHT' }));         // change phase for all
     }else{
-      ws.send(JSON.stringify({ type: 'changePhase', phase: 'DAY' }));  // change phase for all
+      ws.send(JSON.stringify({ type: 'changePhase', phase: 'DAY' }));           // change phase for all
     }
   }
 }
