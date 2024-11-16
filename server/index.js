@@ -76,13 +76,6 @@ wss.on('connection', (ws) => {
     });
 });
 
-function isMafia(role) {                                                                                                // function to check if a role is on the Mafia team, can be updated with added roles.
-    if (role === "Mafia") {
-        return true
-    }
-    return false;
-}
-
 function assignRoles(players) {                                                                                         // sorts the players
     const sortedRoles = roles.slice(0, players.length);                                                                 // chooses the number of roles to sort based on the number of players in the join lobby
 
