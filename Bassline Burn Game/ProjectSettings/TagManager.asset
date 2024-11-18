@@ -41,3 +41,12 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: RaceMap
+    uniqueID: 1876598875
+    locked: 0
+  - name: SkidMarks
+    uniqueID: 166200659
+    locked: 0
+  - name: Player
+    uniqueID: 3375482425
+    locked: 0

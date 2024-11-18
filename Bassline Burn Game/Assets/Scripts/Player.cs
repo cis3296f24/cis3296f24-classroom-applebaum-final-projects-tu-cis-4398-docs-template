@@ -249,6 +249,34 @@ public class Player : MonoBehaviour
         
         
     }
+
+    float GetLateralVelocity(){
+        return Vector2.Dot(transform.right, rb.velocity);
+    }
+
+    public bool IsTireSchreeching(out float lateralVelocity, out bool isBoosting, out bool isBraking){
+        lateralVelocity = GetLateralVelocity();
+        isBoosting = false;
+        isBraking = false;
+
+        if(moveInput < 0 && velocityVsUp >0){
+            isBraking = true;
+            return true;
+        }
+
+
+        if (Input.GetKey(KeyCode.Space) && currentBoostTime > 0){
+            isBoosting = true;
+            return true;
+        }
+
+
+        if(Mathf.Abs(GetLateralVelocity())>4.0f){
+            return true;
+        }
+
+        return false;
+    }
 /// <>
 /// code from https://youtu.be/DVHcOS1E5OQ?list=PLyDa4NP_nvPfmvbC-eqyzdhOXeCyhToko for reference
 /// </>
