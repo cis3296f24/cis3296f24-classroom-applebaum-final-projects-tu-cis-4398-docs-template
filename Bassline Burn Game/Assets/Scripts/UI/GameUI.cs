@@ -13,15 +13,10 @@ public class GameUI : MonoBehaviour
 	public CanvasGroup fader;
 	public Animator introAnimator;
 	public Animator countdownAnimator;
-	public Animator itemAnimator;
 	public GameObject timesContainer;
-	public GameObject coinCountContainer;
 	public GameObject lapCountContainer;
-	public GameObject pickupContainer;
+
 	public EndRaceUI endRaceScreen;
-	public Image pickupDisplay;
-	public Image boostBar;
-	public Text coinCount;
 	public Text lapCount;
 	public Text raceTimeText;
 	public Text[] lapTimeTexts;
@@ -60,39 +55,10 @@ public class GameUI : MonoBehaviour
 			lapCountContainer.SetActive(false);
 		}
 
-		if (gameType.hasPickups == false)
-		{
-			pickupContainer.SetActive(false);
-		}
-		else
-		{
-			ClearPickupDisplay();
-		}
-
-		if (gameType.hasCoins == false)
-		{
-			coinCountContainer.SetActive(false);
-		}
 
 		continueEndButton.gameObject.SetActive(kart.Object.HasStateAuthority);
 
-		kart.OnHeldItemChanged += index =>
-		{
-			if (index == -1)
-			{
-				ClearPickupDisplay();
-			}
-			else
-			{
-				StartSpinItem();
-			}
-		};
-
-		kart.OnCoinCountChanged += count =>
-		{
-			AudioManager.Play("coinSFX", AudioManager.MixerTarget.SFX);
-			coinCount.text = $"{count:00}";
-		};
+		
 	}
 
 	private void OnDestroy()
@@ -143,50 +109,8 @@ public class GameUI : MonoBehaviour
 			}
 		}
 
-		UpdateBoostBar();
 
 		if (Kart.LapController.enabled) UpdateLapTimes();
-
-		var controller = Kart.Controller;
-		if (controller.BoostTime > 0f)
-		{
-			if (controller.BoostTierIndex == -1) return;
-
-			Color color = controller.driftTiers[controller.BoostTierIndex].color;
-			SetBoostBarColor(color);
-		}
-		else
-		{
-			if (!controller.IsDrifting) return;
-
-			SetBoostBarColor(controller.DriftTierIndex < controller.driftTiers.Length - 1
-				? controller.driftTiers[controller.DriftTierIndex + 1].color
-				: controller.driftTiers[controller.DriftTierIndex].color);
-		}
-	}
-
-	private void UpdateBoostBar()
-	{
-		if (!KartController.Object || !KartController.Object.IsValid)
-			return;
-		
-		var driftIndex = KartController.DriftTierIndex;
-		var boostIndex = KartController.BoostTierIndex;
-
-		if (KartController.IsDrifting)
-		{
-			if (driftIndex < KartController.driftTiers.Length - 1)
-				SetBoostBar((KartController.DriftTime - KartController.driftTiers[driftIndex].startTime) /
-				            (KartController.driftTiers[driftIndex + 1].startTime - KartController.driftTiers[driftIndex].startTime));
-			else
-				SetBoostBar(1);
-		}
-		else
-		{
-			SetBoostBar(boostIndex == -1
-				? 0f
-				: KartController.BoostTime / KartController.driftTiers[boostIndex].boostDuration);
-		}
 	}
 
 	private void UpdateLapTimes()
@@ -218,21 +142,6 @@ public class GameUI : MonoBehaviour
 		SetRaceTimeText(Kart.LapController.GetTotalRaceTime());
 	}
 
-	public void SetBoostBar(float amount)
-	{
-		boostBar.fillAmount = amount;
-	}
-
-	public void SetBoostBarColor(Color color)
-	{
-		boostBar.color = color;
-	}
-
-	public void SetCoinCount(int count)
-	{
-		coinCount.text = $"{count:00}";
-	}
-
 	private void SetLapCount(int lap, int maxLaps)
 	{
 		var text = $"{(lap > maxLaps ? maxLaps : lap)}/{maxLaps}";
@@ -249,42 +158,8 @@ public class GameUI : MonoBehaviour
 		lapTimeTexts[index].text = $"<color=#FFC600>L{index + 1}</color> {(int) (time / 60):00}:{time % 60:00.000}";
 	}
 
-	public void StartSpinItem()
-	{
-		StartCoroutine(SpinItemRoutine());
-	}
+	
 
-	private IEnumerator SpinItemRoutine()
-	{
-		itemAnimator.SetBool("Ticking", true);
-		float dur = 3;
-		float spd = Random.Range(9f, 11f); // variation, for flavor.
-		float x = 0;
-		while (x < dur)
-		{
-			x += Time.deltaTime;
-
-			itemAnimator.speed = (spd - 1) / (dur * dur) * (x - dur) * (x - dur) + 1;
-			yield return null;
-		}
-
-		itemAnimator.SetBool("Ticking", false);
-		SetPickupDisplay(Kart.HeldItem);
-		// Kart.canUseItem = true;
-	}
-
-	public void SetPickupDisplay(Powerup item)
-	{
-		if (item)
-			pickupDisplay.sprite = item.itemIcon;
-		else
-			pickupDisplay.sprite = null;
-	}
-
-	public void ClearPickupDisplay()
-	{
-		SetPickupDisplay(ResourceManager.Instance.noPowerup);
-	}
 
 	public void ShowEndRaceScreen()
 	{

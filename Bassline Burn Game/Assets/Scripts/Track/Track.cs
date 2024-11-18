@@ -11,8 +11,6 @@ public class Track : NetworkBehaviour, ICameraController
 	public Checkpoint[] checkpoints;
 	public Transform[] spawnpoints;
 	public FinishLine finishLine;
-	public GameObject itemContainer;
-	public GameObject coinContainer;
 
 	public TrackDefinition definition;
 	public TrackStartSequence sequence;
@@ -27,12 +25,6 @@ public class Track : NetworkBehaviour, ICameraController
 	{
 		Current = this;
 		InitCheckpoints();
-
-		if (GameManager.Instance.GameType.hasPickups == false)
-		{
-			itemContainer.SetActive(false);
-			coinContainer.SetActive(false);
-		}
 
 		// Initialize cutscene
 		AudioManager.StopMusic();

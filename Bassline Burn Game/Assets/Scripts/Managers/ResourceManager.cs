@@ -8,8 +8,6 @@ public class ResourceManager : MonoBehaviour
 	public KartDefinition[] kartDefinitions;
 	public GameType[] gameTypes;
 	public TrackDefinition[] tracks;
-	public Powerup[] powerups;
-	public Powerup noPowerup;
 
 	public static ResourceManager Instance => Singleton<ResourceManager>.Instance;
 

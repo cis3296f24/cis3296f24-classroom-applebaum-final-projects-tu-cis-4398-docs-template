@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f82c10e0c9eea446ac2043a95b1071a, type: 3}
   m_Name: Kart 1
   m_EditorClassIdentifier: 
-  prefab: {fileID: 4819486025529803326, guid: dd35f4671902329429118d88a6c85845, type: 3}
+  prefab: {fileID: 3403717950770787912, guid: 9b46c80d7ed8e4c4c8d5dd5965e31c4d, type: 3}
   speedStat: 3
   accelStat: 4
   turnStat: 3

@@ -83,5 +83,9 @@ namespace Managers
 		{
 			fader.FadeOut();
 		}
+
+		public void LocalPlay(){
+			SceneManager.LoadScene("Local");
+		}
 	}
 }

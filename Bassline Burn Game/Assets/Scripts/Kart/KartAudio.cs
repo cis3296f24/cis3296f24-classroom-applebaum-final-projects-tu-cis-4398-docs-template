@@ -27,22 +27,12 @@ public class KartAudio : KartComponent
     public override void Spawned() {
         base.Spawned();
 
-        Kart.Controller.OnSpinoutChanged += val => {
-            if ( !val ) return;
-            AudioManager.PlayAndFollow("slipSFX", transform, AudioManager.MixerTarget.SFX);
-        };
-        
-        Kart.Controller.OnBoostTierIndexChanged += val => {
-            if ( val == 0 ) return;
-
-            Boost.Play();
-        };
     }
 
     public override void Render() {
         base.Render();
 
-        var rb = Controller.Rigidbody;
+        var rb = Controller.rb;
         var speed = rb.transform.InverseTransformVector(rb.velocity / Controller.maxSpeedBoosting).z;
 
         HandleDriftAudio(speed);
