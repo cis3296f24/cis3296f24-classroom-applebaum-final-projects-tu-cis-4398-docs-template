@@ -15,7 +15,7 @@ const Appbar = () => {
 	return (
 		<Navbar
       isBordered
-      className="w-full bg-zinc-100 dark:bg-zinc-900 pb-safe z-50">
+      className="max-sm:hidden w-full bg-zinc-100 dark:bg-zinc-900 pb-safe z-50">
       <NavbarBrand>
         <Link href='/' passHref>
         <p>SpeakSense</p>
@@ -41,6 +41,7 @@ const Appbar = () => {
           ))}
         </NavbarContent>
     </Navbar>
+
 	)
 }
 

@@ -8,7 +8,11 @@ module.exports = {
     "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}"
   ],
   theme: {
-    extend: {},
+    extend: {
+      animation: {
+        pulse: 'pulse 1s infinite',
+      },
+    },
   },
   darkMode: "class",
   plugins: [
