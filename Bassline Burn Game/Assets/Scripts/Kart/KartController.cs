@@ -57,7 +57,6 @@ public class KartController : KartComponent
 	[Networked] private int AcceleratePressedTick { get; set; }
 	[Networked] private bool IsAccelerateThisFrame { get; set; }
 
-	private ChangeDetector _changeDetector;
 
 	
 	public float rotationAngle = 0;
@@ -69,7 +68,6 @@ public class KartController : KartComponent
 	public override void Spawned()
 	{
 		base.Spawned();
-		_changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
 		MaxSpeed = maxSpeedNormal;
 	}
 

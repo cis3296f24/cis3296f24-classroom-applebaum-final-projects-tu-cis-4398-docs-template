@@ -35,7 +35,6 @@ public class GameManager : NetworkBehaviour
 		OnLobbyDetailsUpdated?.Invoke(changed);
 	}
 	
-	private ChangeDetector _changeDetector;
 
 	private void Awake()
 	{
@@ -51,8 +50,6 @@ public class GameManager : NetworkBehaviour
 	public override void Spawned()
 	{
 		base.Spawned();
-		
-		_changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
 
 		if (Object.HasStateAuthority)
 		{
@@ -60,22 +57,6 @@ public class GameManager : NetworkBehaviour
 			TrackId = ServerInfo.TrackId;
 			GameTypeId = ServerInfo.GameMode;
 			MaxUsers = ServerInfo.MaxUsers;
-		}
-	}
-	
-	public override void Render()
-	{
-		foreach (var change in _changeDetector.DetectChanges(this))
-		{
-			switch (change)
-			{
-				case nameof(LobbyName):
-				case nameof(TrackId):
-				case nameof(GameTypeId):
-				case nameof(MaxUsers):
-					OnLobbyDetailsChangedCallback(this);
-					break;
-			}
 		}
 	}
 	

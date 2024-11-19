@@ -51,7 +51,6 @@ public class KartEntity : KartComponent
 			Hud = Instantiate(ResourceManager.Instance.hudPrefab);
 			Hud.Init(this);
 
-			Instantiate(ResourceManager.Instance.nicknameCanvasPrefab);
 		}
 
 		Karts.Add(this);

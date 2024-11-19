@@ -4,7 +4,6 @@ using UnityEngine;
 public class ResourceManager : MonoBehaviour
 {
 	public GameUI hudPrefab;
-	public NicknameUI nicknameCanvasPrefab;
 	public KartDefinition[] kartDefinitions;
 	public GameType[] gameTypes;
 	public TrackDefinition[] tracks;
