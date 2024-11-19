@@ -36,6 +36,8 @@ wss.on('connection', (ws) => {
             newPlayer.ws = ws;                                  // assigns the websocket to the player's object
             players.push(newPlayer);                            // adds the player object to the players[]
 
+            updateCurrentPlayersList();                                                                                 // send updated list to all players after someone joins
+
             if (players.length === 1) {
                 ws.send(JSON.stringify({ type: 'host', message: 'You are the host' }));                                 // sends a message (through the websocket) to the first player that they are the host
             } else {
@@ -73,8 +75,19 @@ wss.on('connection', (ws) => {
         players.forEach(player => {
             player.ws.send(JSON.stringify({ type: 'message', message: playerName + ' has left the game.' }));           // sends this message to everyone's frontend
         });
+        updateCurrentPlayersList();                                                                                     // send updated list to all players after someone disconnects
     });
 });
+
+function updateCurrentPlayersList() {                                                                                   // sends the updated player list to all 
+    const playerNames = players.map(player => player.name);
+    players.forEach(player => {
+        player.ws.send(JSON.stringify({
+            type: 'updateCurrentPlayerList',
+            currentPlayers: playerNames
+        }));
+    });
+}
 
 function checkWinConditions() {                                                                                  // checks if a team has won the game
     console.log("Checking win conditions");
