@@ -1,9 +1,10 @@
 import Page from '../components/page'
 import Section from '../components/section'
 import { Button } from '@nextui-org/react'
-import { useEffect } from 'react'
 import RingDevice from '../components/Ring';
 import db from '../database.js';
+import MicCard from 'components/microphone-card';
+import React, {useState, useEffect} from 'react';
 
 // Type definitions for Speech Recognition
 interface SpeechRecognitionEvent {
@@ -32,21 +33,22 @@ interface Window {
 }
 
 const Index = () => {
-  useEffect(() => {
-    speechToText();
-  }, []);
+  const [isMicActive, setIsMicActive] = useState(false); 
 
+  const handleMicToggle = () => {
+    setIsMicActive((prevState) => !prevState);
+    speechToText(!isMicActive); // Pass the new state to speechToText
+  };
+    
   return (
     <Page>
       <Section>
         <h2 className='text-xl font-semibold text-zinc-800 dark:text-zinc-200'>
-          Record AND GET SHOCKED
         </h2>
-
+        <div id="micbutton" className='justify-center w-auto h-auto'>
+          <MicCard isMicActive={isMicActive} onToggleMic={handleMicToggle}/>
+        </div>
         <div id="speech">
-          <Button color='primary' id="start"> Start speaking </Button>
-          <Button color='primary' id="stop"> Stop speaking </Button>
-          <br></br>
           <Button color='primary' onClick={vibrationPattern}> Vibrate</Button>
           <RingDevice />
           <p id="output"></p>
@@ -57,10 +59,8 @@ const Index = () => {
   );
 };
 
-function speechToText(): void {
+function speechToText(isActive: boolean): void {
   const output = document.getElementById('output') as HTMLElement | null;
-  const startButton = document.getElementById('start') as HTMLButtonElement | null;
-  const stopButton = document.getElementById('stop') as HTMLButtonElement | null;
   const detectedWordsOutput = document.getElementById('detectedWords') as HTMLElement | null;
 
   const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -184,34 +184,25 @@ recognition.addEventListener('result', async (event: SpeechRecognitionEvent) => 
         detectedWordsList.push(`${word} (${currentTranscriptCount})`);
       }
     }
-  }
+  };
 
   if (detectedWordsOutput) {
     detectedWordsOutput.innerText = "Detected words: " + detectedWordsList.join(', ');
   }
 });
 
-  recognition.addEventListener('start', () => {
-    if (startButton) startButton.disabled = true;
-    if (stopButton) stopButton.disabled = false;
-  });
-
   recognition.addEventListener('end', () => {
-    if (startButton) startButton.disabled = false;
-    if (stopButton) stopButton.disabled = true;
+    console.log("SpeechRecognition stopped")
   });
 
-  if (startButton) {
-    startButton.addEventListener('click', () => {
+  if (isActive) {
       recognition.start();
-    });
-  }
-
-  if (stopButton) {
-    stopButton.addEventListener('click', () => {
+      console.log("SpeechRecognition Started. ");
+    }else{
       recognition.stop();
-    });
-  }
+      console.log("SpeechRecognition Stopped. ");
+    };
+
 }
 
 function vibrationPattern(): void {
