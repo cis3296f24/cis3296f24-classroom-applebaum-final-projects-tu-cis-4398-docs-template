@@ -34,32 +34,42 @@ interface Window {
 
 const Index = () => {
   const [isMicActive, setIsMicActive] = useState(false); 
+  const [isBadWordDetected, setIsBadWordDetected] = useState(false);
 
   const handleMicToggle = () => {
     setIsMicActive((prevState) => !prevState);
-    speechToText(!isMicActive); // Pass the new state to speechToText
+    speechToText(!isMicActive, handleBadWordDetected); // Pass the new state to speechToText
+  };
+  const handleBadWordDetected = () => {
+    setIsBadWordDetected(true);
+    setTimeout(() => setIsBadWordDetected(false), 1000); //reset after 1 sec
   };
     
   return (
     <Page>
+      <div className='justify-center w-auto h-auto'>
+        <h2 className = 'text-center font-semibold text-2xl'>Welcome to SpeakSense.</h2>
+        <br></br>
+        <h3 className = 'text-center font-normal text-4xl'>record yourself speaking by pressing the button, and don't, seriously don't, say bad words... <span className='font-black'>or else.</span></h3>
+      </div>
       <Section>
-        <h2 className='text-xl font-semibold text-zinc-800 dark:text-zinc-200'>
-        </h2>
-        <div id="micbutton" className='justify-center w-auto h-auto'>
-          <MicCard isMicActive={isMicActive} onToggleMic={handleMicToggle}/>
+        <div id="micbutton" className='justify-center items-center w-auto'>
+          <MicCard isMicActive={isMicActive} isBadWordDetected = {isBadWordDetected} onToggleMic={handleMicToggle}/>
         </div>
+        <br></br>
         <div id="speech">
-          <Button color='primary' onClick={vibrationPattern}> Vibrate</Button>
-          <RingDevice />
-          <p id="output"></p>
+          <p id="output" className='text-center font-semibold text-2xl'></p>
           <p id="detectedWords"></p>
         </div>
+        <br/>
+        <p> this is where we test other functions bc otherwise this looks good i think</p>
+        <RingDevice/>
       </Section>
     </Page>
   );
 };
 
-function speechToText(isActive: boolean): void {
+function speechToText(isActive: boolean, handleBadWordDetected: () => void): void {
   const output = document.getElementById('output') as HTMLElement | null;
   const detectedWordsOutput = document.getElementById('detectedWords') as HTMLElement | null;
 
@@ -155,17 +165,19 @@ async function updateWordCount(word: string) {
 
 
 recognition.addEventListener('result', async (event: SpeechRecognitionEvent) => {
-  const transcript = Array.from(event.results)
+  const fullTranscript = Array.from(event.results) //full transcript
     .map(result => result[0].transcript)
     .join(' ')
     .toLowerCase();
 
+  //get latest word 
+  const currentWord = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
   // Display full transcript on the screen
   if (output) {
-    output.innerText = transcript;
+    output.innerText = currentWord;
   }
 
-  const wordsInTranscript = transcript.split(/\s+/);
+  const wordsInTranscript = fullTranscript.split(/\s+/);
 
   for (const word of wordsInTranscript) {
     const currentSessionCount = sessionWordCounts.get(word) || 0;
@@ -183,6 +195,7 @@ recognition.addEventListener('result', async (event: SpeechRecognitionEvent) => 
         vibrationPattern();
         detectedWordsList.push(`${word} (${currentTranscriptCount})`);
       }
+      handleBadWordDetected(); //trigger bad word detected color
     }
   };
 
