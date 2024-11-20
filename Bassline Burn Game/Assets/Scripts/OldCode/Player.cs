@@ -88,10 +88,10 @@ public class Player : MonoBehaviour
 
         // Map InputActions
         moveAction = inputActions.Player.Move;
-        turnAction = playerInput.actions["Turn"];
-        boostAction = playerInput.actions["Boost"];
-        radioNextAction = playerInput.actions["RadioNext"];
-        radioPrevAction = playerInput.actions["RadioPrev"];
+        turnAction = inputActions.Player.Turn;
+        boostAction = inputActions.Player.Boost;
+        radioNextAction = inputActions.Player.RadioNext;
+        radioPrevAction = inputActions.Player.RadioPrev;
 
         ChangeStats(radio.currentStation);
     }
