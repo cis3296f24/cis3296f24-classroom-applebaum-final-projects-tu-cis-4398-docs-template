@@ -11,7 +11,7 @@ public class GameManager : NetworkBehaviour
 	[SerializeField, Layer] private int kartLayer;
 	public static int KartLayer => Instance.kartLayer;
 
-
+	public bool raceStart = false;
 	public new Camera camera;
 	private ICameraController cameraController;
 

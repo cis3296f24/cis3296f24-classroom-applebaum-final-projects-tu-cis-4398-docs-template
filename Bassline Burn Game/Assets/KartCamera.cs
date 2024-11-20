@@ -59,13 +59,9 @@ public class KartCamera : KartComponent, ICameraController
 	private void ControlCameraDriving(Camera cam)
 	{
 
-		camNode.localPosition = Vector3.Lerp(
-			camNode.localPosition,
-			_viewpoint.localPosition,
-			Time.deltaTime * lerpFactorVP);
 
 		cam.transform.position = camNode.position;
-		cam.transform.rotation = Quaternion.LookRotation(camNode.forward, Vector3.up);
+		
 		SetFOV(cam);
 	}
 
