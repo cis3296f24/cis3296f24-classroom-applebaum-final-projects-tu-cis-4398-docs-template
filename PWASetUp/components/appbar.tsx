@@ -5,7 +5,6 @@ import { Navbar, NavbarBrand, NavbarItem, NavbarContent } from '@nextui-org/navb
 const links = [
 	{ label: 'Statistics', href: '/statistics' },
   { label: 'Insights', href: '/insights' },
-  { label: 'Help', href: '/help' },
   { label: 'Settings', href: '/settings' }
 ]
 
