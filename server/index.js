@@ -90,7 +90,6 @@ function updateCurrentPlayersList() {                                           
 }
 
 function checkWinConditions() {                                                                                  // checks if a team has won the game
-    console.log("Checking win conditions");
     const mafiaCount = players.filter(p => p.team === "MAFIA" && !p.eliminated).length;                                 // counts mafia that are still alive
     const citizenCount = players.filter(p => p.team === "CITIZEN" && !p.eliminated).length;                             // counts citizens that are still alive
 
