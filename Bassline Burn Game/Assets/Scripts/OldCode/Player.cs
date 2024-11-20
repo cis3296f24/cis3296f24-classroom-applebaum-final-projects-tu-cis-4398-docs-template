@@ -17,6 +17,8 @@ public class Player : MonoBehaviour
     public float base_maxBoostTime;
 
     private PlayerInput playerInput;
+
+    private PlayerInputActions inputActions; 
     private InputAction moveAction;
     private InputAction turnAction;
     private InputAction boostAction;
@@ -59,6 +61,20 @@ public class Player : MonoBehaviour
     private bool passedCheckpoint = false;
     public float boostMultiplier;
 
+    void Awake()
+    {
+        inputActions = new PlayerInputActions();
+    }
+
+    void OnEnable()
+    {
+        inputActions.Player.Enable();
+    }
+
+    void OnDisable()
+    {
+        inputActions.Player.Disable();
+    }
     void Start()
     {
         
@@ -71,7 +87,7 @@ public class Player : MonoBehaviour
         playerInput = GetComponent<PlayerInput>();
 
         // Map InputActions
-        moveAction = playerInput.actions["Move"];
+        moveAction = inputActions.Player.Move;
         turnAction = playerInput.actions["Turn"];
         boostAction = playerInput.actions["Boost"];
         radioNextAction = playerInput.actions["RadioNext"];
