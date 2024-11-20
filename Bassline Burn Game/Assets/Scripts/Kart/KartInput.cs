@@ -12,6 +12,7 @@ public class KartInput : KartComponent, INetworkRunnerCallbacks
 	{
 		public const uint ButtonAccelerate = 1 << 0;
 		public const uint ButtonReverse = 1 << 1;
+		 public const uint ButtonRadio = 1 << 4;
 
 
 		public uint Buttons;
@@ -30,6 +31,7 @@ public class KartInput : KartComponent, INetworkRunnerCallbacks
 			get => _accelerate * .001f;
 			set => _accelerate = (int)(value * 1000);
 		}
+		public bool Radio;
 
 		public bool IsUp(uint button) => IsDown(button) == false;
 		public bool IsDown(uint button) => (Buttons & button) == button;
@@ -43,6 +45,11 @@ public class KartInput : KartComponent, INetworkRunnerCallbacks
 	[SerializeField] private InputAction accelerate;
 	[SerializeField] private InputAction steer;
 	[SerializeField] private InputAction pause;
+	[SerializeField] private InputAction radio;
+
+	private bool _radio;
+	
+	private void RadioPressed(InputAction.CallbackContext ctx) => _radio = true;
 
 	public override void Spawned()
 	{
@@ -55,11 +62,16 @@ public class KartInput : KartComponent, INetworkRunnerCallbacks
 		
 		pause = pause.Clone();
 
+		radio = radio.Clone();
+		
 		accelerate.Enable();
 		steer.Enable();
 		pause.Enable();
+		radio.Enable();
+
 		
 		pause.started += PausePressed;
+		radio.started += RadioPressed;
 	}
 
 	public override void Despawned(NetworkRunner runner, bool hasState)
@@ -79,8 +91,8 @@ public class KartInput : KartComponent, INetworkRunnerCallbacks
 	{
 		accelerate.Dispose();
 		steer.Dispose();
-		
 		pause.Dispose();
+		radio.Dispose();
 		// disposal should handle these
 		//useItem.started -= UseItemPressed;
 		//drift.started -= DriftPressed;
@@ -106,8 +118,10 @@ public class KartInput : KartComponent, INetworkRunnerCallbacks
 		userInput.Accelerate = ReadFloat(accelerate);
 
         userInput.Steer = ReadFloat(steer);
+		
 
         input.Set(userInput);
+	
     }
 
     public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }

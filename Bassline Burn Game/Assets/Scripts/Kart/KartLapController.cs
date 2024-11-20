@@ -27,8 +27,6 @@ public class KartLapController : KartComponent {
     private GameUI Hud => Kart.Hud;
 
     private NetworkRigidbody3D _nrb;
-    
-    private ChangeDetector _changeDetector;
 
     private void Awake() {
         _nrb = GetComponent<NetworkRigidbody3D>();
@@ -36,8 +34,6 @@ public class KartLapController : KartComponent {
 
     public override void Spawned() {
         base.Spawned();
-        
-        _changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
 
         // lap control is not needed if the gametype does not use laps
         if ( GameManager.Instance.GameType.IsPracticeMode() ) {
@@ -47,21 +43,6 @@ public class KartLapController : KartComponent {
         }
     }
     
-    public override void Render()
-    {
-        foreach (var change in _changeDetector.DetectChanges(this))
-        {
-            switch (change)
-            {
-                case nameof(Lap):
-                    OnLapChangedCallback(this);
-                    break;
-                case nameof(CheckpointIndex):
-                    CheckpointIndexChanged(this);
-                    break;
-            }
-        }
-    }
 
     public override void OnRaceStart() {
         base.OnRaceStart();

@@ -57,10 +57,11 @@ public class KartController : KartComponent
 	[Networked] private int AcceleratePressedTick { get; set; }
 	[Networked] private bool IsAccelerateThisFrame { get; set; }
 
-	private ChangeDetector _changeDetector;
-
-	
+	public Radio radio;
+	public GameObject radioControlPad;
+	private bool inRadioMenu;
 	public float rotationAngle = 0;
+	private int currentStation = 0;
 	private void Awake()
 	{
 		collider = GetComponent<CapsuleCollider2D>();
@@ -69,7 +70,6 @@ public class KartController : KartComponent
 	public override void Spawned()
 	{
 		base.Spawned();
-		_changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
 		MaxSpeed = maxSpeedNormal;
 	}
 
@@ -83,6 +83,8 @@ public class KartController : KartComponent
 				Kart.Input.gamepad.SetMotorSpeeds(IsOffroad ? AppliedSpeed / MaxSpeed : 0, 0);
 			}
 		}
+
+		
 	}
 
 	private void OnCollisionStay2D(Collision2D collision)
@@ -135,6 +137,25 @@ public class KartController : KartComponent
 			//
 			Inputs = input;
 		}
+
+		// if(Inputs.Radio){
+		// 	radioControlPad.SetActive(true);
+		// 	inRadioMenu = true;
+		// }
+
+
+		// if(inRadioMenu == true){
+		// 	if(Inputs.Radio){
+		// 		radioControlPad.SetActive(false);
+		// 		if(currentStation >= 3){
+		// 			currentStation = 0;
+		// 		}else{
+		// 			currentStation += 1;
+		// 		}
+		// 		inRadioMenu = false;
+		// 		radio.NavigateStations(true);
+		// 	}
+		// }
 
 		if (CanDrive)
 			Move(Inputs);

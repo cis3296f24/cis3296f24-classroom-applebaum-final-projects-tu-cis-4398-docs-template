@@ -343,7 +343,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4186867160315030819, guid: 3af5feca5f7a5624e87a0483018a823e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1
+      value: 1.25
       objectReference: {fileID: 0}
     - target: {fileID: 4186867160315030819, guid: 3af5feca5f7a5624e87a0483018a823e, type: 3}
       propertyPath: m_LocalPosition.y
@@ -382,6 +382,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8495742299786079885, guid: 3af5feca5f7a5624e87a0483018a823e, type: 3}
+      propertyPath: m_Icon
+      value: 
+      objectReference: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
+    - target: {fileID: 8495742299786079885, guid: 3af5feca5f7a5624e87a0483018a823e, type: 3}
       propertyPath: m_Name
       value: Spawnpoint
       objectReference: {fileID: 0}
@@ -400,7 +404,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4186867160315030819, guid: 3af5feca5f7a5624e87a0483018a823e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.69
+      value: -1.25
       objectReference: {fileID: 0}
     - target: {fileID: 4186867160315030819, guid: 3af5feca5f7a5624e87a0483018a823e, type: 3}
       propertyPath: m_LocalPosition.y
@@ -438,6 +442,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8495742299786079885, guid: 3af5feca5f7a5624e87a0483018a823e, type: 3}
+      propertyPath: m_Icon
+      value: 
+      objectReference: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
     - target: {fileID: 8495742299786079885, guid: 3af5feca5f7a5624e87a0483018a823e, type: 3}
       propertyPath: m_Name
       value: Spawnpoint (1)
@@ -684,7 +692,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de8c447b3bcb90d48b3b41b5b30859b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  duration: 9
+  duration: 4
   sequenceAudio: {fileID: 0}
 --- !u!114 &1018824296
 MonoBehaviour:
