@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useWebSocket } from './WebSocketContext';                    // imports the custom hook
 import RoleDisplay from './roleDisplay';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import "./startGame.css"
 
 function StartGame() {
@@ -218,7 +218,7 @@ const phaseChange = () => {
         </div>
       )}
     </div>
-  </div>
+    
       )}
       {isNarrating && (
         <div className="startGameNight">

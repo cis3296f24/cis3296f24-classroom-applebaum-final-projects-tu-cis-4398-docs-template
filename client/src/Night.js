@@ -15,6 +15,9 @@ function Night() {
   const [eliminatedPlayers, setEliminatedPlayers] = useState([]);
   const [players, setPlayers] = useState([]);         // uses state to store the player list for voting
   const [isDay, setIsDay] = useState(false);
+  const [isEliminatedListVisible, setIsEliminatedListVisible] = useState(false); // uses state to toggle eliminated players list visibility
+  const [alivePlayers, setAlivePlayers] = useState([]);
+  const [isAliveListVisible, setIsAliveListVisible] = useState(false); // uses state to toggle alive players list visibility
 
   const [timeLeft, setTimeLeft] = useState(20); // Starting timer value
   const [isActive, setIsActive] = useState(true);
@@ -49,7 +52,8 @@ function Night() {
                   setPlayers(data.players);
                   setVotes({});                                                                       // reset vote tally for players
               } else if (data.type === 'voteResults') {
-                  setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]);                     // adds the eliminated player to the array
+                  setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]); 
+                  setAlivePlayers();                    // adds the eliminated player to the array
                   setVoting(false); 
                   setIsActive(false);                                                                  // turns off voting (can be useful for next phase implementation)
                   setMessages(prev => [...prev, `${data.eliminatedPlayer} has been eliminated!`]);
@@ -62,8 +66,9 @@ function Night() {
               } else if (data.type === 'DAY') {
                 setVoting(false);
                 navigate('/startGame', { state: { role, playerName, isHost} });                                                                   // turns off voting                                                  
+              } else if (data.type === 'gameOver') {
+                setMessages(prev => [...prev, data.message]);
               }
-              setMessages((prevMessages) => [...prevMessages, data.message]); // Add new message
         }
     
         ws.addEventListener('message', handleMessage)
@@ -159,16 +164,73 @@ return(
         {role && (
             <RoleDisplay role={role}/>
         )}
-        {voting && !eliminatedPlayers.includes(playerName) && (
-                                <div>
-                                    <h3>Vote to Eliminate a Player</h3>
-                                    {players.map(player => (
-                                        <button key={player} onClick={() => voteForPlayer(player)} disabled={eliminatedPlayers.includes(player)}>
-                                            {player}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
+        {/* Voting Section */}
+      {voting && !eliminatedPlayers.includes(playerName) && (
+        <div>
+          <h3>Vote to Eliminate a Player</h3>
+          {players.map((player) => (
+            <button
+              key={player}
+              onClick={() => voteForPlayer(player)}
+              disabled={eliminatedPlayers.includes(player)}
+            >
+              {player}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className="playerListsButtonWrapper">
+        {/* Toggle Button for Eliminated Players List */}
+        <div className="elimPlayersListButtonWrapper">
+          <button
+            onClick={() => setIsEliminatedListVisible((prev) => !prev)}
+            className={`elimPlayersListButton player-button ${isAliveListVisible ? "disabled" : ""}`}
+            disabled={isAliveListVisible}
+          >
+            {isEliminatedListVisible ? "Hide Eliminated Players" : "Show Eliminated Players"}
+          </button>
+        </div>
+
+        {/* Toggle Button for Alive Players List */}
+        <div className="alivePlayersListButtonWrapper">
+          <button
+            onClick={() => setIsAliveListVisible((prev) => !prev)}
+            className={`alivePlayersListButton player-button ${isEliminatedListVisible ? "disabled" : ""}`}
+            disabled={isEliminatedListVisible}
+          >
+            {isAliveListVisible ? "Hide Alive Players" : "Show Alive Players"}
+          </button>
+        </div>
+      </div>
+
+      {/* Eliminated Players List Modal */}
+      {isEliminatedListVisible && (
+        <div className="elimPlayersList-overlay">
+          <div className="elimPlayersList-modal">
+            <h3>Eliminated Players:</h3>
+            <div className="elimPlayers-list">
+              {eliminatedPlayers.map((player, index) => (
+                  <p key={index} className="elimPlayer-name">{player}</p>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Alive Players List Modal */}
+      {isAliveListVisible && (
+        <div className="alivePlayersList-overlay">
+          <div className="alivePlayersList-modal">
+            <h3>Alive Players:</h3>
+            <div className="alivePlayers-list">
+              {alivePlayers.map((player, index) => (
+                  <p key={index} className="alivePlayer-name">{player}</p>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
                 
     </div>
     )}
