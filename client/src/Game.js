@@ -14,6 +14,7 @@ function Game() {
     const navigate = useNavigate(); // Hook for navigation
 
 
+
     // Listen for messages from the WebSocket
     useEffect(() => {
         if (ws) {

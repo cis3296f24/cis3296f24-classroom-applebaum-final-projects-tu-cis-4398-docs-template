@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 function RoleDisplay({ role }) {
-  const [isVisible, setIsVisible] = useState(true);  // State to toggle visibility
+  const [isVisible, setIsVisible] = useState(false);  // State to toggle visibility
 
   const toggleVisibility = () => {
     setIsVisible((prev) => !prev);  // Toggle the visibility

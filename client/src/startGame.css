@@ -117,6 +117,10 @@
     font-size: 100px;
     color: black;
   }
+
+  .narration {
+    color: #ffffff;
+  }
   /* example for chaning css styles if on mobile */
   /*
    @media (max-width: 500px) {
