@@ -45,7 +45,7 @@ function Game() {
     }, [ws, navigate, role, playerName, isHost]); // re-run the effect if the WebSocket instance changes
     
     function isMafia(role) {
-        if (role != "Citizen") {
+        if (role !== "Citizen") {
             return true;
         }
         return false;

@@ -2,14 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useWebSocket } from './WebSocketContext'; // Import the custom hook
 import RoleDisplay from './roleDisplay';
 import { useLocation, useNavigate } from 'react-router-dom';
-import TextToSpeech from './TextToSpeech';
+
 
 
 function Night() {
   const ws = useWebSocket(); // Get the WebSocket instance and connection status
   const [messages, setMessages] = useState([]);
-  //const isHost = sessionStorage.getItem("isHost");
-  //const role = sessionStorage.getItem("role");
+
   const [voting, setVoting] = useState(false);        // uses state to determine when voting occurs
   const [votes, setVotes] = useState({});             // uses state to store a player's vote
   const [rolesList, setRolesList] = useState([]);     // uses state to store the entire roles list
@@ -27,9 +26,9 @@ function Night() {
 
   const navigate = useNavigate(); // Hook for navigation
 
-  const[isSpeaking, setIsSpeaking] = useState(true);
+  const[spoke, setSpoke] = useState(true);
 
-    // Listen for messages from the WebSocket (and update state)9okiol
+    // Listen for messages from the WebSocket (and update state)
     useEffect(() => {
         if (!ws) {
           console.log("WebSocket is not initialized");
@@ -75,7 +74,7 @@ function Night() {
     
       }
     
-      }, [ws, navigate, role, playerName, isHost]); // Re-run the effect if WebSocket instance changes
+      }, [ws, navigate, role, playerName, isHost, voting]); // Re-run the effect if WebSocket instance changes
 
 
       //timer
@@ -120,6 +119,21 @@ const phaseChange = () => {
     }
   }
 }
+
+const announceMafiaVote = () => {
+  if(!spoke){
+    console.log("Speaking!");
+     const messageText = "Mafia open your eyes to vote.";
+     const utterance = new SpeechSynthesisUtterance(messageText);
+     utterance.pitch = 1;
+     utterance.rate = 1;
+     utterance.volume = 1;
+ 
+     // Start speaking the messages
+     window.speechSynthesis.speak(utterance);
+     setSpoke(true);
+  }
+ };
 
 return(
     <div>

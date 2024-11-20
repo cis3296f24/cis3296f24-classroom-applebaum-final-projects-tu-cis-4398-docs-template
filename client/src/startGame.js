@@ -71,7 +71,7 @@ function StartGame() {
 
   }
 
-  }, [ws, navigate, role, playerName, isHost, eliminatedPlayers, players]); // Re-run the effect if WebSocket instance changes
+  }, [ws, navigate, role, playerName, isHost, eliminatedPlayers, players, voting]); // Re-run the effect if WebSocket instance changes
 
   useEffect(() => {                               // timer
     let timer;
