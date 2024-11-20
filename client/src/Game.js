@@ -1,44 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useWebSocket } from './WebSocketContext'; // Import the custom hook
+import { useWebSocket } from './WebSocketContext';      // imports the custom hook
 
 function Game() {
-    const [isHost, setIsHost] = useState(false);// uses state to determine if a player is the host (unlocks the start button)
+    const [isHost, setIsHost] = useState(false);        // uses state to determine if a player is the host (unlocks the start button)
     const [messages, setMessages] = useState([]);       // uses state to change the message delivered to the player 
     const [role, setRole] = useState(null);             // uses state to change and store the player's role (default is NULL)
     const [playerName, setPlayerName] = useState('');   // uses state to change and store player names (default is '')
     const [isJoined, setIsJoined] = useState(false);    // uses state to determine if a player has joined the game
     const [showHelp, setShowHelp] = useState(false);    // uses state to toggle the help menu
     const [rolesList, setRolesList] = useState([]);     // uses state to store the entire roles list
-    const ws = useWebSocket(); // Get the WebSocket instance from context
-    const navigate = useNavigate(); // Hook for navigation
+    const ws = useWebSocket();                          // gets the WebSocket instance from context
+    const navigate = useNavigate();                     // hook for navigation
 
-
-
-    // Listen for messages from the WebSocket
-    useEffect(() => {
+    useEffect(() => {                                   // listens for messages from the WebSocket
         if (ws) {
             const handleMessage = (event) => {
                 const data = JSON.parse(event.data);
             
                 if (data.type === 'host') {
-                    setIsHost(true);
-                    //sessionStorage.setItem("isHost", true);
+                    setIsHost(true);                                                                // changes the player's frontend state to host status
                     setMessages(prev => [...prev, data.message]);
                 } else if (data.type === 'player' || data.type === 'message') {
                     setMessages(prev => [...prev, data.message]);
                 } else if (data.type === 'role') {
-                    setRole(data.role);
-                    //sessionStorage.setItem("role", data.role);
+                    setRole(data.role);                                                             // updates the frontend state of the player's role to match what was given in the backend
                     setMessages(prev => [...prev, `You are assigned the role of ${data.role}`]);
                 } else if (data.type === 'rolesList') {
-                    setRolesList(data.roleDesc);     
-                    //sessionStorage.setItem("role", data.role);         // for the entire roles list (not one unit)
+                    setRolesList(data.roleDesc);                                                    // changes the roles list to match the roles descriptions as from mafiaParameter.js
                 } else if (data.type === 'toggleHelpOff') { 
-                    setShowHelp(false);                     // universal toggle-off for the help menu
+                    setShowHelp(false);                                                             // universal toggle-off for the help menu (occurs after start is initiated)
                 } else if (data.type === 'start') {
-                    navigate('/startgame', { state: { role, playerName, isHost} });
-                } 
+                    navigate('/startgame', { state: { role, playerName, isHost} });                 // sends every user to a new page: start page; 
+                }                                                                                   // passes to the new page: the role, player name and if they are the host
             };
             ws.addEventListener('message', handleMessage)
 
@@ -48,7 +42,7 @@ function Game() {
         }
 
 
-    }, [ws, navigate, role, playerName, isHost]); // Re-run the effect if the WebSocket instance changes
+    }, [ws, navigate, role, playerName, isHost]); // re-run the effect if the WebSocket instance changes
     
     function isMafia(role) {
         if (role != "Citizen") {
@@ -59,14 +53,14 @@ function Game() {
 
     const handleJoinGame = () => {
         if (playerName.trim() && ws) {
-            ws.send(JSON.stringify({ type: 'join', name: playerName }));
-            setIsJoined(true); // Mark as joined to hide join controls
+            ws.send(JSON.stringify({ type: 'join', name: playerName }));    // sends the username of the player that joined to the backend
+            setIsJoined(true);                                              // marks the player as joined to hide join controls/buttons
         }
     };
 
     const startGame = () => {
         if (isHost && ws) {
-            ws.send(JSON.stringify({ type: 'start' }));
+            ws.send(JSON.stringify({ type: 'start' }));                     // sends the 'start' tag to the backend
         }
     };
 

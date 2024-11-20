@@ -58,6 +58,7 @@ function Night() {
               } else if (data.type === 'voteTie') {
                   setVoting(false);                                                                   // turns off voting
                   setMessages(prev => [...prev, data.message]);                                       // reset vote tally for players
+                  setIsActive(false);                                                                  // turns off voting (can be useful for next phase implementation)
                   setVotes({});                            
               } else if (data.type === 'DAY') {
                 setVoting(false);
@@ -86,10 +87,10 @@ function Night() {
         setTimeLeft((prevTime) => prevTime - 1);
       }, 1000);
       console.log(timeLeft);
-    } else if (timeLeft === 0) {
-        setNarrating(true);
-        clearInterval(timer); // Clear the interval when time reaches 0
-        setIsActive(false);    // Stop the timer   // Stop the timer
+    } else if (timeLeft === 0 || !isActive) {
+      setNarrating(true);    
+      clearInterval(timer); // Clear the interval when time reaches 0
+      setIsActive(false);    // Stop the timer
     }
 
     // Cleanup interval on component unmount or when timer is inactive
