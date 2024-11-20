@@ -28,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 463196048361625817}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.0118854, y: -1.6629462, z: 0.019415688}
+  m_LocalPosition: {x: -2.0118854, y: -2.54, z: 0.019415688}
   m_LocalScale: {x: 0.2, y: 0.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -76,7 +76,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 3
   m_Sprite: {fileID: 662440393, guid: f30da8b4571a84cb6a9ed036cb18b87a, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.12156863}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -231,7 +231,7 @@ Transform:
   m_GameObject: {fileID: 848845806773319010}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.0418854, y: 0.28705376, z: 0.019415688}
+  m_LocalPosition: {x: -2.0418854, y: 0.947, z: 0.019415688}
   m_LocalScale: {x: 0.25, y: 0.25, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -434,7 +434,7 @@ Transform:
   m_GameObject: {fileID: 2112094434542501278}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.88288546, y: -0.71794623, z: 0.019415617}
+  m_LocalPosition: {x: 0.11, y: -0.71794623, z: 0.019415617}
   m_LocalScale: {x: 0.25, y: 0.25, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -786,7 +786,6 @@ GameObject:
   - component: {fileID: 5160762401308021786}
   - component: {fileID: 6773694711587707924}
   - component: {fileID: 3403717950770787912}
-  - component: {fileID: 1329304292538666320}
   - component: {fileID: 5125356563137589369}
   - component: {fileID: 748752016149611564}
   - component: {fileID: 1977412380551024314}
@@ -866,9 +865,17 @@ MonoBehaviour:
   _IsDriftingRight:
     _value: 0
   _AppliedSpeed: 0
-  radio: {fileID: 2075093900345213418}
   radioControlPad: {fileID: 7777496020295197691}
   rotationAngle: 0
+  moveInput: 0
+  turnInput: 0
+  menuTimerMax: 5
+  menuTimerCurr: 0
+  radioUI:
+  - {fileID: 848845806773319010}
+  - {fileID: 2112094434542501278}
+  - {fileID: 463196048361625817}
+  - {fileID: 8870594667613173329}
 --- !u!114 &3403717950770787912
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -881,110 +888,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef8efa54be197784698712454ca632c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1329304292538666320
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8402647175462990998}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5a93f691ce5d4c743b70b3ddc1e47ea5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  accelerate:
-    m_Name: Accelerate
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: f564f92f-9c9c-444a-ac3c-d1a389c7298a
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: Arrows
-      m_Id: 419bfab1-68d2-40a6-ba5a-8b8c6936936b
-      m_Path: 1DAxis
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Accelerate
-      m_Flags: 4
-    - m_Name: negative
-      m_Id: cbcc0fc7-0e5a-4ca2-a4f1-20e05174d331
-      m_Path: <Keyboard>/downArrow
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Accelerate
-      m_Flags: 8
-    - m_Name: positive
-      m_Id: 8a945d8e-0da8-4724-8556-1b63c7aa8c8b
-      m_Path: <Keyboard>/upArrow
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Accelerate
-      m_Flags: 8
-    m_Flags: 0
-  steer:
-    m_Name: Steer
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: e7b30148-fea9-4a07-98e5-d87619743b0b
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: Arrows
-      m_Id: 70607da7-335f-4130-8eba-3e9801b1ed90
-      m_Path: 1DAxis
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Steer
-      m_Flags: 4
-    - m_Name: negative
-      m_Id: 3d1b4470-3c37-4a5f-b2a7-963f3fc8686a
-      m_Path: <Keyboard>/leftArrow
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Steer
-      m_Flags: 8
-    - m_Name: positive
-      m_Id: 2d4399b3-1f4f-48eb-9ef5-38696616046d
-      m_Path: <Keyboard>/rightArrow
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Steer
-      m_Flags: 8
-    m_Flags: 0
-  pause:
-    m_Name: Pause
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: ec9b1a91-cfff-4671-8cb4-96e9d9da7e69
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  space:
-    m_Name: Space
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: ce73404d-43ef-49ba-af08-eed1443e2d5b
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 
-      m_Id: b9154d6d-9600-4fa3-b79b-670e88ebd03c
-      m_Path: <Keyboard>/space
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Space
-      m_Flags: 0
-    m_Flags: 0
 --- !u!114 &5125356563137589369
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1083,7 +986,6 @@ MonoBehaviour:
   - {fileID: 5160762401308021786}
   - {fileID: 6773694711587707924}
   - {fileID: 3403717950770787912}
-  - {fileID: 1329304292538666320}
   - {fileID: 5125356563137589369}
   - {fileID: 1550275147461168823}
   - {fileID: 3232264202677419555}
@@ -1178,7 +1080,7 @@ Transform:
   m_GameObject: {fileID: 8870594667613173329}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -3.0118854, y: -0.6629462, z: 0.019415688}
+  m_LocalPosition: {x: -4.02, y: -0.6629462, z: 0.019415688}
   m_LocalScale: {x: 0.2, y: 0.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1226,7 +1128,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 3
   m_Sprite: {fileID: 662440393, guid: f30da8b4571a84cb6a9ed036cb18b87a, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.12156863}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
