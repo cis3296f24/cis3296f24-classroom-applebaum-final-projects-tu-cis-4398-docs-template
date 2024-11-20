@@ -41,20 +41,22 @@ function StartGame() {
           } else if (data.type === 'voteResults') {
               setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]);                     // adds the eliminated player to the array
               setVoting(false);                                                                   // turns off voting (can be useful for next phase implementation)
-              setMessages(prev => [...prev, `${data.eliminatedPlayer} has been eliminated!`]);
+              setMessages(prev => [...prev, data.message]); 
               setVotes({});                                                                       // reset vote tally for players
           } else if (data.type === 'voteTie') {
               setVoting(false);                                                                   // turns off voting
               setMessages(prev => [...prev, data.message]);                                       // reset vote tally for players
               setVotes({});
           } else if (data.type === 'NIGHT') {
-            setVoting(false);                                                                     // turns off voting
-            setIsDay(false);                                                                      // sets the page phase to nighttime
-            startTimer(10);                                                                       
+              setVoting(false);                                                                     // turns off voting
+              setIsDay(false);                                                                      // sets the page phase to nighttime
+              startTimer(10);                                                                       
           } else if (data.type === 'DAY') {
-            setVoting(false);                                                                     // turns off voting
-            setIsDay(true); 
-            startTimer(10);                              
+              setVoting(false);                                                                     // turns off voting
+              setIsDay(true); 
+              startTimer(10);                              
+          } else if (data.type === 'gameOver') {
+            setMessages(prev => [...prev, data.message]);
           }
           //setMessages((prevMessages) => [...prevMessages, data.message]); <-- this line was sending duplicate messages to frontend, idk if it is needed or not?
     }
@@ -84,6 +86,7 @@ function StartGame() {
 
     return () => clearInterval(timer);            // cleanup interval on component unmount or when timer is inactive
   }, [isActive, timeLeft]);
+
 
   const startTimer = (time) => {
     setTimeLeft(time)

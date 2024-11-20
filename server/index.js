@@ -76,6 +76,37 @@ wss.on('connection', (ws) => {
     });
 });
 
+function checkWinConditions() {                                                                                  // checks if a team has won the game
+    console.log("Checking win conditions");
+    const mafiaCount = players.filter(p => p.team === "MAFIA" && !p.eliminated).length;                                 // counts mafia that are still alive
+    const citizenCount = players.filter(p => p.team === "CITIZEN" && !p.eliminated).length;                             // counts citizens that are still alive
+
+    if (mafiaCount === 0) {                                                                                             // if there are no mafia left, citizens win
+        players.forEach(player => {
+            const message = player.team === "CITIZEN" ? "You win!" : "You lose.";                                       // sets a message for who wins and loses, different depending on your team
+            player.ws.send(JSON.stringify({                                                                             // sends game over message to front end
+                type: 'gameOver',
+                message: 'Game Over: Citizens wins! ' + message
+            }));
+        });
+    } else if (mafiaCount >= citizenCount ) {                                                                           // if mafia equal or outnumber citizens, mafia wins
+        players.forEach(player => {
+            const message = player.team === "MAFIA" ? "You win!" : "You lose.";                                         // sets a message for who wins and loses, different depending on your team
+            player.ws.send(JSON.stringify({                                                                             // sends game over message to front end
+                type: 'gameOver',
+                message: 'Game Over: Mafia wins! ' + message 
+            }));
+        });
+    }
+}
+
+function isMafia(role) {                                                                                                // function to check if a role is on the Mafia team, can be updated with added roles.
+    if (role === "Mafia") {
+        return true
+    }
+    return false;
+}
+
 function assignRoles(players) {                                                                                         // sorts the players
     const sortedRoles = roles.slice(0, players.length);                                                                 // chooses the number of roles to sort based on the number of players in the join lobby
 
@@ -87,6 +118,11 @@ function assignRoles(players) {                                                 
     players.forEach((player, index) => {
         const roleName = sortedRoles[index].name;                                                                       // assigns the role given by the sorting method to roleName
         player.role = roleName;
+        if (isMafia(roleName)) {                                                                                        // assigns teams to players when role is assigned
+            player.team = 'MAFIA';
+        } else {
+            player.team = 'CITIZEN';
+        }
         player.ws.send(JSON.stringify({ type: 'role', role: roleName }));                                               // sends the roles for each player to the server side
     });
 }
@@ -115,14 +151,16 @@ function handleVoting(playerName, targetPlayer) {
 
         let maxVotes = -1;                                                      // sets the initial vote count for every player to -1
         let eliminatedPlayer = null;                                            // default sets the eliminated player for each round to null
+        let eliminatedTeam = null                                                // default sets the eliminated player role for each round to null
         let tie = false;                                                        // default sets the boolean flag for tie to false
 
         for (const [votedFor, count] of Object.entries(voteCounts)) {           // goes through ALL of the entires in voteCounts (one time run-through)
             if (count > maxVotes) {                                             // checks to see if the current player's vote count is higher than the highest vote count
                 maxVotes = count;                                               // assigns the number of votes that person received to maxVotes
                 eliminatedPlayer = votedFor;                                    // sets the eliminated player to the person who received the most votes
+                eliminatedTeam = alivePlayers.find(player => player.name === eliminatedPlayer).team; // looks at alivePlayers for the player being eliminated, set eliminatedTeam to that role.
                 tie = false;
-            } else if (count === maxVotes) {
+            } else if (count === maxVotes) {                                    // if max votes are equal, set a tie
                 tie = true;
             }
         }
@@ -133,14 +171,13 @@ function handleVoting(playerName, targetPlayer) {
             });
         } else if (eliminatedPlayer) {                                                          // runs if a player is eliminated
             players.forEach(player => {
-                player.ws.send(JSON.stringify({ type: 'voteResults', eliminatedPlayer }));      // sends the eliminated player tag to everyone's front end with the username
+                player.ws.send(JSON.stringify({ type: 'voteResults', eliminatedPlayer, message:  eliminatedPlayer + ' has been eliminated. They were a ' + eliminatedTeam + "!"}));      // sends the eliminated player tag to everyone's front end with the username
             });
 
-            players.forEach(player => {
-                if (player.name === eliminatedPlayer) {
-                    player.eliminate();                                                         // sets the status of the eliminated player to true
-                }
-            });
+            const playerToEliminate = players.find(player => player.name === eliminatedPlayer);       // sets the status of the eliminated player to true
+            playerToEliminate.eliminate()
+
+            checkWinConditions();                                                               // check win conditions after player has been eliminated
         } else {
             console.error('[Error] No valid player eliminated.');
         }
