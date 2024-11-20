@@ -57,11 +57,18 @@ public class KartController : KartComponent
 	[Networked] private int AcceleratePressedTick { get; set; }
 	[Networked] private bool IsAccelerateThisFrame { get; set; }
 
-	public Radio radio;
+	private Radio radio;
 	public GameObject radioControlPad;
 	private bool inRadioMenu;
 	public float rotationAngle = 0;
 	private int currentStation = 0;
+
+	public float moveInput;
+    public float turnInput;
+	private bool startedTimer = false;
+	public float menuTimerMax;
+	public float menuTimerCurr;
+	public GameObject[] radioUI;
 	private void Awake()
 	{
 		collider = GetComponent<CapsuleCollider2D>();
@@ -71,22 +78,51 @@ public class KartController : KartComponent
 	{
 		base.Spawned();
 		MaxSpeed = maxSpeedNormal;
+		radio = GetComponent<Radio>();
 	}
 
 	private void Update()
 	{
-
-		if (Object.HasInputAuthority && CanDrive)
-		{
-			if (Kart.Input.gamepad != null)
-			{
-				Kart.Input.gamepad.SetMotorSpeeds(IsOffroad ? AppliedSpeed / MaxSpeed : 0, 0);
+		if(Input.GetKeyDown(KeyCode.Space)){
+			if(inRadioMenu == true){
+				if(currentStation >= 3){
+					currentStation = 0;
+				}else{
+					currentStation += 1;
+				}
+				
+				radio.NavigateStations(true);
+				menuTimerCurr = menuTimerMax;
+				startedTimer = true;
+				MenuManager(currentStation);
+			}else{
+				menuTimerCurr = menuTimerMax;
+				startedTimer = true;
+				radioControlPad.SetActive(true);
+				inRadioMenu = true;
 			}
+			
 		}
-
+		if(menuTimerCurr <= 0 && startedTimer){
+			radioControlPad.SetActive(false);
+			inRadioMenu = false;
+			startedTimer = false;
+		}
 		
+		menuTimerCurr -= Time.deltaTime;
 	}
-
+	private void MenuManager(int currentStation){
+		for(int i = 0; i < 4; i++){
+			if(i == currentStation){
+				radioUI[i].transform.localScale = new Vector3(0.5f,0.5f,0);
+				radioUI[i].GetComponent<Renderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 1f);
+			}else{
+				radioUI[i].transform.localScale = new Vector3(0.2f,0.2f,0);
+				radioUI[i].GetComponent<Renderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+			}
+			
+		}
+	}
 	private void OnCollisionStay2D(Collision2D collision)
 	{
 		// //
@@ -129,36 +165,13 @@ public class KartController : KartComponent
 	{
 		base.FixedUpdateNetwork();
 
-		if (GetInput(out KartInput.NetworkInputData input))
-		{
-			//
-			// Copy our inputs that we have received, to a [Networked] property, so other clients can predict using our
-			// tick-aligned inputs. This is the core of the Client Prediction system.
-			//
-			Inputs = input;
-		}
+		
 
-		// if(Inputs.Radio){
-		// 	radioControlPad.SetActive(true);
-		// 	inRadioMenu = true;
-		// }
+		
 
-
-		// if(inRadioMenu == true){
-		// 	if(Inputs.Radio){
-		// 		radioControlPad.SetActive(false);
-		// 		if(currentStation >= 3){
-		// 			currentStation = 0;
-		// 		}else{
-		// 			currentStation += 1;
-		// 		}
-		// 		inRadioMenu = false;
-		// 		radio.NavigateStations(true);
-		// 	}
-		// }
 
 		if (CanDrive)
-			Move(Inputs);
+			Move();
 
 		HandleStartRace();
 		Drift(Inputs);
@@ -190,34 +203,37 @@ public class KartController : KartComponent
 		
 	}
 
-	private void Move(KartInput.NetworkInputData input)
+	private void Move()
 	{
+		moveInput = Input.GetAxis("Vertical");
+       
 		float velocityVsUp = Vector2.Dot(transform.up, rb.velocity);
-        if(velocityVsUp>maxSpeedNormal&& input.Accelerate > 0){
+        if(velocityVsUp>maxSpeedNormal&& moveInput > 0){
             return;
         }
-        if(velocityVsUp<-maxSpeedNormal *0.5f && input.Accelerate < 0){
+        if(velocityVsUp<-maxSpeedNormal *0.5f && moveInput < 0){
             return;
         }
         
 
 
-        if(input.Accelerate == 0){
+        if(moveInput == 0){
             rb.drag = Mathf.Lerp(rb.drag, 3.0f, Time.fixedDeltaTime*3);
         }
         else{
             rb.drag = 0;
         }
-        Vector2 engineForceVector = transform.up * input.Accelerate * acceleration;
+        Vector2 engineForceVector = transform.up * moveInput * acceleration;
         rb.AddForce(engineForceVector,ForceMode2D.Force);
 	}
 
 
 	private void Steer(KartInput.NetworkInputData input)
 	{
+		turnInput = Input.GetAxis("Horizontal");
 		float minSpeedForTurn = rb.velocity.magnitude/8;
         minSpeedForTurn = Mathf.Clamp01(minSpeedForTurn);
-        rotationAngle -= input.Steer * maxSteerStrength * speedToDrift;
+        rotationAngle -= turnInput * maxSteerStrength * speedToDrift;
         rb.MoveRotation(rotationAngle);
 	}
 	
