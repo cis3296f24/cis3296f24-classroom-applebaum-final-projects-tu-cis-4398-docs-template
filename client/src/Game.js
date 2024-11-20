@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useWebSocket } from './WebSocketContext';      // imports the custom hook
+import { useWebSocket } from './WebSocketContext';      // Import the custom hook
+import './Game.css';
 
 function Game() {
     const [isHost, setIsHost] = useState(false);        // uses state to determine if a player is the host (unlocks the start button)
@@ -10,30 +11,33 @@ function Game() {
     const [isJoined, setIsJoined] = useState(false);    // uses state to determine if a player has joined the game
     const [showHelp, setShowHelp] = useState(false);    // uses state to toggle the help menu
     const [rolesList, setRolesList] = useState([]);     // uses state to store the entire roles list
-    const ws = useWebSocket();                          // gets the WebSocket instance from context
-    const navigate = useNavigate();                     // hook for navigation
+    const [currentPlayers, setCurrentPlayers] = useState([]);
+    const ws = useWebSocket();                          // Get the WebSocket instance from context
+    const navigate = useNavigate();                     // Hook for navigation
 
-    useEffect(() => {                                   // listens for messages from the WebSocket
+    useEffect(() => {                                                                       // Listen for messages from the WebSocket
         if (ws) {
             const handleMessage = (event) => {
                 const data = JSON.parse(event.data);
             
                 if (data.type === 'host') {
-                    setIsHost(true);                                                                // changes the player's frontend state to host status
+                    setIsHost(true);                                                        // changes the player's frontend state to host status
                     setMessages(prev => [...prev, data.message]);
                 } else if (data.type === 'player' || data.type === 'message') {
                     setMessages(prev => [...prev, data.message]);
                 } else if (data.type === 'role') {
-                    setRole(data.role);                                                             // updates the frontend state of the player's role to match what was given in the backend
+                    setRole(data.role);                                                     // updates the frontend state of the player's role to match what was given in the backend
                     setMessages(prev => [...prev, `You are assigned the role of ${data.role}`]);
                 } else if (data.type === 'rolesList') {
-                    setRolesList(data.roleDesc);                                                    // changes the roles list to match the roles descriptions as from mafiaParameter.js
+                    setRolesList(data.roleDesc);                                            // changes the roles list to match the roles descriptions as from mafiaParameter.js
                 } else if (data.type === 'toggleHelpOff') { 
-                    setShowHelp(false);                                                             // universal toggle-off for the help menu (occurs after start is initiated)
+                    setShowHelp(false);                                                     // universal toggle-off for the help menu (occurs after start is initiated)
                 } else if (data.type === 'start') {
-                    navigate('/startgame', { state: { role, playerName, isHost} });                 // sends every user to a new page: start page; 
-                }                                                                                   // passes to the new page: the role, player name and if they are the host
-            };
+                    navigate('/startgame', { state: { role, playerName, isHost} });         // sends every user to a new page: start page, passes to the new page: the role, player name and if they are the host
+                } else if (data.type === 'updateCurrentPlayerList') {
+                    setCurrentPlayers(data.currentPlayers);
+                }
+            }                                                                           
             ws.addEventListener('message', handleMessage)
 
             return () => {
@@ -42,14 +46,7 @@ function Game() {
         }
 
 
-    }, [ws, navigate, role, playerName, isHost]); // re-run the effect if the WebSocket instance changes
-    
-    function isMafia(role) {
-        if (role != "Citizen") {
-            return true;
-        }
-        return false;
-    }
+    }, [ws, navigate, role, playerName, isHost]); // Re-run the effect if the WebSocket instance changes
 
     const handleJoinGame = () => {
         if (playerName.trim() && ws) {
@@ -75,63 +72,70 @@ function Game() {
 
     return (
         <div>
-
             {!isJoined ? (
                 <div className="login">
                     <div className="gameTitle">
-                                <h2>MAFIUHH...</h2>
-                        </div>
-                        <div className="container-login100">
-                            <div className="wrap-login100">
-                                <input
-                                    type="text"
-                                    placeholder="Enter your name"
-                                    value={playerName}
-                                    onChange={(e) => setPlayerName(e.target.value)}
-                                />
-                                <div className="glow">
-                                    <button className="lgn-btn" onClick={handleJoinGame}>
-                                        Join Game
-                                    </button>
-                                </div>
+                        <h2>MAFIUHH...</h2>
+                    </div>
+                    <div className="container-login100">
+                        <div className="wrap-login100">
+                            <input
+                                type="text"
+                                placeholder="Enter your name"
+                                value={playerName}
+                                onChange={(e) => setPlayerName(e.target.value)}
+                            />
+                            <div className="glow">
+                                <button className="lgn-btn" onClick={handleJoinGame}>
+                                    Join Game
+                                </button>
                             </div>
                         </div>
+                    </div>
                 </div>
             ) : (
                 <div className="login">
-                <div className="gameTitle">
-                            <h2>MAFIUHH...</h2>
+                    <div className="gameTitle">
+                        <h2>MAFIUHH...</h2>
                     </div>
-                            <div className="container-login100">
-                                <div className="wrap-login100">
-        
-                                    <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
-
-                                    <div className="glow">
-                                        {isHost && <button onClick={goToStartGame}>Start Game</button>}
-                                    </div>
-
-                                    <div>
-                                        <button onClick={toggleHelp}>Help</button>
-                                    </div>
-                                    {showHelp && (
-                                        <div className ="helpbox">
-                                            <h3>Character Roles</h3>
-                                            {rolesList
-                                                .filter((value, index, self) =>
-                                                    index === self.findIndex((t) => t.name === value.name)  // Ensures distinct roles by name
-                                                )
-                                                .map((roleDesc, index) => (
-                                                <div className="helplist" key={index}>
-                                                    <h4>{roleDesc.name}</h4>
-                                                    <p>{roleDesc.description}</p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
+                        <div className="container-login100">
+                            <div className="wrap-login100">
+                                <div className = "host-header">
+                                    {isHost && <h3>You are the Host</h3>}
                                 </div>
+                                <div className="players-container">
+                                    <h2>Current Players</h2>
+                                    <div id="players-list" className="players-list">
+                                        {currentPlayers.map((player, index) => (
+                                            <p key={index} className="player-name">{player}</p>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="glow">
+                                    {isHost && <button onClick={goToStartGame}>Start Game</button>}
+                                </div>
+
+                                <div>
+                                    <button onClick={toggleHelp}>Help</button>
+                                </div>
+                                {showHelp && (
+                                    <div className ="helpbox">
+                                        <h3>Character Roles</h3>
+                                        {rolesList
+                                            .filter((value, index, self) =>
+                                                index === self.findIndex((t) => t.name === value.name)  // Ensures distinct roles by name
+                                            )
+                                            .map((roleDesc, index) => (
+                                            <div className="helplist" key={index}>
+                                                <h4>{roleDesc.name}</h4>
+                                                <p>{roleDesc.description}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
-                    </div>
+                        </div>
+                </div>
             )}
         </div>
     );
