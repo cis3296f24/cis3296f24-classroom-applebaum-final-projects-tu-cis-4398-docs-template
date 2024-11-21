@@ -74,7 +74,9 @@ function Game() {
     };
     
     const goToStartGame = () => {
-        startGame();
+        if (currentPlayers.length <= maxPlayers && numMafia < maxPlayers){
+            startGame();
+        }
     };
 
 
