@@ -50,8 +50,9 @@ wss.on('connection', (ws) => {
                 }                                                                                                       // (accomplished by comparing websockets)
             });
         } else if (data.type === 'start') {
+            //data.nightLength can be used for the timer *****
             if (players[0].ws === ws) {                                                                                 // checks that the player who clicked the start button is the host
-                assignRoles(players);                                                                                   // runs the assignRoles() function using the # of people in the players[]
+                assignRoles(players, data.maxPlayers, data.numMafia);                                                                                   // runs the assignRoles() function using the # of people in the players[]
                 players.forEach(player => {
                     player.ws.send(JSON.stringify({ type: 'toggleHelpOff'}));                                           // sends the 'toggleHelpOff' tag to the frontend (see Game.js for use)
                     player.ws.send(JSON.stringify({ type: 'start'}));                                                   // sends the 'start' tag to the frontend (see Game.js for use)
