@@ -135,6 +135,36 @@ function Game() {
                                 )}
                             </div>
                         </div>
+
+
+                        {isHost && ( 
+                        <div className="container-login100">
+                            <div className="wrap-login100">
+                                <h3>Host Options</h3>
+                                <label for="name">Enter max players:</label>
+                                <input
+                                    type="text"
+                                    
+                                    value={playerName}
+                                    //change value based on max players
+                                />
+                                <label for="name">Enter # of mafia:</label>
+                                <input
+                                    type="text"
+                                    
+                                    value={playerName}
+                                    //change value based on max players
+                                />
+                                <label for="name">Enter length of night (in seconds):</label>
+                                <input
+                                    type="text"
+                                    
+                                    value={playerName}
+                                    //change value based on max players
+                                />
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>
