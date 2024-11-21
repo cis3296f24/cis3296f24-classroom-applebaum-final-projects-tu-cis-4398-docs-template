@@ -9,6 +9,33 @@
 
 </div>
 
+## Use Case 1: Host Changing Options in Host Panel
+```mermaid
+
+sequenceDiagram
+    actor Host User
+    participant websocket
+    participant backend
+    participant frontend
+    participant UI
+
+    Host User ->> websocket: connects
+    websocket ->> backend: JSON join message
+    backend ->> frontend: JSON host message
+    frontend ->> UI: display host UI
+    Host User ->> UI: changes host options
+    UI -->> frontend: changes variables
+    Host User ->> UI: clicks start game button
+    UI -->> frontend: startGame()
+    frontend ->> backend: JSON start message (containing host options)
+
+    
+
+```
+This sequence diagram shows the first user to connect becoming the host, changing some options on a panel exclusive to the host, and starting the game.
+
+
+
 
 ## Features
 - localhost hosting for testing
