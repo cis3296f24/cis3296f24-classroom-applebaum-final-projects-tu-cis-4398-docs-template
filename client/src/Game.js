@@ -60,7 +60,12 @@ function Game() {
 
     const startGame = () => {
         if (isHost && ws) {
-            ws.send(JSON.stringify({ type: 'start' }));                     // sends the 'start' tag to the backend
+            ws.send(JSON.stringify({ 
+                type: 'start', 
+                maxPlayers: maxPlayers,
+                numMafia: numMafia,
+                nightLength: nightLength 
+            }));                     // sends the 'start' tag to the backend
         }
     };
 
