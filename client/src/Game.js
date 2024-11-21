@@ -14,6 +14,9 @@ function Game() {
     const [currentPlayers, setCurrentPlayers] = useState([]);
     const ws = useWebSocket();                          // Get the WebSocket instance from context
     const navigate = useNavigate();                     // Hook for navigation
+    const [maxPlayers, setMaxPlayers] = useState(15);   // uses state to change and store maxPlayers (default is 15)
+    const [numMafia, setNumMafia] = useState(2);        // uses state to change and store numMafia (default is 2)
+    const [nightLength, setNightLength] = useState(60); //uses state to change and store nightLength (default is 60s)
 
     useEffect(() => {                                                                       // Listen for messages from the WebSocket
         if (ws) {
@@ -145,22 +148,25 @@ function Game() {
                                 <input
                                     type="text"
                                     
-                                    value={playerName}
+                                    value={maxPlayers}
                                     //change value based on max players
+                                    onChange={(e) => setMaxPlayers(e.target.value)}
                                 />
                                 <label for="name">Enter # of mafia:</label>
                                 <input
                                     type="text"
                                     
-                                    value={playerName}
-                                    //change value based on max players
+                                    value={numMafia}
+                                    //change value based on # of mafia
+                                    onChange={(e) => setNumMafia(e.target.value)}
                                 />
                                 <label for="name">Enter length of night (in seconds):</label>
                                 <input
                                     type="text"
                                     
-                                    value={playerName}
-                                    //change value based on max players
+                                    value={nightLength}
+                                    //change value based on length of night
+                                    onChange={(e) => setNightLength(e.target.value)}
                                 />
                             </div>
                         </div>
