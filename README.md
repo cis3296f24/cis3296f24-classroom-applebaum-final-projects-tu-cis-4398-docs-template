@@ -19,19 +19,18 @@ sequenceDiagram
     participant Backend index.js
     
     activate Frontend Game.js
-    activate Backend index.js
-    User ->> websocket: Open website and connects
+    User ->> websocket: connects
     activate websocket
-    
     User ->> Frontend Game.js: input name
     User ->> Frontend Game.js: press join button
     Frontend Game.js ->> websocket: player name and JSON join message
     websocket ->> Backend index.js: player name and JSON join message
+    activate Backend index.js
     Backend index.js ->> websocket: JSON player message
+    deactivate Backend index.js
     websocket ->> Frontend Game.js: JSON player message
     deactivate websocket
     deactivate Frontend Game.js
-    deactivate Backend index.js
 ```
 
 This sequence diagram shows a player joining the game. First the user will open the website and that will make a websocket connection. Then the User will input their name and press the join button on the frontend client screen Game.js. The Frontend Game.js sends this information to the websocket connection and then the websocket will send that information to the backend index.js. The Backend index.js will send the player message to the websocket connection, which will then send it to the Frontend Game.js where it will be displayed on the client.
@@ -46,20 +45,21 @@ sequenceDiagram
     participant Backend index.js
     
     activate Frontend Game.js
-    activate Backend index.js
+    
     Host User ->> websocket: Open website and connects
     activate websocket
     
     Host User ->> Frontend Game.js: input name
     Host User ->> Frontend Game.js: press join button
     Frontend Game.js ->> websocket: player name and JSON join message
+    activate Backend index.js
     websocket ->> Backend index.js: player name and JSON join message
+    deactivate Backend index.js
     Backend index.js ->> websocket: JSON host message
     websocket ->> Frontend Game.js: JSON host message
     Frontend Game.js ->> Frontend Game.js: display host UI
     deactivate websocket
     deactivate Frontend Game.js
-    deactivate Backend index.js
     Host User ->> Frontend Game.js: change max players to 6, number of mafia to 2
     Host User ->> Frontend Game.js: press start game button
     activate Frontend Game.js
