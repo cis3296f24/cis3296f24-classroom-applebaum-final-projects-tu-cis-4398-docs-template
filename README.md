@@ -1,7 +1,7 @@
 [![Open in Codespaces](https://classroom.github.com/assets/launch-codespace-2972f46106e565e64193e422d61a12cf1da4916b45550586e14ef0a7c637dd04.svg)](https://classroom.github.com/open-in-codespaces?assignment_repo_id=16933133)
 <div align="center">
 
-# Project Name
+# Mafia Uhh
 [![Report Issue on Jira](https://img.shields.io/badge/Report%20Issues-Jira-0052CC?style=flat&logo=jira-software)](https://temple-cis-projects-in-cs.atlassian.net/jira/software/c/projects/DT/issues)
 [![Deploy Docs](https://github.com/ApplebaumIan/tu-cis-4398-docs-template/actions/workflows/deploy.yml/badge.svg)](https://github.com/ApplebaumIan/tu-cis-4398-docs-template/actions/workflows/deploy.yml)
 [![Documentation Website Link](https://img.shields.io/badge/-Documentation%20Website-brightgreen)](https://applebaumian.github.io/tu-cis-4398-docs-template/)
@@ -42,24 +42,38 @@ This sequence diagram shows a player joining the game. First the user will open 
 sequenceDiagram
     actor Host User
     participant websocket
-    participant backend
-    participant frontend
-    participant UI
-
-    Host User ->> websocket: connects
-    websocket ->> backend: JSON join message
-    backend ->> frontend: JSON host message
-    frontend ->> UI: display host UI
-    Host User ->> UI: changes host options
-    UI -->> frontend: changes variables
-    Host User ->> UI: clicks start game button
-    UI -->> frontend: startGame()
-    frontend ->> backend: JSON start message (containing host options)
-
+    participant Frontend Game.js
+    participant Backend index.js
     
+    activate Frontend Game.js
+    activate Backend index.js
+    Host User ->> websocket: Open website and connects
+    activate websocket
+    
+    Host User ->> Frontend Game.js: input name
+    Host User ->> Frontend Game.js: press join button
+    Frontend Game.js ->> websocket: player name and JSON join message
+    websocket ->> Backend index.js: player name and JSON join message
+    Backend index.js ->> websocket: JSON host message
+    websocket ->> Frontend Game.js: JSON host message
+    Frontend Game.js ->> Frontend Game.js: display host UI
+    deactivate websocket
+    deactivate Frontend Game.js
+    deactivate Backend index.js
+    Host User ->> Frontend Game.js: change max players to 6, number of mafia to 2
+    Host User ->> Frontend Game.js: press start game button
+    activate Frontend Game.js
+    Frontend Game.js ->> websocket: start JSON with maxPlayers, numMafia
+    websocket ->> Backend index.js: start JSON with maxPlayers, numMafia
+    activate Backend index.js
+    Backend index.js ->> Backend index.js: assignRoles()
+    Backend index.js ->> websocket: role JSON
+    deactivate Backend index.js
+    websocket ->> Frontend Game.js: role JSON
+    deactivate Frontend Game.js
 
 ```
-This sequence diagram shows the first user to connect becoming the host, changing some options on a panel exclusive to the host, and starting the game.
+This sequence diagram is for the use case of the Host, or the first person to connect to the game, changing options in the host options panel. The host user opens the website and connects to the websocket. The host enters their name and presses join, which causes the frontend to send a join message containing the player name to the backend. Since this is the first user to join, they are made the host. The backend sends a host message to the frontend via the websocket, which then triggers the frontend to display the host UI for the host only. Then the host changes max players to 6 and number of mafia to 2. Once they start the game, a start message is sent via websocket to the backend, where these variables are used to assignRoles() to all players. Using the websocket, the backend sends a role message to the frontend to display the role that each player got.
 
 
 
