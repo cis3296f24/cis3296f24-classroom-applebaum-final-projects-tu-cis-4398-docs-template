@@ -50,8 +50,10 @@ wss.on('connection', (ws) => {
                 }                                                                                                       // (accomplished by comparing websockets)
             });
         } else if (data.type === 'start') {
+            console.log(data.maxPlayers);
+            //data.nightLength can be used for the timer *****
             if (players[0].ws === ws) {                                                                                 // checks that the player who clicked the start button is the host
-                assignRoles(players);                                                                                   // runs the assignRoles() function using the # of people in the players[]
+                assignRoles(players, data.maxPlayers, data.numMafia);                                                                                   // runs the assignRoles() function using the # of people in the players[]
                 players.forEach(player => {
                     player.ws.send(JSON.stringify({ type: 'toggleHelpOff'}));                                           // sends the 'toggleHelpOff' tag to the frontend (see Game.js for use)
                     player.ws.send(JSON.stringify({ type: 'start'}));                                                   // sends the 'start' tag to the frontend (see Game.js for use)
@@ -119,6 +121,7 @@ function isMafia(role) {                                                        
     return false;
 }
 
+/*
 function assignRoles(players) {                                                                                         // sorts the players
     const sortedRoles = roles.slice(0, players.length);                                                                 // chooses the number of roles to sort based on the number of players in the join lobby
 
@@ -137,6 +140,41 @@ function assignRoles(players) {                                                 
         }
         player.ws.send(JSON.stringify({ type: 'role', role: roleName }));                                               // sends the roles for each player to the server side
     });
+}
+*/
+
+function assignRoles(players, maxPlayers, numMafia) {                                                                                         // sorts the players
+                                                                // chooses the number of roles to sort based on the number of players in the join lobby
+
+    //generate shuffled roles array
+    sortedRoles = generateRoles(maxPlayers, numMafia);
+
+    let numAssigned = 0;
+
+    players.forEach((player, index) => {
+        if (numAssigned < maxPlayers){
+            const roleName = sortedRoles[index].name;                                                                       // assigns the role given by the sorting method to roleName
+            player.role = roleName;
+            if (isMafia(roleName)) {                                                                                        // assigns teams to players when role is assigned
+                player.team = 'MAFIA';
+            } else {
+                player.team = 'CITIZEN';
+            }
+            player.ws.send(JSON.stringify({ type: 'role', role: roleName }));
+            numAssigned++;           // sends the roles for each player to the server side  
+        }                                   
+    });
+}
+
+function generateRoles(maxPlayers, numMafia){
+
+    const mafia = Array(numMafia).fill({ name: 'Mafia' });
+
+    const citizens = Array(maxPlayers - numMafia).fill({ name: 'Citizen' });
+
+    const finalRoles = [...mafia, ...citizens];
+
+    return finalRoles.sort(() => Math.random() - 0.5);
 }
 
 function handleVoting(playerName, targetPlayer) {

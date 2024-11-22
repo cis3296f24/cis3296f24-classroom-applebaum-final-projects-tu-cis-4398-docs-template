@@ -14,6 +14,9 @@ function Game() {
     const [currentPlayers, setCurrentPlayers] = useState([]);
     const ws = useWebSocket();                          // Get the WebSocket instance from context
     const navigate = useNavigate();                     // Hook for navigation
+    const [maxPlayers, setMaxPlayers] = useState(15);   // uses state to change and store maxPlayers (default is 15)
+    const [numMafia, setNumMafia] = useState(2);        // uses state to change and store numMafia (default is 2)
+    const [nightLength, setNightLength] = useState(60); //uses state to change and store nightLength (default is 60s)
 
     useEffect(() => {                                                                       // Listen for messages from the WebSocket
         if (ws) {
@@ -57,7 +60,12 @@ function Game() {
 
     const startGame = () => {
         if (isHost && ws) {
-            ws.send(JSON.stringify({ type: 'start' }));                     // sends the 'start' tag to the backend
+            ws.send(JSON.stringify({ 
+                type: 'start', 
+                maxPlayers: maxPlayers,
+                numMafia: numMafia,
+                nightLength: nightLength 
+            }));                     // sends the 'start' tag to the backend
         }
     };
 
@@ -66,7 +74,9 @@ function Game() {
     };
     
     const goToStartGame = () => {
-        startGame();
+        if (currentPlayers.length <= maxPlayers && numMafia < maxPlayers){
+            startGame();
+        }
     };
 
 
@@ -135,6 +145,39 @@ function Game() {
                                 )}
                             </div>
                         </div>
+
+
+                        {isHost && ( 
+                        <div className="container-login100">
+                            <div className="wrap-login100">
+                                <h3>Host Options</h3>
+                                <label htmlFor="name">Enter max players:</label>
+                                <input
+                                    type="text"
+                                    
+                                    value={maxPlayers}
+                                    //change value based on max players
+                                    onChange={(e) => setMaxPlayers(e.target.value)}
+                                />
+                                <label htmlFor="name">Enter # of mafia:</label>
+                                <input
+                                    type="text"
+                                    
+                                    value={numMafia}
+                                    //change value based on # of mafia
+                                    onChange={(e) => setNumMafia(e.target.value)}
+                                />
+                                <label htmlFor="name">Enter length of night (in seconds):</label>
+                                <input
+                                    type="text"
+                                    
+                                    value={nightLength}
+                                    //change value based on length of night
+                                    onChange={(e) => setNightLength(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>
