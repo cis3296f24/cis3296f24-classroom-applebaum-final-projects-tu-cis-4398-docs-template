@@ -23,7 +23,7 @@ const MicCard: React.FC <MicCardProps> = ({isMicActive, isBadWordDetected, onTog
                 <CardBody className='justify-center items-center aspect-square'>
                 <Image
                         alt='microphone'
-                        className='object-cover w-auto h-auto'
+                        className='object-cover w-auto h-auto z-0'
                         src="../images/microphone.svg"
                 >
                 </Image>
