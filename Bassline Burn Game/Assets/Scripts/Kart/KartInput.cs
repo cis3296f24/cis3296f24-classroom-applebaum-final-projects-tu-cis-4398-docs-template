@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using Fusion;
 using Fusion.Sockets;
@@ -8,121 +7,106 @@ using UnityEngine.InputSystem;
 
 public class KartInput : KartComponent, INetworkRunnerCallbacks
 {
-	public struct NetworkInputData : INetworkInput
-	{
-		public const uint ButtonAccelerate = 1 << 0;
-		public const uint ButtonReverse = 1 << 1;
-		 public const uint ButtonRadio = 1 << 4;
+    public struct NetworkInputData : INetworkInput
+    {
+        public const uint ButtonAccelerate = 1 << 0;
+        public const uint ButtonReverse = 1 << 1;
+        public const uint ButtonRadio = 1 << 4;
 
+        public uint Buttons;
+        public uint OneShots;
 
-		public uint Buttons;
-		public uint OneShots;
+        private int _steer;
+        public float Steer
+        {
+            get => _steer * .001f;
+            set => _steer = (int)(value * 1000);
+        }
 
-		private int _steer;
-		public float Steer
-		{
-			get => _steer * .001f;
-			set => _steer = (int)(value * 1000);
-		}
-		
-		private int _accelerate;
-		public float Accelerate
-		{
-			get => _accelerate * .001f;
-			set => _accelerate = (int)(value * 1000);
-		}
-		public bool Radio;
+        private int _accelerate;
+        public float Accelerate
+        {
+            get => _accelerate * .001f;
+            set => _accelerate = (int)(value * 1000);
+        }
 
-		public bool IsUp(uint button) => IsDown(button) == false;
-		public bool IsDown(uint button) => (Buttons & button) == button;
+        public bool IsUp(uint button) => IsDown(button) == false;
+        public bool IsDown(uint button) => (Buttons & button) == button;
+        public bool IsDownThisFrame(uint button) => (OneShots & button) == button;
+    }
 
-		public bool IsDownThisFrame(uint button) => (OneShots & button) == button;
-        
+    public Gamepad gamepad;
+
+    [SerializeField] private InputAction accelerate;
+    [SerializeField] private InputAction steer;
+    [SerializeField] private InputAction radioMenu;
+
+    public bool RadioMenuPressed { get; private set; }
+
+    private void RadioMenuHandler(InputAction.CallbackContext ctx){
+		Debug.Log("Radio menu button pressed!");
+		RadioMenuPressed = true;
 	}
 
-	public Gamepad gamepad;
+    public override void Spawned()
+    {
+        base.Spawned();
 
-	[SerializeField] private InputAction accelerate;
-	[SerializeField] private InputAction steer;
-	[SerializeField] private InputAction pause;
-	[SerializeField] private InputAction radio;
+        Runner.AddCallbacks(this);
 
-	private bool _radio;
-	
-	private void RadioPressed(InputAction.CallbackContext ctx) => _radio = true;
+        accelerate = accelerate.Clone();
+        steer = steer.Clone();
+        radioMenu = radioMenu.Clone();
 
-	public override void Spawned()
-	{
-		base.Spawned();
+        accelerate.Enable();
+        steer.Enable();
+        radioMenu.Enable();
 
-		Runner.AddCallbacks(this);
+        radioMenu.started += RadioMenuHandler;
+    }
 
-		accelerate = accelerate.Clone();
-		steer = steer.Clone();
-		
-		pause = pause.Clone();
-
-		radio = radio.Clone();
-		
-		accelerate.Enable();
-		steer.Enable();
-		pause.Enable();
-		radio.Enable();
-
-		
-		pause.started += PausePressed;
-		radio.started += RadioPressed;
-	}
-
-	public override void Despawned(NetworkRunner runner, bool hasState)
-	{
+    public override void Despawned(NetworkRunner runner, bool hasState)
+    {
         base.Despawned(runner, hasState);
-        
-		DisposeInputs();
-		Runner.RemoveCallbacks(this);
-	}
+        DisposeInputs();
+        Runner.RemoveCallbacks(this);
+    }
 
-	private void OnDestroy()
-	{
-		DisposeInputs();
-	}
+    private void OnDestroy()
+    {
+        DisposeInputs();
+    }
 
     private void DisposeInputs()
-	{
-		accelerate.Dispose();
-		steer.Dispose();
-		pause.Dispose();
-		radio.Dispose();
-		// disposal should handle these
-		//useItem.started -= UseItemPressed;
-		//drift.started -= DriftPressed;
-		//pause.started -= PausePressed;
-	}
+    {
+        accelerate.Dispose();
+        steer.Dispose();
+        radioMenu.Dispose();
+    }
 
+    private static bool ReadBool(InputAction action) => action.ReadValue<float>() != 0;
+    private static float ReadFloat(InputAction action) => action.ReadValue<float>();
 
-    private void PausePressed(InputAction.CallbackContext ctx)
-	{
-		if (Kart.Controller.CanDrive) InterfaceManager.Instance.OpenPauseMenu();
-	}
-
-	/// This isn't networked, so is not inside the <see cref="NetworkInputData"/> struct
-
-	private static bool ReadBool(InputAction action) => action.ReadValue<float>() != 0;
-	private static float ReadFloat(InputAction action) => action.ReadValue<float>();
-
-    public void OnInput(NetworkRunner runner, NetworkInput input) {
+    public void OnInput(NetworkRunner runner, NetworkInput input)
+    {
         gamepad = Gamepad.current;
 
-        var userInput = new NetworkInputData();
+        var userInput = new NetworkInputData
+        {
+            Accelerate = ReadFloat(accelerate),
+            Steer = ReadFloat(steer),
+        };
 
-		userInput.Accelerate = ReadFloat(accelerate);
-
-        userInput.Steer = ReadFloat(steer);
-		
+        // Handle Radio Menu Button Press
+        if (RadioMenuPressed)
+        {
+            userInput.Buttons |= NetworkInputData.ButtonRadio;
+            RadioMenuPressed = false; // Reset after reading
+        }
 
         input.Set(userInput);
-	
     }
+
 
     public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }
     public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }

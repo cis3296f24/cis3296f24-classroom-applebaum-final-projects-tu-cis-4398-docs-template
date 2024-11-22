@@ -1,7 +1,7 @@
 using Fusion;
 using UnityEngine;
 
-public class Track : NetworkBehaviour, ICameraController
+public class Track : NetworkBehaviour
 {
 	public static Track Current { get; private set; }
 
@@ -13,25 +13,21 @@ public class Track : NetworkBehaviour, ICameraController
 	public FinishLine finishLine;
 
 	public TrackDefinition definition;
-	public TrackStartSequence sequence;
 
 	public string music = "";
 	public float introSpeed = 0.5f;
 
 	private int _currentIntroTrack;
 	private float _introIntervalProgress;
+	KartInput localCarInputHandler;
 
 	private void Awake()
 	{
 		Current = this;
-		InitCheckpoints();
-
-		// Initialize cutscene
-		AudioManager.StopMusic();
+	
 
 		GameManager.SetTrack(this);
 		GameManager.Instance.camera = Camera.main;
-		StartIntro();
 	}
 
 	public override void Spawned()
@@ -40,10 +36,10 @@ public class Track : NetworkBehaviour, ICameraController
 
 		if (RoomPlayer.Local.IsLeader)
 		{
-			StartRaceTimer = TickTimer.CreateFromSeconds(Runner, sequence.duration + 4f);
+			
 		}
 
-		sequence.StartSequence();
+		
 	}
 
 	private void OnDestroy()
@@ -67,55 +63,15 @@ public class Track : NetworkBehaviour, ICameraController
 			player.Object.InputAuthority
 		);
 
+		
+
 		entity.Controller.RoomUser = player;
 		player.GameState = RoomPlayer.EGameState.GameCutscene;
 		player.Kart = entity.Controller;
-
-		Debug.Log($"Spawning kart for {player.Username} as {entity.name}");
+		
 		entity.transform.name = $"Kart ({player.Username})";
 	}
 
-	private void InitCheckpoints()
-	{
-		for (int i = 0; i < checkpoints.Length; i++)
-		{
-			checkpoints[i].index = i;
-		}
-	}
 
-	public bool ControlCamera(Camera cam)
-	{
-		cam.transform.position = Vector3.Lerp(
-			introTracks[_currentIntroTrack].startPoint.position,
-			introTracks[_currentIntroTrack].endPoint.position,
-			_introIntervalProgress);
 
-		cam.transform.rotation = Quaternion.Slerp(
-			introTracks[_currentIntroTrack].startPoint.rotation,
-			introTracks[_currentIntroTrack].endPoint.rotation,
-			_introIntervalProgress);
-
-		_introIntervalProgress += Time.deltaTime * introSpeed;
-		if (_introIntervalProgress > 1)
-		{
-			_introIntervalProgress -= 1;
-			_currentIntroTrack++;
-			if (_currentIntroTrack == introTracks.Length)
-			{
-				_currentIntroTrack = 0;
-				_introIntervalProgress = 0;
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	public void StartIntro()
-	{
-		_currentIntroTrack = 0;
-		_introIntervalProgress = 0;
-		AudioManager.PlayMusic("intro");
-		GameManager.GetCameraControl(this);
-	}
 }

@@ -12,6 +12,7 @@ public class GameManager : NetworkBehaviour
 	public static int KartLayer => Instance.kartLayer;
 
 	public bool raceStart = false;
+	public float raceTime = 0f;
 	public new Camera camera;
 	private ICameraController cameraController;
 
@@ -30,6 +31,7 @@ public class GameManager : NetworkBehaviour
 	[Networked] public int GameTypeId { get; set; }
 	[Networked] public int MaxUsers { get; set; }
 
+	
 	private static void OnLobbyDetailsChangedCallback(GameManager changed)
 	{
 		OnLobbyDetailsUpdated?.Invoke(changed);
@@ -59,9 +61,14 @@ public class GameManager : NetworkBehaviour
 			MaxUsers = ServerInfo.MaxUsers;
 		}
 	}
+
 	
 	private void LateUpdate()
 	{
+		if(raceStart){
+			raceTime += Time.deltaTime;
+		}
+		
 		// this shouldn't really be an interface due to how Unity handle's interface lifecycles (null checks dont work).
 		if (cameraController == null) return;
 		if (cameraController.Equals(null))

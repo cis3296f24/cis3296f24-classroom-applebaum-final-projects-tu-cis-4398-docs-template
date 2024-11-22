@@ -13,7 +13,6 @@ public class KartEntity : KartComponent
 	public KartController Controller { get; private set; }
 	public KartInput Input { get; private set; }
 	public KartLapController LapController { get; private set; }
-	public KartAudio Audio { get; private set; }
 	public GameUI Hud { get; private set; }
 	public NetworkRigidbody2D Rigidbody { get; private set; }
 
@@ -29,7 +28,6 @@ public class KartEntity : KartComponent
 		Controller = GetComponent<KartController>();
 		Input = GetComponent<KartInput>();
 		LapController = GetComponent<KartLapController>();
-		Audio = GetComponentInChildren<KartAudio>();
 		Rigidbody = GetComponent<NetworkRigidbody2D>();
 
 		// Initializes all KartComponents on or under the Kart prefab

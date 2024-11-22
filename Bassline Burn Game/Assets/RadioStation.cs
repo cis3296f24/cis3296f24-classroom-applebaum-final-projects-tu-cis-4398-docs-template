@@ -19,9 +19,13 @@ public class RadioStation : MonoBehaviour
     public bool stopRadio;
 
     public float waitTime;
+    private Vector3 initialLocalPosition;
+ // Reference to the parent transform
+    public float distanceFromParent = 2f;
     // Start is called before the first frame update
     void Start()
     {
+        initialLocalPosition = transform.localPosition;
         audioSource = GetComponent<AudioSource>();
         ShuffleRadio();
     }
@@ -29,7 +33,8 @@ public class RadioStation : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.rotation = Quaternion.identity;
+        transform.localPosition = initialLocalPosition;
+        transform.rotation = Quaternion.identity; 
         if(currentRadio == false && stopRadio == false){
             waitTime -= 1 * Time.deltaTime;
             if(waitTime <= 0){

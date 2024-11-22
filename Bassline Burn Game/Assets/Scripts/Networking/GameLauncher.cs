@@ -36,6 +36,7 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
 		Application.runInBackground = true;
 		Application.targetFrameRate = Screen.currentResolution.refreshRate;
 		QualitySettings.vSyncCount = 1;
+		
 
 		_levelManager = GetComponent<LevelManager>();
 
@@ -61,7 +62,7 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
 		var sim3D = go.AddComponent<RunnerSimulatePhysics3D>();
 		sim3D.ClientPhysicsSimulation = ClientPhysicsSimulation.SimulateAlways;
 
-		_runner.ProvideInput = _gameMode != GameMode.Server;
+		_runner.ProvideInput = true;
 		_runner.AddCallbacks(this);
 
 		_pool = go.AddComponent<FusionObjectPoolRoot>();
@@ -178,7 +179,10 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
 
 		_runner = null;
 	}
-	public void OnInput(NetworkRunner runner, NetworkInput input) { }
+	public void OnInput(NetworkRunner runner, NetworkInput input)
+{
+    
+}
 	public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
 	public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message) { }
 	public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) { }

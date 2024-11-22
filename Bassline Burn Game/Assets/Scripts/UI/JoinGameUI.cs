@@ -19,6 +19,6 @@ public class JoinGameUI : MonoBehaviour {
     private void SetLobbyName(string lobby)
 	{
 		ClientInfo.LobbyName = lobby;
-		//confirmButton.interactable = !string.IsNullOrEmpty(lobby);
+		confirmButton.interactable = !string.IsNullOrEmpty(lobby);
 	}
 }
