@@ -75,8 +75,65 @@ sequenceDiagram
 ```
 This sequence diagram is for the use case of the Host, or the first person to connect to the game, changing options in the host options panel. The host user opens the website and connects to the websocket. The host enters their name and presses join, which causes the frontend to send a join message containing the player name to the backend. Since this is the first user to join, they are made the host. The backend sends a host message to the frontend via the websocket, which then triggers the frontend to display the host UI for the host only. Then the host changes max players to 6 and number of mafia to 2. Once they start the game, a start message is sent via websocket to the backend, where these variables are used to assignRoles() to all players. Using the websocket, the backend sends a role message to the frontend to display the role that each player got.
 
+## Use Case 3: Player Selecting a Vote
+```mermaid
 
+sequenceDiagram
+    actor User
+    participant websocket
+    participant Night.js
+    participant index.js
+    
+    %% index.js = Backend, & Night.js = Frontend & websocket = communication pipe between both
+    activate Night.js
+    activate websocket
 
+    %% the current moment is immediately after game status swapped from startGame.js
+    %% User is already connected to the websocket
+
+    %% Game has transitioned to Night.js, voting is isn't initialized but the timer is
+    activate Night.js
+    Night.js ->> websocket: sends 'startVote' from frontend
+    deactivate Night.js
+    
+    Note right of Night.js: NIGHT.JS:<br>- Voting not initiated<br>- Timer started
+    websocket ->> index.js: passes 'startVote' to backend
+    
+    activate index.js
+    Note right of index.js: INDEX.JS:<br>- Processes 'startVote'<br>- Prepares "players" map
+    index.js ->> websocket: sends 'startVoting' with the parameter players map
+    deactivate index.js
+    
+    Note left of index.js:  NIGHT.JS:<br>- Voting phase initialized<br>- Sends active player list
+    websocket ->> Night.js: passes 'startVoting' and parameter
+    
+    activate Night.js
+    Note right of Night.js: NIGHT.JS:<br>- Updates Voting state<br>- `setVoting(true)`<br>- `useState(players)`<br>- Reset votes
+    %% User voting interaction
+    User ->> Night.js: clicks player name to vote (voteForPlayer)
+    Note right of Night.js: NIGHT.JS:<br>- User vote submitted<br>- Processing voteForPlayer
+    Night.js ->> websocket: sends 'vote' tag with name of voted player
+    deactivate Night.js
+    
+    websocket ->> index.js: passes 'vote' with playerName
+    
+    activate index.js
+    Note right of index.js: INDEX.JS:<br>- Initiates handleVoting<br>- `handleVoting` checks vote count<br>- Tie → 'voteTie'<br>- Winner → 'voteResults'
+    %% Outcome: winner in votes
+    Note right of index.js: - Player eliminated<br>- player.eliminated = true<br>- Results are universally broadcasted
+    index.js ->> websocket: sends 'voteResults' with eliminatedPlayer name & team
+    deactivate index.js
+    
+    websocket ->> Night.js: passes 'voteResults' with eliminatedPlayer
+    
+    activate Night.js
+    Note right of Night.js: NIGHT.JS:<br>- updates eliminatedPlayers <br>- turns off voting & timer <br>- resets votes
+    deactivate Night.js
+
+    deactivate websocket
+```
+
+This sequence diagram represents a player who is already in the game and can vote. The user is already has a websocket connection. The current state of the game is immediately after game status swapped from startGame.js to Night.js. The diagram demonstates the various communications between the frontend and backend of the game system through a websocket. At first, the voting is not started, but then the game updates to have voting begin (through various communications between backend and frontend to setup the initialization of voting). Following this, the User will be able to select the name of their target vote for elimination by clicking on their button on the frontend client screen of Night.js. The frontend will communicate their choice to the backend who will process it. The backend then sends the reponse to the voting results from all other users to each individual users frontend. The player has the name of the eliminated player displayed on their screen and finally voting and the timer are reset back to their initial states.
 
 ## Features
 - localhost hosting for testing
@@ -93,7 +150,20 @@ This sequence diagram is for the use case of the Host, or the first person to co
 
 ## Keywords
 
-Section #, as well as any words that quickly give your peers insights into the application like programming language, development platform, type of application, etc.
+[CIS 3296]
+Section 005
+Software Design (Applebaum & Thanh)
+2024 Fall
+
+Mafia Game (Recreation and Implementation)
+
+Javascript
+CSS
+Node.js
+React
+Web-app & Mobile app 
+VSCode
+Github
 
 ## Project Abstract
 
@@ -113,7 +183,10 @@ The background will contain a more detailed description of the product and a com
 
 ## Required Resources
 
-Discuss what you need to develop this project. This includes background information you will need to acquire, hardware resources, and software resources. If these are not part of the standard Computer Science Department lab resources, these must be identified early and discussed with the instructor.
+Github
+VSCode
+Jira
+Background knowledge on Javascript, CSS, and React
 
 ## Collaborators
 
@@ -128,10 +201,10 @@ Discuss what you need to develop this project. This includes background informat
         </a>
     </td>
     <td align="center">
-        <a href="https://github.com/leighflagg">
-            <img src="https://avatars.githubusercontent.com/u/77810293?v=4" width="100;" alt="leighflagg"/>
+        <a href="https://github.com/tur97019">
+            <img src="https://avatars.githubusercontent.com/u/156941302?s=400&amp;v=4" width="100;" alt="@tur97019"/>
             <br />
-            <sub><b>Null</b></sub>
+            <sub><b>Cole Dirnbeck</b></sub>
         </a>
     </td></tr>
 </table>
