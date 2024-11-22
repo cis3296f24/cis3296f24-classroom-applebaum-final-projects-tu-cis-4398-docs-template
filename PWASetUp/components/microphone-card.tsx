@@ -20,7 +20,7 @@ const MicCard: React.FC <MicCardProps> = ({isMicActive, isBadWordDetected, onTog
             className={cardClass}
             isPressable
             onPress={onToggleMic}>
-                <CardBody className='justify-center items-center aspect-square'>
+                <CardBody className='justify-center items-center aspect-square z-0'>
                 <Image
                         alt='microphone'
                         className='object-cover w-auto h-auto z-0'
