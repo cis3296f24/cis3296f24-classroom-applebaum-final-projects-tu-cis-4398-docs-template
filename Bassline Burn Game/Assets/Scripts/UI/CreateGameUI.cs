@@ -35,7 +35,7 @@ public class CreateGameUI : MonoBehaviour
 
 		playerCountSlider.wholeNumbers = true;
 		playerCountSlider.minValue = 1;
-		playerCountSlider.maxValue = 8;
+		playerCountSlider.maxValue = 4;
 		playerCountSlider.value = 2;
 		playerCountSlider.onValueChanged.AddListener(x => ServerInfo.MaxUsers = (int)x);
 

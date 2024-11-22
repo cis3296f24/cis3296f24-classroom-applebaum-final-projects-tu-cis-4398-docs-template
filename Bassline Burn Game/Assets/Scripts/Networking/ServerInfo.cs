@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 
 public static class ServerInfo {
 
-    public const int UserCapacity = 8; //the actual hard limit
+    public const int UserCapacity = 4; //the actual hard limit
 
     public static string LobbyName;
     public static string TrackName => ResourceManager.Instance.tracks[TrackId].trackName;
