@@ -7,3 +7,37 @@
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Create new .gitignore (or edit existing)
+cat > .gitignore << EOL
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+/build
+
+# misc
+.DS_Store
+*.pem
+.env
+.env.local
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env*.local
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+EOL
