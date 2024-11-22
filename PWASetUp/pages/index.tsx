@@ -4,6 +4,7 @@ import { Button } from '@nextui-org/react'
 import RingDevice from '../components/Ring';
 import db from '../database.js';
 import MicCard from 'components/microphone-card';
+import ModifyBannedText from 'components/modify-banned';
 import React, {useState, useEffect} from 'react';
 
 // Type definitions for Speech Recognition
@@ -64,6 +65,10 @@ const Index = () => {
         <br/>
         <p> this is where we test other functions bc otherwise this looks good i think</p>
         <RingDevice/>
+        <br/>
+        <div>
+          <ModifyBannedText/>
+        </div>
       </Section>
     </Page>
   );
