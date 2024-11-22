@@ -9,7 +9,34 @@
 
 </div>
 
-## Use Case 1: Host Changing Options in Host Panel
+## Use Case 1: Player Joining The Game
+```mermaid
+
+sequenceDiagram
+    actor User
+    participant websocket
+    participant Frontend Game.js
+    participant Backend index.js
+    
+    activate Frontend Game.js
+    activate Backend index.js
+    User ->> websocket: Open website and connects
+    activate websocket
+    
+    User ->> Frontend Game.js: input name
+    User ->> Frontend Game.js: press join button
+    Frontend Game.js ->> websocket: player name and JSON join message
+    websocket ->> Backend index.js: player name and JSON join message
+    Backend index.js ->> websocket: JSON player message
+    websocket ->> Frontend Game.js: JSON player message
+    deactivate websocket
+    deactivate Frontend Game.js
+    deactivate Backend index.js
+```
+
+This sequence diagram shows a player joining the game. First the user will open the website and that will make a websocket connection. Then the User will input their name and press the join button on the frontend client screen Game.js. The Frontend Game.js sends this information to the websocket connection and then the websocket will send that information to the backend index.js. The Backend index.js will send the player message to the websocket connection, which will then send it to the Frontend Game.js where it will be displayed on the client.
+
+## Use Case 2: Host Changing Options in Host Panel
 ```mermaid
 
 sequenceDiagram
