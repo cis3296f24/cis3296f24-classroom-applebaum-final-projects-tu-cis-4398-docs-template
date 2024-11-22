@@ -69,6 +69,16 @@ wss.on('connection', (ws) => {
             players.forEach(player => {
                 player.ws.send(JSON.stringify({ type: 'startVoting', players: players.map(p => p.name) }));             // sends the voting button signal to each player's frontend
             });
+        } else if(data.type === 'changePhase'){
+            if(data.phase == 'NIGHT'){
+                players.forEach(player => {
+                    player.ws.send(JSON.stringify({ type: 'NIGHT'}));
+                });  
+            }else{
+                players.forEach(player => {
+                    player.ws.send(JSON.stringify({ type: 'DAY'}));
+                });  
+            }
         }
     });
 

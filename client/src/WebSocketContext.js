@@ -22,8 +22,6 @@ export const WebSocketProvider = ({ children }) => {
         wsRef.current = new WebSocket('wss://mafia-uhh-server.onrender.com/ws');
     }
 
-    console.log(wsRef.current);
-
     // Handle the 'open' event - WebSocket connection has been established
     wsRef.current.onopen = () => {
       console.log('WebSocket connected');
@@ -52,7 +50,7 @@ export const WebSocketProvider = ({ children }) => {
             wsRef.current.close();
           }
         };
-      }, []);
+      }, [isLocal]);
 
   return (
     <WebSocketContext.Provider value={ws}>

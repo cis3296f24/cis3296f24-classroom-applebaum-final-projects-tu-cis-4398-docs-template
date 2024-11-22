@@ -4,6 +4,7 @@ import './App.css';
 import './startGame.css';
 import Game from './Game';
 import StartGame from './startGame';  // Import the StartGame component
+import Night from './Night';
 import { WebSocketProvider } from './WebSocketContext';
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Game />} /> {/* Game component is rendered at the root route */}
             <Route path="/startgame" element={<StartGame />} /> {/* StartGame component at the /startgame route */}
+            <Route path="/Night" element={<Night />} /> {/* Night component at the /night route */} 
           </Routes>
           </div>
       </BrowserRouter>

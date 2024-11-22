@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useWebSocket } from './WebSocketContext';                    // imports the custom hook
 import RoleDisplay from './roleDisplay';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import "./startGame.css"
 
 function StartGame() {
@@ -18,13 +18,20 @@ function StartGame() {
 
   const [isDay, setIsDay] = useState(true);
 
-  const [timeLeft, setTimeLeft] = useState(10);                       // starting timer value (defaults as 10 seconds)
+  const [timeLeft, setTimeLeft] = useState(20);                       // starting timer value (defaults as 10 seconds)
   const [isActive, setIsActive] = useState(true);                     // sets the default timer state to true/active
+
+  const[isNarrating, setNarrating] = useState(false);
 
   const location = useLocation();
   const { role, playerName, isHost } = location.state;
 
-  useEffect(() => {                                                    // listens for messages from the WebSocket (and update state)
+  const navigate = useNavigate(); // Hook for navigation
+
+
+
+  // Listen for messages from the WebSocket (and update state)
+  useEffect(() => {
     if (!ws) {
       console.log("WebSocket is not initialized");
       return;
@@ -45,26 +52,23 @@ function StartGame() {
           } else if (data.type === 'voteResults') {
               setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]);                     // adds the eliminated player to the array
               setAlivePlayers();
-              setVoting(false);                                                                   // turns off voting (can be useful for next phase implementation)
+              setVoting(false);
+              setIsActive(false);                                                                   // turns off voting (can be useful for next phase implementation)
               setMessages(prev => [...prev, data.message]); 
               setVotes({});                                                                       // reset vote tally for players
           } else if (data.type === 'voteTie') {
               setVoting(false);                                                                   // turns off voting
-              setMessages(prev => [...prev, data.message]);                                       // reset vote tally for players
+              setMessages(prev => [...prev, data.message]);    
+              setIsActive(false);                                                            // reset vote tally for players
               setVotes({});
           } else if (data.type === 'NIGHT') {
-              setVoting(false);                                                                     // turns off voting
-              setIsDay(false);                                                                      // sets the page phase to nighttime
-              startTimer(10);                                                                       
-          } else if (data.type === 'DAY') {
-              setVoting(false);                                                                     // turns off voting
-              setIsDay(true); 
-              startTimer(10);                              
+            setVoting(false);                                                                   // turns off voting
+            navigate('/Night', { state: {role, playerName, isHost} });                          //move to night page                                         // turns off voting                          
+          
           } else if (data.type === 'gameOver') {
             setMessages(prev => [...prev, data.message]);
           }
-          //setMessages((prevMessages) => [...prevMessages, data.message]); <-- this line was sending duplicate messages to frontend, idk if it is needed or not?
-    }
+      }
 
     ws.addEventListener('message', handleMessage)
 
@@ -74,7 +78,7 @@ function StartGame() {
 
   }
 
-  }, [ws]); // re-run the effect if WebSocket instance changes
+  }, [ws, navigate, role, playerName, isHost, eliminatedPlayers, players, voting]); // Re-run the effect if WebSocket instance changes
 
   useEffect(() => {
     const newAlivePlayers = players.filter(player => !eliminatedPlayers.includes(player));
@@ -88,10 +92,10 @@ function StartGame() {
         setTimeLeft((prevTime) => prevTime - 1);
       }, 1000);
       console.log(timeLeft);
-    } else if (timeLeft === 0) {
-      phaseChange();
-      clearInterval(timer);                       // clears the interval when time reaches 0
-      setIsActive(false);                         // stops the timer
+    } else if (timeLeft === 0 || !isActive) {
+      setNarrating(true);    
+      clearInterval(timer); // Clear the interval when time reaches 0
+      setIsActive(false);    // Stop the timer
     }
 
     return () => clearInterval(timer);            // cleanup interval on component unmount or when timer is inactive
@@ -104,6 +108,7 @@ function StartGame() {
   };
 
 
+
   const voteForPlayer = (playerName) => {
     if (votes[playerName] || eliminatedPlayers.includes(playerName)) return;    // checks to see if a player already voted or dead; prevents a player voting more than once
 
@@ -113,21 +118,26 @@ function StartGame() {
 };
 
 const phaseChange = () => {
-  if(isHost){
+    console.log("Phase change");
     if(isDay){
       ws.send(JSON.stringify({ type: 'changePhase', phase: 'NIGHT' }));         // change phase for all
     }else{
       ws.send(JSON.stringify({ type: 'changePhase', phase: 'DAY' }));           // change phase for all
     }
-  }
 }
 
-return (
-  <div>
-    <div className={isDay ? "startGameDay" : "startGameNight"}>
-      <div className="gameTitle">
-        <h2>MafiUhh...</h2>
-      </div>
+  return (
+    <div>
+    {!isNarrating && (
+      <div className="startGameDay">
+          <div className="gameTitle">
+            <h2>MafiUhh...</h2>
+          </div>
+        {isHost && (
+          <div className="user">
+            Host
+          </div>
+        )}
 
       {/* Display the countdown timer */}
       <div className="timerWrapper">
@@ -139,17 +149,6 @@ return (
       {/* Display the user's role */}
       {role && <RoleDisplay role={role} />}
 
-      {/* Display the elimination messages after voting */}
-      {messages.length > 0 && (
-        <div>
-          <h3>Game Updates:</h3>
-          <div>
-            {messages.map((msg, index) => (
-              <p key={index}>{msg}</p>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Voting Section */}
       {voting && !eliminatedPlayers.includes(playerName) && (
@@ -219,8 +218,29 @@ return (
         </div>
       )}
     </div>
-  </div>
-);
+    
+      )}
+      {isNarrating && (
+        <div className="startGameNight">
+          <div className="gameTitle">
+            <h2>MafiUhh...</h2>
+          </div>
+          {/* Display the elimination messages after voting */}
+        <div>
+          {messages.length > 0 && (
+            <div className="narration">
+              <h3>Game Updates:</h3>
+              <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
+            </div>
+          )}
+        </div>
+        <div className="glow">
+                                        {isHost && <button onClick={phaseChange}>Continue</button>}
+                                    </div>
+        </div>
+      )}
+      </div>
+  );
 }
 
 
