@@ -53,19 +53,34 @@ public class Player : MonoBehaviour
     private bool passedCheckpoint = false;
     public float boostMultiplier;
 
+    bool isJumping = false;
+
     //UnityEngine.Vector2 someWASD = UnityEngine.Vector2.zero;
     
     //public PlayerInputActions playerControls;
+
+    [Header("Inputs")]
     public InputAction playerMovement;
     public InputAction playerRadioNext;
     public InputAction playerRadioPrev;
     public InputAction playerBoost;
+
+    public InputAction playerJump;
+
+    [Header("Sprites")]
+    public SpriteRenderer carSpriteRenderer;
+    public SpriteRenderer carShadowRenderer;
+
+    [Header("Jumping")]
+    public AnimationCurve jumpCurve;
+
 
     void OnEnable(){
         playerMovement.Enable();
         playerRadioNext.Enable();
         playerRadioPrev.Enable();
         playerBoost.Enable();
+        playerJump.Enable();
     }
 
     void OnDisable(){
@@ -73,6 +88,7 @@ public class Player : MonoBehaviour
         playerRadioNext.Disable();
         playerRadioPrev.Disable();
         playerBoost.Disable();
+        playerJump.Disable();
     }
 
 
@@ -126,6 +142,11 @@ public class Player : MonoBehaviour
                     currentBoostTime += Time.deltaTime;
                 }
                 ChangeStats(radio.currentStation);
+            }
+
+
+            if(playerJump.IsPressed()){
+                Jump(1.0f,0.0f);
             }
         }
         // attempt at boost
@@ -246,7 +267,45 @@ public class Player : MonoBehaviour
 
         return false;
     }
+
+    public void Jump(float jumpHeightScale, float jumpPushScale){
+        if(!isJumping){
+            StartCoroutine(JumpCo(jumpHeightScale, jumpPushScale));
+        }
+    }
+    private IEnumerator JumpCo(float jumpHeightScale, float jumpPushScale){
+        isJumping = true;
+        float jumpStartTime = Time.time;
+        float jumpDuration = 2;
+        while(isJumping){
+            float jumpCompletedPercentage = (Time.time - jumpStartTime) / jumpDuration;
+            jumpCompletedPercentage = Mathf.Clamp01(jumpCompletedPercentage);
+
+            
+            carSpriteRenderer.transform.localScale = Vector3.one * jumpCurve.Evaluate(jumpCompletedPercentage) * jumpHeightScale;
+            carShadowRenderer.transform.localScale = carSpriteRenderer.transform.localScale * 0.8f;
+            carShadowRenderer.transform.position = new Vector3(1,-1,0.0f)*3*jumpCurve.Evaluate(jumpCompletedPercentage)*jumpHeightScale;
+
+
+            if(jumpCompletedPercentage == 1.0f){
+                break;
+            }
+
+            yield return null;
+        }
+        carSpriteRenderer.transform.localScale = Vector3.one;
+        
+        carShadowRenderer.transform.position = Vector3.zero;
+
+        carShadowRenderer.transform.localScale = carSpriteRenderer.transform.localScale;
+
+        isJumping = false;
+    }
 }
+
+
+
+
 // using System;
 // using System.Collections;
 // using System.Collections.Generic;
