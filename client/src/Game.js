@@ -151,7 +151,7 @@ function Game() {
                         <div className="container-login100">
                             <div className="wrap-login100">
                                 <h3>Host Options</h3>
-                                <label for="name">Enter max players:</label>
+                                <label htmlFor="name">Enter max players:</label>
                                 <input
                                     type="text"
                                     
@@ -159,7 +159,7 @@ function Game() {
                                     //change value based on max players
                                     onChange={(e) => setMaxPlayers(e.target.value)}
                                 />
-                                <label for="name">Enter # of mafia:</label>
+                                <label htmlFor="name">Enter # of mafia:</label>
                                 <input
                                     type="text"
                                     
@@ -167,7 +167,7 @@ function Game() {
                                     //change value based on # of mafia
                                     onChange={(e) => setNumMafia(e.target.value)}
                                 />
-                                <label for="name">Enter length of night (in seconds):</label>
+                                <label htmlFor="name">Enter length of night (in seconds):</label>
                                 <input
                                     type="text"
                                     
