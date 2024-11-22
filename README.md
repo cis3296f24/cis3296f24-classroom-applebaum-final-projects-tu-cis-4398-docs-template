@@ -26,6 +26,81 @@ This game has very simple parts but can get very complicated quickly. A lot of t
 
 The conceptual design involves creating a basic multiplayer racing game with Unity and C# and then building off of that. Once when we create amazing controls and this state of the art radio system, we can build off of this by adding a lobby to hold our multiplayer in which racers can vote on maps and even add bots to their game if there are not enough players. While to start we will just have a simple host/join multiplayer system, I would like to add on a system that will add you to a random game that has some players in it already.
 
+
+### Sequence Diagram for Hosting a Game:
+```mermaid
+    sequenceDiagram
+    
+    User ->> Interface Manager: Load Game 
+    Activate User
+    Activate Interface Manager
+    Activate Interface Manager
+    Interface Manager ->> Interface Manager: Fetch Client Info
+    Deactivate Interface Manager
+    
+    Interface Manager ->> CreateGameUI: Start()
+    Activate Interface Manager
+    Activate CreateGameUI
+    Activate CreateGameUI
+    CreateGameUI ->> CreateGameUI: SetTrack, LobbyName, Users
+    Deactivate CreateGameUI
+    CreateGameUI ->> Level Manager: Load Track
+    Activate Level Manager
+    Activate CreateGameUI
+
+    Level Manager ->> GameUI: Spawn Players
+    Activate GameUI
+    GameUI --) Level Manager: 
+    Deactivate GameUI
+    Deactivate CreateGameUI
+    Level Manager --) CreateGameUI: 
+    Deactivate Level Manager
+    Deactivate CreateGameUI
+    CreateGameUI --) Interface Manager: 
+    Interface Manager --) User: 
+    Deactivate Interface Manager
+    Deactivate Interface Manager
+    Deactivate User
+```
+
+### Sequence Diagram for Joining a Game:
+```mermaid
+    sequenceDiagram
+    
+    User ->> Interface Manager: Load Game 
+    Activate User
+    Activate Interface Manager
+    Activate Interface Manager
+    Interface Manager ->> Interface Manager: Fetch Client Info
+    Deactivate Interface Manager
+    
+    Interface Manager ->> JoinGameUI: Start()
+    Activate Interface Manager
+    Activate JoinGameUI
+    Activate JoinGameUI
+    JoinGameUI ->> JoinGameUI: Fetch Lobby Info
+    Deactivate JoinGameUI
+    JoinGameUI ->> Level Manager: Load Track
+    Activate Level Manager
+    Activate JoinGameUI
+
+    Level Manager ->> GameUI: Spawn Players
+    Activate GameUI
+    GameUI --) Level Manager: 
+    Deactivate GameUI
+    Deactivate JoinGameUI
+    Level Manager --) JoinGameUI: 
+    Deactivate Level Manager
+    Deactivate JoinGameUI
+    JoinGameUI --) Interface Manager: 
+    Interface Manager --) User: 
+    Deactivate Interface Manager
+    Deactivate Interface Manager
+    Deactivate User
+   
+
+    
+```
 ## Background
 
 Growing up one of the most popular video games were Mariokart. Something about the fun controls made it entertaining for both the casual and hardcore racers. Now that I am a lot older, I want to replicate the game and combine it with my other interest in music. Live radios in games is not a new thing, from Forza to GTA, these games have all had in game radios. What will make this different is the fact that the radio actually affects the games and is not just an extra feature.
