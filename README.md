@@ -52,10 +52,10 @@ sequenceDiagram
     Host User ->> Frontend Game.js: input name
     Host User ->> Frontend Game.js: press join button
     Frontend Game.js ->> websocket: player name and JSON join message
-    activate Backend index.js
     websocket ->> Backend index.js: player name and JSON join message
-    deactivate Backend index.js
+    activate Backend index.js
     Backend index.js ->> websocket: JSON host message
+    deactivate Backend index.js
     websocket ->> Frontend Game.js: JSON host message
     Frontend Game.js ->> Frontend Game.js: display host UI
     deactivate websocket
