@@ -74,6 +74,8 @@ const Index = () => {
   );
 };
 
+let recognition: any = null;
+
 function speechToText(isActive: boolean, handleBadWordDetected: () => void): void {
   const output = document.getElementById('output') as HTMLElement | null;
   const detectedWordsOutput = document.getElementById('detectedWords') as HTMLElement | null;
@@ -84,11 +86,14 @@ function speechToText(isActive: boolean, handleBadWordDetected: () => void): voi
     alert("Your browser does not support the SpeechRecognition API");
     return;
   }
+  if (!recognition) {
+    recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = true;
+    recognition.continuous = true;
 
-  const recognition = new SpeechRecognition();
-  recognition.lang = 'en-US';
-  recognition.interimResults = true;
-  recognition.continuous = true;
+  }
+  
 
   const wordbank: string[] = [
     "ass",
