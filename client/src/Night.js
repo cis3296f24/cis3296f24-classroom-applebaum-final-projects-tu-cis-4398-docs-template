@@ -6,21 +6,18 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 
 function Night() {
-  const ws = useWebSocket(); // Get the WebSocket instance and connection status
+  const ws = useWebSocket();                                                      // Get the WebSocket instance and connection status
   const [messages, setMessages] = useState([]);
-
-  const [voting, setVoting] = useState(false);        // uses state to determine when voting occurs
-  const [votes, setVotes] = useState({});             // uses state to store a player's vote
-  const [rolesList, setRolesList] = useState([]);     // uses state to store the entire roles list
+  const [players, setPlayers] = useState([]);                                     // uses state to store the player list for voting
+  const [voting, setVoting] = useState(false);                                    // uses state to determine when voting occurs
+  const [votes, setVotes] = useState({});                                         // uses state to store a player's vote
+  const [rolesList, setRolesList] = useState([]);                                 // uses state to store the entire roles list
   const [eliminatedPlayers, setEliminatedPlayers] = useState([]);
-  const [players, setPlayers] = useState([]);         // uses state to store the player list for voting
-  const [isDay, setIsDay] = useState(false);
-  const [isEliminatedListVisible, setIsEliminatedListVisible] = useState(false); // uses state to toggle eliminated players list visibility
+  const [isEliminatedListVisible, setIsEliminatedListVisible] = useState(false);  // uses state to toggle eliminated players list visibility
   const [alivePlayers, setAlivePlayers] = useState([]);
-  const [isAliveListVisible, setIsAliveListVisible] = useState(false); // uses state to toggle alive players list visibility
-
+  const [isAliveListVisible, setIsAliveListVisible] = useState(false);            // uses state to toggle alive players list visibility
+  const [isDay, setIsDay] = useState(false);
   const [timeLeft, setTimeLeft] = useState(20); // Starting timer value
-  const [isActive, setIsActive] = useState(true);
 
   const[isNarrating, setNarrating] = useState(false);
 
