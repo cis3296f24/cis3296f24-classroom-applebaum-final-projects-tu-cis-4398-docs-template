@@ -72,16 +72,8 @@ wss.on('connection', (ws) => {
             players.forEach(player => {
                 player.ws.send(JSON.stringify({ type: 'startVoting', players: players.map(p => p.name) }));             // sends the voting button signal to each player's frontend
             });
-        } else if(data.type === 'changePhase'){
-            if(data.phase == 'NIGHT'){
-                players.forEach(player => {
-                    player.ws.send(JSON.stringify({ type: 'NIGHT'}));
-                });  
-            }else{
-                players.forEach(player => {
-                    player.ws.send(JSON.stringify({ type: 'DAY'}));
-                });  
-            }
+        } else if (data.type === 'beginTimer') {
+            beginTimer();
         }
     });
 
@@ -93,6 +85,30 @@ wss.on('connection', (ws) => {
         updateCurrentPlayersList();                                                                                     // send updated list to all players after someone disconnects
     });
 });
+
+function beginTimer() {
+    if (timerInterval) {
+        clearInterval(timerInterval);                                                   // checks if the timer is currently running and stops it if so             
+    }
+
+    players.forEach(player => { 
+        player.ws.send(JSON.stringify({ type: 'timer', timeLeft: timer }));             // sends out the current timer number to all users' frontend
+    });
+
+    timerInterval = setInterval(() => {
+        console.log("Timer: " + timer);                                                 // runs through a loop (1000 ms/1 sec) doing the following...
+        timer--;
+
+        if (timer <= 0) {                                                               // checks if the timer is at 0
+            clearInterval(timerInterval);                                               // stops timer if it hits 0
+            doPhaseChange();                                                            // runs phase change function
+        } else {
+            players.forEach(player => { 
+                player.ws.send(JSON.stringify({ type: 'timer', timeLeft: timer }));     // sends out the current timer number to all users' frontend
+            });
+        }
+    }, 1000);
+}
 
 function updateCurrentPlayersList() {                                                                                   // sends the updated player list to all 
     const playerNames = players.map(player => player.name);
