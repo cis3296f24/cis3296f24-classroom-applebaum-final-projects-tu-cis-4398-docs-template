@@ -81,48 +81,18 @@ function Night() {
   
     }, [ws, navigate, role, playerName, isHost, voting]); // Re-run the effect if WebSocket instance changes
 
-      //timer
-  useEffect(() => {
-    let timer;
-    if (isActive && timeLeft > 0) {
-      // Set an interval that decreases the time every second
-      timer = setInterval(() => {
-        setTimeLeft((prevTime) => prevTime - 1);
-      }, 1000);
-      console.log(timeLeft);
-    } else if (timeLeft === 0 || !isActive) {
-      setNarrating(true);    
-      clearInterval(timer); // Clear the interval when time reaches 0
-      setIsActive(false);    // Stop the timer
-    }
+useEffect(() => {
+  const newAlivePlayers = players.filter(player => !eliminatedPlayers.includes(player));
+  setAlivePlayers(newAlivePlayers);
+}, [players, eliminatedPlayers]);
 
-    // Cleanup interval on component unmount or when timer is inactive
-    return () => clearInterval(timer);
-  }, [isActive, timeLeft]);
+const voteForPlayer = (playerName) => {
+  if (votes[playerName] || eliminatedPlayers.includes(playerName)) return;    // checks to see if a player already voted or dead; prevents a player voting more than once
 
-  const startTimer = (time) => {
-    setTimeLeft(time)
-    setIsActive(true);
-  };
+  setVotes({ ...votes, [playerName]: true });                                 // stores the votes for players and sets whether they have voted to true
 
-
-  const voteForPlayer = (playerName) => {
-    if (votes[playerName] || eliminatedPlayers.includes(playerName)) return;    // checks to see if a player already voted or dead; prevents a player voting more than once
-
-    setVotes({ ...votes, [playerName]: true });                                 // stores the votes for players and sets whether they have voted to true
-
-    ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));  // sends the player's vote to the server
+  ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));  // sends the player's vote to the server
 };
-
-const phaseChange = () => {
-  if(isHost){
-    if(isDay){
-      ws.send(JSON.stringify({ type: 'changePhase', phase: 'NIGHT' }));  // change phase for all
-    }else{
-      ws.send(JSON.stringify({ type: 'changePhase', phase: 'DAY' }));  // change phase for all
-    }
-  }
-}
 
 const announceMafiaVote = () => {
   if(!spoke){
