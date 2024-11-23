@@ -63,7 +63,7 @@ function StartGame() {
             } else {
               setIsDay(false);
               setVoting(false);
-              navigate('/Night', { state: {role, playerName, isHost} });                          //move to night page 
+              navigate('/Night', { state: {role, playerName, isHost} });                          // move to night page 
             }
           } else if (data.type === 'gameOver') {
             setMessages(prev => [...prev, data.message]);
@@ -78,7 +78,7 @@ function StartGame() {
 
   }
 
-  }, [ws, navigate, role, playerName, isHost, eliminatedPlayers, players, voting]); // Re-run the effect if WebSocket instance changes
+  }, [ws, navigate, role, playerName, isHost, eliminatedPlayers, players, voting]);       // Re-run the effect if WebSocket instance changes
 
   useEffect(() => {
     const newAlivePlayers = players.filter(player => !eliminatedPlayers.includes(player));
@@ -86,11 +86,11 @@ function StartGame() {
   }, [players, eliminatedPlayers]);
 
   const voteForPlayer = (playerName) => {
-    if (votes[playerName] || eliminatedPlayers.includes(playerName)) return;    // checks to see if a player already voted or dead; prevents a player voting more than once
+    if (votes[playerName] || eliminatedPlayers.includes(playerName)) return;              // checks to see if a player already voted or dead; prevents a player voting more than once
 
-    setVotes({ ...votes, [playerName]: true });                                 // stores the votes for players and sets whether they have voted to true
+    setVotes({ ...votes, [playerName]: true });                                           // stores the votes for players and sets whether they have voted to true
 
-    ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));          // sends the player's vote to the server
+    ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));                    // sends the player's vote to the server
 };
 
   return (
@@ -211,6 +211,4 @@ function StartGame() {
   );
 }
 
-
 export default StartGame;
-

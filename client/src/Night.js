@@ -15,18 +15,18 @@ function Night() {
   const [alivePlayers, setAlivePlayers] = useState([]);
   const [isAliveListVisible, setIsAliveListVisible] = useState(false);            // uses state to toggle alive players list visibility
   const [isDay, setIsDay] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(20); // Starting timer value
+  const [timeLeft, setTimeLeft] = useState(20);                                   // Starting timer value
 
   const[isNarrating, setNarrating] = useState(false);
 
   const location = useLocation();
   const { role, playerName, isHost } = location.state;
 
-  const navigate = useNavigate(); // Hook for navigation
+  const navigate = useNavigate();                                                 // Hook for navigation
 
   const[spoke, setSpoke] = useState(true);
 
-  useEffect(() => {                                                                               // listens for messages from the WebSocket (and update state)
+  useEffect(() => {                                                                   // listens for messages from the WebSocket (and update state)
       if (!ws) {
         console.log("WebSocket is not initialized");
         return;
@@ -41,28 +41,28 @@ function Night() {
                 setRolesList(data.roleDesc);
             } else if (data.type === 'startVoting') {
                 console.log("voting!");
-                setVoting(true);                                                                    // turns on voting
+                setVoting(true);                                                      // turns on voting
                 ws.send(JSON.stringify({ type: 'beginTimer' }));
                 setPlayers(data.players);
-                setVotes({});                                                                       // reset vote tally for players
+                setVotes({});                                                         // reset vote tally for players
             } else if (data.type === 'voteResults') {
                 setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]); 
-                setAlivePlayers();                                                                  // adds the eliminated player to the array
-                setVoting(false);                                                                   // turns off voting (can be useful for next phase implementation)                                                                  
+                setAlivePlayers();                                                    // adds the eliminated player to the array
+                setVoting(false);                                                     // turns off voting (can be useful for next phase implementation)                                                                  
                 setMessages(prev => [...prev, data.message]);
-                setVotes({});                                                                       // reset vote tally for players
+                setVotes({});                                                         // reset vote tally for players
             } else if (data.type === 'voteTie') {
-                setVoting(false);                                                                   // turns off voting
-                setMessages(prev => [...prev, data.message]);                                       // reset vote tally for players
-                setVotes({});                                                                       // turns off voting (can be useful for next phase implementation)                            
+                setVoting(false);                                                     // turns off voting
+                setMessages(prev => [...prev, data.message]);                         // reset vote tally for players
+                setVotes({});                                                         // turns off voting (can be useful for next phase implementation)                            
             } else if (data.type === 'timer') {
-              setTimeLeft(data.timeLeft);                                                           // sets the local timer based on the server timer
-              console.log("RECEIVED TIMER: " + data.timeLeft);                                      // debugging
+              setTimeLeft(data.timeLeft);                                             // sets the local timer based on the server timer
+              console.log("RECEIVED TIMER: " + data.timeLeft);                        // debugging
             } else if (data.type === 'phase') {
-              if (data.phase === 'DAY') {                                                           // looks for the phase tag, and will update the IsDay state based on that
+              if (data.phase === 'DAY') {                                             // looks for the phase tag, and will update the IsDay state based on that
                 setIsDay(true);
-                setVoting(false);                                                                   // turns off voting 
-                navigate('/startGame', { state: { role, playerName, isHost} });                                                                    
+                setVoting(false);                                                     // turns off voting 
+                navigate('/startGame', { state: { role, playerName, isHost} });       // navigates to the startGame.js page                                                             
               } else {
                 setIsDay(false);
               }
@@ -79,7 +79,7 @@ function Night() {
   
     }
   
-    }, [ws, navigate, role, playerName, isHost, voting]); // Re-run the effect if WebSocket instance changes
+    }, [ws, navigate, role, playerName, isHost, voting]);                                 // Re-run the effect if WebSocket instance changes
 
 useEffect(() => {
   const newAlivePlayers = players.filter(player => !eliminatedPlayers.includes(player));
@@ -87,11 +87,11 @@ useEffect(() => {
 }, [players, eliminatedPlayers]);
 
 const voteForPlayer = (playerName) => {
-  if (votes[playerName] || eliminatedPlayers.includes(playerName)) return;    // checks to see if a player already voted or dead; prevents a player voting more than once
+  if (votes[playerName] || eliminatedPlayers.includes(playerName)) return;                // checks to see if a player already voted or dead; prevents a player voting more than once
 
-  setVotes({ ...votes, [playerName]: true });                                 // stores the votes for players and sets whether they have voted to true
+  setVotes({ ...votes, [playerName]: true });                                             // stores the votes for players and sets whether they have voted to true
 
-  ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));  // sends the player's vote to the server
+  ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));                      // sends the player's vote to the server
 };
 
 const announceMafiaVote = () => {

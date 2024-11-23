@@ -126,7 +126,7 @@ function doPhaseChange() {
     beginTimer();                                                                       // restarts the timer
 }
 
-function updateCurrentPlayersList() {                                                                                   // sends the updated player list to all 
+function updateCurrentPlayersList() {                                                   // sends the updated player list to all 
     const playerNames = players.map(player => player.name);
     players.forEach(player => {
         player.ws.send(JSON.stringify({
@@ -136,22 +136,22 @@ function updateCurrentPlayersList() {                                           
     });
 }
 
-function checkWinConditions() {                                                                                  // checks if a team has won the game
-    const mafiaCount = players.filter(p => p.team === "MAFIA" && !p.eliminated).length;                                 // counts mafia that are still alive
-    const citizenCount = players.filter(p => p.team === "CITIZEN" && !p.eliminated).length;                             // counts citizens that are still alive
+function checkWinConditions() {                                                                 // checks if a team has won the game
+    const mafiaCount = players.filter(p => p.team === "MAFIA" && !p.eliminated).length;         // counts mafia that are still alive
+    const citizenCount = players.filter(p => p.team === "CITIZEN" && !p.eliminated).length;     // counts citizens that are still alive
 
-    if (mafiaCount === 0) {                                                                                             // if there are no mafia left, citizens win
+    if (mafiaCount === 0) {                                                                     // if there are no mafia left, citizens win
         players.forEach(player => {
-            const message = player.team === "CITIZEN" ? "You win!" : "You lose.";                                       // sets a message for who wins and loses, different depending on your team
-            player.ws.send(JSON.stringify({                                                                             // sends game over message to front end
+            const message = player.team === "CITIZEN" ? "You win!" : "You lose.";               // sets a message for who wins and loses, different depending on your team
+            player.ws.send(JSON.stringify({                                                     // sends game over message to front end
                 type: 'gameOver',
                 message: 'Game Over: Citizens wins! ' + message
             }));
         });
-    } else if (mafiaCount >= citizenCount ) {                                                                           // if mafia equal or outnumber citizens, mafia wins
+    } else if (mafiaCount >= citizenCount ) {                                                   // if mafia equal or outnumber citizens, mafia wins
         players.forEach(player => {
-            const message = player.team === "MAFIA" ? "You win!" : "You lose.";                                         // sets a message for who wins and loses, different depending on your team
-            player.ws.send(JSON.stringify({                                                                             // sends game over message to front end
+            const message = player.team === "MAFIA" ? "You win!" : "You lose.";                 // sets a message for who wins and loses, different depending on your team
+            player.ws.send(JSON.stringify({                                                     // sends game over message to front end
                 type: 'gameOver',
                 message: 'Game Over: Mafia wins! ' + message 
             }));
@@ -188,25 +188,23 @@ function assignRoles(players) {                                                 
 }
 */
 
-function assignRoles(players, maxPlayers, numMafia) {                                                                                         // sorts the players
-                                                                // chooses the number of roles to sort based on the number of players in the join lobby
-
-    //generate shuffled roles array
-    sortedRoles = generateRoles(maxPlayers, numMafia);
+function assignRoles(players, maxPlayers, numMafia) {                           // sorts the players
+                                                                                // chooses the number of roles to sort based on the number of players in the join lobby
+    sortedRoles = generateRoles(maxPlayers, numMafia);                          // generate shuffled roles array
 
     let numAssigned = 0;
 
     players.forEach((player, index) => {
         if (numAssigned < maxPlayers){
-            const roleName = sortedRoles[index].name;                                                                       // assigns the role given by the sorting method to roleName
+            const roleName = sortedRoles[index].name;                           // assigns the role given by the sorting method to roleName
             player.role = roleName;
-            if (isMafia(roleName)) {                                                                                        // assigns teams to players when role is assigned
+            if (isMafia(roleName)) {                                            // assigns teams to players when role is assigned
                 player.team = 'MAFIA';
             } else {
                 player.team = 'CITIZEN';
             }
             player.ws.send(JSON.stringify({ type: 'role', role: roleName }));
-            numAssigned++;           // sends the roles for each player to the server side  
+            numAssigned++;                                                      // sends the roles for each player to the server side  
         }                                   
     });
 }
@@ -269,7 +267,7 @@ function handleVoting(playerName, targetPlayer) {
                 player.ws.send(JSON.stringify({ type: 'voteResults', eliminatedPlayer, message:  eliminatedPlayer + ' has been eliminated. They were a ' + eliminatedTeam + "!"}));      // sends the eliminated player tag to everyone's front end with the username
             });
 
-            const playerToEliminate = players.find(player => player.name === eliminatedPlayer);       // sets the status of the eliminated player to true
+            const playerToEliminate = players.find(player => player.name === eliminatedPlayer); // sets the status of the eliminated player to true
             playerToEliminate.eliminate()
 
             checkWinConditions();                                                               // check win conditions after player has been eliminated
