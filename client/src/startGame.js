@@ -62,6 +62,14 @@ function StartGame() {
           } else if (data.type === 'timer') {
             setTimeLeft(data.timeLeft);                                                           // sets the local timer based on the server timer
             console.log("RECEIVED TIMER: " + data.timeLeft);                                      // debugging
+          } else if (data.type === 'phase') {
+            if (data.phase === 'DAY') {                                                           // looks for the phase tag, and will update the IsDay state based on that
+              setIsDay(true);                                                                     
+            } else {
+              setIsDay(false);
+              setVoting(false);
+              navigate('/Night', { state: {role, playerName, isHost} });                          //move to night page 
+            }
           } else if (data.type === 'gameOver') {
             setMessages(prev => [...prev, data.message]);
           }
