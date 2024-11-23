@@ -44,6 +44,7 @@ function StartGame() {
           } else if (data.type === 'startVoting') {                                               // this is for the start button
               console.log("voting!");
               setVoting(true);                                                                    // turns on voting
+              ws.send(JSON.stringify({ type: 'beginTimer' }));
               setPlayers(data.players);
               setVotes({});                                                                       // reset vote tally for players
           } else if (data.type === 'voteResults') {
