@@ -217,9 +217,10 @@ return(
             </div>
         )}
         </div>
-        <div className="glow">
+                                   {/* COMMENTED OUT THE CONTINUE BUTTON FOR NOW */}
+                                   {/*<div className="glow">
                                         {isHost && <button onClick={phaseChange}>Continue</button>}
-                                    </div>
+                                    </div>*/}
         </div>
     )}
     </div>
