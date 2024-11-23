@@ -90,30 +90,6 @@ function StartGame() {
     setAlivePlayers(newAlivePlayers);
   }, [players, eliminatedPlayers]);
 
-  useEffect(() => {                               // timer
-    let timer;
-    if (isActive && timeLeft > 0) {
-      timer = setInterval(() => {                 // sets an interval that decreases the time every second
-        setTimeLeft((prevTime) => prevTime - 1);
-      }, 1000);
-      console.log(timeLeft);
-    } else if (timeLeft === 0 || !isActive) {
-      setNarrating(true);    
-      clearInterval(timer); // Clear the interval when time reaches 0
-      setIsActive(false);    // Stop the timer
-    }
-
-    return () => clearInterval(timer);            // cleanup interval on component unmount or when timer is inactive
-  }, [isActive, timeLeft]);
-
-
-  const startTimer = (time) => {
-    setTimeLeft(time)
-    setIsActive(true);
-  };
-
-
-
   const voteForPlayer = (playerName) => {
     if (votes[playerName] || eliminatedPlayers.includes(playerName)) return;    // checks to see if a player already voted or dead; prevents a player voting more than once
 
@@ -121,15 +97,6 @@ function StartGame() {
 
     ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));          // sends the player's vote to the server
 };
-
-const phaseChange = () => {
-    console.log("Phase change");
-    if(isDay){
-      ws.send(JSON.stringify({ type: 'changePhase', phase: 'NIGHT' }));         // change phase for all
-    }else{
-      ws.send(JSON.stringify({ type: 'changePhase', phase: 'DAY' }));           // change phase for all
-    }
-}
 
   return (
     <div>
