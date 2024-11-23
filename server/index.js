@@ -12,6 +12,9 @@ const cors = require('cors');
 app.use(cors());
 
 let players = [];                                               // stores the Player objects (DO NOT MOVE THIS BELOW THIS POSITION OTHERWISE THERE IS A BUG)
+let timer = 10;                                                 // stores the timer number
+let gamePhase = 'DAY';                                          // stores the default game phase
+let timerInterval = null;
 
 app.use(express.static('public'));
 
