@@ -59,10 +59,9 @@ function StartGame() {
               setMessages(prev => [...prev, data.message]);    
               setIsActive(false);                                                            // reset vote tally for players
               setVotes({});
-          } else if (data.type === 'NIGHT') {
-            setVoting(false);                                                                   // turns off voting
-            navigate('/Night', { state: {role, playerName, isHost} });                          //move to night page                                         // turns off voting                          
-          
+          } else if (data.type === 'timer') {
+            setTimeLeft(data.timeLeft);                                                           // sets the local timer based on the server timer
+            console.log("RECEIVED TIMER: " + data.timeLeft);                                      // debugging
           } else if (data.type === 'gameOver') {
             setMessages(prev => [...prev, data.message]);
           }
