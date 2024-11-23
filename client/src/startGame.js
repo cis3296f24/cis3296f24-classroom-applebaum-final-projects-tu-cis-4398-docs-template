@@ -1,43 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { useWebSocket } from './WebSocketContext';                    // imports the custom hook
+import { useWebSocket } from './WebSocketContext';                                // imports the custom hook
 import RoleDisplay from './roleDisplay';
 import { useLocation, useNavigate } from 'react-router-dom';
 import "./startGame.css"
 
 function StartGame() {
-  const ws = useWebSocket();                                          // gets the WebSocket instance and connection status
+  const ws = useWebSocket();                                                      // gets the WebSocket instance and connection status
   const [messages, setMessages] = useState([]);
-  const [players, setPlayers] = useState([]);                         // uses state to store the player list for voting
-  const [voting, setVoting] = useState(false);                        // uses state to determine when voting occurs
-  const [votes, setVotes] = useState({});                             // uses state to store a player's vote
-  const [rolesList, setRolesList] = useState([]);                     // uses state to store the entire roles list
-  const [eliminatedPlayers, setEliminatedPlayers] = useState([]);     // uses state to store a list of eliminated players
-  const [isEliminatedListVisible, setIsEliminatedListVisible] = useState(false); // uses state to toggle eliminated players list visibility
+  const [players, setPlayers] = useState([]);                                     // uses state to store the player list for voting
+  const [voting, setVoting] = useState(false);                                    // uses state to determine when voting occurs
+  const [votes, setVotes] = useState({});                                         // uses state to store a player's vote
+  const [rolesList, setRolesList] = useState([]);                                 // uses state to store the entire roles list
+  const [eliminatedPlayers, setEliminatedPlayers] = useState([]);                 // uses state to store a list of eliminated players
+  const [isEliminatedListVisible, setIsEliminatedListVisible] = useState(false);  // uses state to toggle eliminated players list visibility
   const [alivePlayers, setAlivePlayers] = useState([]);
-  const [isAliveListVisible, setIsAliveListVisible] = useState(false); // uses state to toggle alive players list visibility
-
-  const [isDay, setIsDay] = useState(true);
-
-  const [timeLeft, setTimeLeft] = useState(20);                       // starting timer value (defaults as 10 seconds)
-  const [isActive, setIsActive] = useState(true);                     // sets the default timer state to true/active
+  const [isAliveListVisible, setIsAliveListVisible] = useState(false);            // uses state to toggle alive players list visibility
+  const [isDay, setIsDay] = useState(true);                                       // uses state to store whether it is night or day game phase
+  const [timeLeft, setTimeLeft] = useState(20);                                   // starting timer value (defaults as 10 seconds)
 
   const[isNarrating, setNarrating] = useState(false);
 
   const location = useLocation();
   const { role, playerName, isHost } = location.state;
 
-  const navigate = useNavigate(); // Hook for navigation
+  const navigate = useNavigate();                                       // Hook for navigation
 
-
-
-  // Listen for messages from the WebSocket (and update state)
-  useEffect(() => {
+  useEffect(() => {                                                     // listens for messages from the WebSocket (and update state)
     if (!ws) {
       console.log("WebSocket is not initialized");
       return;
     }else if(ws){
       if(!voting){
-        ws.send(JSON.stringify({ type: 'startVote'}));                 // immediately after the start button is clicked, this sends the 'startVote' tag to the backend to activate the voting phase
+        ws.send(JSON.stringify({ type: 'startVote'}));                  // immediately after the start button is clicked, this sends the 'startVote' tag to the backend to activate the voting phase
       }
       const handleMessage = (event) => {
           console.log("event!");
@@ -47,24 +41,30 @@ function StartGame() {
           } else if (data.type === 'startVoting') {                                               // this is for the start button
               console.log("voting!");
               setVoting(true);                                                                    // turns on voting
+              ws.send(JSON.stringify({ type: 'beginTimer' }));
               setPlayers(data.players);
               setVotes({});                                                                       // reset vote tally for players
           } else if (data.type === 'voteResults') {
               setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]);                     // adds the eliminated player to the array
               setAlivePlayers();
-              setVoting(false);
-              setIsActive(false);                                                                   // turns off voting (can be useful for next phase implementation)
+              setVoting(false);                                                                   // turns off voting (can be useful for next phase implementation)                                            
               setMessages(prev => [...prev, data.message]); 
               setVotes({});                                                                       // reset vote tally for players
           } else if (data.type === 'voteTie') {
               setVoting(false);                                                                   // turns off voting
-              setMessages(prev => [...prev, data.message]);    
-              setIsActive(false);                                                            // reset vote tally for players
-              setVotes({});
-          } else if (data.type === 'NIGHT') {
-            setVoting(false);                                                                   // turns off voting
-            navigate('/Night', { state: {role, playerName, isHost} });                          //move to night page                                         // turns off voting                          
-          
+              setMessages(prev => [...prev, data.message]);
+              setVotes({});                                                                       // reset vote tally for players
+          } else if (data.type === 'timer') {
+            setTimeLeft(data.timeLeft);                                                           // sets the local timer based on the server timer
+            console.log("RECEIVED TIMER: " + data.timeLeft);                                      // debugging
+          } else if (data.type === 'phase') {
+            if (data.phase === 'DAY') {                                                           // looks for the phase tag, and will update the IsDay state based on that
+              setIsDay(true);                                                                     
+            } else {
+              setIsDay(false);
+              setVoting(false);
+              navigate('/Night', { state: {role, playerName, isHost} });                          // move to night page 
+            }
           } else if (data.type === 'gameOver') {
             setMessages(prev => [...prev, data.message]);
           }
@@ -78,53 +78,20 @@ function StartGame() {
 
   }
 
-  }, [ws, navigate, role, playerName, isHost, eliminatedPlayers, players, voting]); // Re-run the effect if WebSocket instance changes
+  }, [ws, navigate, role, playerName, isHost, eliminatedPlayers, players, voting]);       // Re-run the effect if WebSocket instance changes
 
   useEffect(() => {
     const newAlivePlayers = players.filter(player => !eliminatedPlayers.includes(player));
     setAlivePlayers(newAlivePlayers);
   }, [players, eliminatedPlayers]);
 
-  useEffect(() => {                               // timer
-    let timer;
-    if (isActive && timeLeft > 0) {
-      timer = setInterval(() => {                 // sets an interval that decreases the time every second
-        setTimeLeft((prevTime) => prevTime - 1);
-      }, 1000);
-      console.log(timeLeft);
-    } else if (timeLeft === 0 || !isActive) {
-      setNarrating(true);    
-      clearInterval(timer); // Clear the interval when time reaches 0
-      setIsActive(false);    // Stop the timer
-    }
-
-    return () => clearInterval(timer);            // cleanup interval on component unmount or when timer is inactive
-  }, [isActive, timeLeft]);
-
-
-  const startTimer = (time) => {
-    setTimeLeft(time)
-    setIsActive(true);
-  };
-
-
-
   const voteForPlayer = (playerName) => {
-    if (votes[playerName] || eliminatedPlayers.includes(playerName)) return;    // checks to see if a player already voted or dead; prevents a player voting more than once
+    if (votes[playerName] || eliminatedPlayers.includes(playerName)) return;              // checks to see if a player already voted or dead; prevents a player voting more than once
 
-    setVotes({ ...votes, [playerName]: true });                                 // stores the votes for players and sets whether they have voted to true
+    setVotes({ ...votes, [playerName]: true });                                           // stores the votes for players and sets whether they have voted to true
 
-    ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));          // sends the player's vote to the server
+    ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));                    // sends the player's vote to the server
 };
-
-const phaseChange = () => {
-    console.log("Phase change");
-    if(isDay){
-      ws.send(JSON.stringify({ type: 'changePhase', phase: 'NIGHT' }));         // change phase for all
-    }else{
-      ws.send(JSON.stringify({ type: 'changePhase', phase: 'DAY' }));           // change phase for all
-    }
-}
 
   return (
     <div>
@@ -234,15 +201,14 @@ const phaseChange = () => {
             </div>
           )}
         </div>
-        <div className="glow">
+                                   {/* COMMENTED OUT THE CONTINUE BUTTON FOR NOW */}
+                                   {/*<div className="glow">
                                         {isHost && <button onClick={phaseChange}>Continue</button>}
-                                    </div>
+                                    </div>*/}
         </div>
       )}
       </div>
   );
 }
 
-
 export default StartGame;
-
