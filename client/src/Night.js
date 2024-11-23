@@ -3,8 +3,6 @@ import { useWebSocket } from './WebSocketContext'; // Import the custom hook
 import RoleDisplay from './roleDisplay';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-
-
 function Night() {
   const ws = useWebSocket();                                                      // Get the WebSocket instance and connection status
   const [messages, setMessages] = useState([]);
@@ -28,56 +26,60 @@ function Night() {
 
   const[spoke, setSpoke] = useState(true);
 
-    // Listen for messages from the WebSocket (and update state)
-    useEffect(() => {
-        if (!ws) {
-          console.log("WebSocket is not initialized");
-          return;
-        }else if(ws){  
-          if(!voting){
-            ws.send(JSON.stringify({ type: 'startNight'}));
-            ws.send(JSON.stringify({ type: 'startVote'}));
-          }
-          const handleMessage = (event) => {
-              console.log("event!");
-              const data = JSON.parse(event.data);
-              if (data.type === 'rolesList') {
-                  setRolesList(data.roleDesc);
-              } else if (data.type === 'startVoting') {
-                  console.log("voting!");
-                  setVoting(true);                                                                    // turns on voting
-                  setPlayers(data.players);
-                  setVotes({});                                                                       // reset vote tally for players
-              } else if (data.type === 'voteResults') {
-                  setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]); 
-                  setAlivePlayers();                    // adds the eliminated player to the array
-                  setVoting(false); 
-                  setIsActive(false);                                                                  // turns off voting (can be useful for next phase implementation)
-                  setMessages(prev => [...prev, `${data.eliminatedPlayer} has been eliminated!`]);
-                  setVotes({});                                                                       // reset vote tally for players
-              } else if (data.type === 'voteTie') {
-                  setVoting(false);                                                                   // turns off voting
-                  setMessages(prev => [...prev, data.message]);                                       // reset vote tally for players
-                  setIsActive(false);                                                                  // turns off voting (can be useful for next phase implementation)
-                  setVotes({});                            
-              } else if (data.type === 'DAY') {
-                setVoting(false);
-                navigate('/startGame', { state: { role, playerName, isHost} });                                                                   // turns off voting                                                  
-              } else if (data.type === 'gameOver') {
-                setMessages(prev => [...prev, data.message]);
-              }
+  useEffect(() => {                                                                               // listens for messages from the WebSocket (and update state)
+      if (!ws) {
+        console.log("WebSocket is not initialized");
+        return;
+      }else if(ws){  
+        if(!voting){
+          ws.send(JSON.stringify({ type: 'startVote'}));
         }
-    
-        ws.addEventListener('message', handleMessage)
-    
-        return () => {
-                ws.removeEventListener('message', handleMessage);
-        };
-    
+        const handleMessage = (event) => {
+            console.log("event!");
+            const data = JSON.parse(event.data);
+            if (data.type === 'rolesList') {
+                setRolesList(data.roleDesc);
+            } else if (data.type === 'startVoting') {
+                console.log("voting!");
+                setVoting(true);                                                                    // turns on voting
+                ws.send(JSON.stringify({ type: 'beginTimer' }));
+                setPlayers(data.players);
+                setVotes({});                                                                       // reset vote tally for players
+            } else if (data.type === 'voteResults') {
+                setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]); 
+                setAlivePlayers();                                                                  // adds the eliminated player to the array
+                setVoting(false);                                                                   // turns off voting (can be useful for next phase implementation)                                                                  
+                setMessages(prev => [...prev, data.message]);
+                setVotes({});                                                                       // reset vote tally for players
+            } else if (data.type === 'voteTie') {
+                setVoting(false);                                                                   // turns off voting
+                setMessages(prev => [...prev, data.message]);                                       // reset vote tally for players
+                setVotes({});                                                                       // turns off voting (can be useful for next phase implementation)                            
+            } else if (data.type === 'timer') {
+              setTimeLeft(data.timeLeft);                                                           // sets the local timer based on the server timer
+              console.log("RECEIVED TIMER: " + data.timeLeft);                                      // debugging
+            } else if (data.type === 'phase') {
+              if (data.phase === 'DAY') {                                                           // looks for the phase tag, and will update the IsDay state based on that
+                setIsDay(true);
+                setVoting(false);                                                                   // turns off voting 
+                navigate('/startGame', { state: { role, playerName, isHost} });                                                                    
+              } else {
+                setIsDay(false);
+              }
+            } else if (data.type === 'gameOver') {
+              setMessages(prev => [...prev, data.message]);
+            }
       }
-    
-      }, [ws, navigate, role, playerName, isHost, voting]); // Re-run the effect if WebSocket instance changes
-
+  
+      ws.addEventListener('message', handleMessage)
+  
+      return () => {
+              ws.removeEventListener('message', handleMessage);
+      };
+  
+    }
+  
+    }, [ws, navigate, role, playerName, isHost, voting]); // Re-run the effect if WebSocket instance changes
 
       //timer
   useEffect(() => {
