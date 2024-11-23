@@ -5,28 +5,25 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import "./startGame.css"
 
 function StartGame() {
-  const ws = useWebSocket();                                          // gets the WebSocket instance and connection status
+  const ws = useWebSocket();                                                      // gets the WebSocket instance and connection status
   const [messages, setMessages] = useState([]);
-  const [players, setPlayers] = useState([]);                         // uses state to store the player list for voting
-  const [voting, setVoting] = useState(false);                        // uses state to determine when voting occurs
-  const [votes, setVotes] = useState({});                             // uses state to store a player's vote
-  const [rolesList, setRolesList] = useState([]);                     // uses state to store the entire roles list
-  const [eliminatedPlayers, setEliminatedPlayers] = useState([]);     // uses state to store a list of eliminated players
-  const [isEliminatedListVisible, setIsEliminatedListVisible] = useState(false); // uses state to toggle eliminated players list visibility
+  const [players, setPlayers] = useState([]);                                     // uses state to store the player list for voting
+  const [voting, setVoting] = useState(false);                                    // uses state to determine when voting occurs
+  const [votes, setVotes] = useState({});                                         // uses state to store a player's vote
+  const [rolesList, setRolesList] = useState([]);                                 // uses state to store the entire roles list
+  const [eliminatedPlayers, setEliminatedPlayers] = useState([]);                 // uses state to store a list of eliminated players
+  const [isEliminatedListVisible, setIsEliminatedListVisible] = useState(false);  // uses state to toggle eliminated players list visibility
   const [alivePlayers, setAlivePlayers] = useState([]);
-  const [isAliveListVisible, setIsAliveListVisible] = useState(false); // uses state to toggle alive players list visibility
-
-  const [isDay, setIsDay] = useState(true);
-
-  const [timeLeft, setTimeLeft] = useState(20);                       // starting timer value (defaults as 10 seconds)
-  const [isActive, setIsActive] = useState(true);                     // sets the default timer state to true/active
+  const [isAliveListVisible, setIsAliveListVisible] = useState(false);            // uses state to toggle alive players list visibility
+  const [isDay, setIsDay] = useState(true);                                       // uses state to store whether it is night or day game phase
+  const [timeLeft, setTimeLeft] = useState(20);                                   // starting timer value (defaults as 10 seconds)
 
   const[isNarrating, setNarrating] = useState(false);
 
   const location = useLocation();
   const { role, playerName, isHost } = location.state;
 
-  const navigate = useNavigate(); // Hook for navigation
+  const navigate = useNavigate();                                       // Hook for navigation
 
 
 
