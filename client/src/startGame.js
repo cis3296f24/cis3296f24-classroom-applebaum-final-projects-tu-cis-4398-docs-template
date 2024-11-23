@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useWebSocket } from './WebSocketContext';                    // imports the custom hook
+import { useWebSocket } from './WebSocketContext';                                // imports the custom hook
 import RoleDisplay from './roleDisplay';
 import { useLocation, useNavigate } from 'react-router-dom';
 import "./startGame.css"
@@ -25,16 +25,13 @@ function StartGame() {
 
   const navigate = useNavigate();                                       // Hook for navigation
 
-
-
-  // Listen for messages from the WebSocket (and update state)
-  useEffect(() => {
+  useEffect(() => {                                                     // listens for messages from the WebSocket (and update state)
     if (!ws) {
       console.log("WebSocket is not initialized");
       return;
     }else if(ws){
       if(!voting){
-        ws.send(JSON.stringify({ type: 'startVote'}));                 // immediately after the start button is clicked, this sends the 'startVote' tag to the backend to activate the voting phase
+        ws.send(JSON.stringify({ type: 'startVote'}));                  // immediately after the start button is clicked, this sends the 'startVote' tag to the backend to activate the voting phase
       }
       const handleMessage = (event) => {
           console.log("event!");
@@ -50,15 +47,13 @@ function StartGame() {
           } else if (data.type === 'voteResults') {
               setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]);                     // adds the eliminated player to the array
               setAlivePlayers();
-              setVoting(false);
-              setIsActive(false);                                                                   // turns off voting (can be useful for next phase implementation)
+              setVoting(false);                                                                   // turns off voting (can be useful for next phase implementation)                                            
               setMessages(prev => [...prev, data.message]); 
               setVotes({});                                                                       // reset vote tally for players
           } else if (data.type === 'voteTie') {
               setVoting(false);                                                                   // turns off voting
-              setMessages(prev => [...prev, data.message]);    
-              setIsActive(false);                                                            // reset vote tally for players
-              setVotes({});
+              setMessages(prev => [...prev, data.message]);
+              setVotes({});                                                                       // reset vote tally for players
           } else if (data.type === 'timer') {
             setTimeLeft(data.timeLeft);                                                           // sets the local timer based on the server timer
             console.log("RECEIVED TIMER: " + data.timeLeft);                                      // debugging
@@ -206,9 +201,10 @@ function StartGame() {
             </div>
           )}
         </div>
-        <div className="glow">
+                                   {/* COMMENTED OUT THE CONTINUE BUTTON FOR NOW */}
+                                   {/*<div className="glow">
                                         {isHost && <button onClick={phaseChange}>Continue</button>}
-                                    </div>
+                                    </div>*/}
         </div>
       )}
       </div>
