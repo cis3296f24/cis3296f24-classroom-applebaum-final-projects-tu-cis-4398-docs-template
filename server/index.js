@@ -110,6 +110,22 @@ function beginTimer() {
     }, 1000);
 }
 
+function doPhaseChange() {
+    if (gamePhase === 'DAY') {                                                          // swaps the game phase
+        gamePhase = 'NIGHT';
+    } else {
+        gamePhase = 'DAY';
+    }
+
+    timer = 10;                                                                         // resets the timer number
+
+    players.forEach(player => { 
+        player.ws.send(JSON.stringify({ type: 'phase', phase: gamePhase }));            // sends out the current timer number to all users' frontend
+    });
+
+    beginTimer();                                                                       // restarts the timer
+}
+
 function updateCurrentPlayersList() {                                                                                   // sends the updated player list to all 
     const playerNames = players.map(player => player.name);
     players.forEach(player => {
