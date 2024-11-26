@@ -36,6 +36,7 @@ interface Window {
 const Index = () => {
   const [isMicActive, setIsMicActive] = useState(false); 
   const [isBadWordDetected, setIsBadWordDetected] = useState(false);
+  const [bannedWords, setBannedWords] = useState<string[]>([]);
 
   const handleMicToggle = () => {
     setIsMicActive((prevState) => !prevState);
@@ -67,7 +68,7 @@ const Index = () => {
         <RingDevice/>
         <br/>
         <div>
-          <ModifyBannedText/>
+          <ModifyBannedText bannedWords={bannedWords} setBannedWords={setBannedWords}/>
         </div>
       </Section>
     </Page>
@@ -227,7 +228,6 @@ recognition.addEventListener('result', async (event: SpeechRecognitionEvent) => 
     };
 
 }
-
 function vibrationPattern(): void {
   const patterns = [
     2000,
