@@ -3,6 +3,7 @@ import { useWebSocket } from './WebSocketContext';                              
 import RoleDisplay from './roleDisplay';
 import { useLocation, useNavigate } from 'react-router-dom';
 import sound from './Narrations/MafiaCall.mp3'
+import './Night.css';
 
 function Night() {
   const ws = useWebSocket();                                                      // Get the WebSocket instance and connection status
@@ -10,22 +11,22 @@ function Night() {
   const [players, setPlayers] = useState([]);                                     // uses state to store the player list for voting
   const [voting, setVoting] = useState(false);                                    // uses state to determine when voting occurs
   const [votes, setVotes] = useState({});                                         // uses state to store a player's vote
-  const [rolesList, setRolesList] = useState([]);                                 // uses state to store the entire roles list
+  // const [rolesList, setRolesList] = useState([]);                                 // uses state to store the entire roles list
   const [eliminatedPlayers, setEliminatedPlayers] = useState([]);                 // uses state to store a list of eliminated players
   const [isEliminatedListVisible, setIsEliminatedListVisible] = useState(false);  // uses state to toggle eliminated players list visibility
   const [alivePlayers, setAlivePlayers] = useState([]);                           // uses state to store a list of alive players
   const [isAliveListVisible, setIsAliveListVisible] = useState(false);            // uses state to toggle alive players list visibility
+
   const [timeLeft, setTimeLeft] = useState(10);                                   // Starting timer value
   const [finalVote, setFinalVote] = useState(null);                               // uses state to store the final vote of each user
+  const [showHelp, setShowHelp] = useState(false);                                // uses state to toggle the help menu
 
   const[isNarrating, setNarrating] = useState(false);
 
   const location = useLocation();
-  const { role, playerName, isHost, nightLength } = location.state;               // includes nightLength within the page state 
+  const { role, playerName, isHost, nightLength, rolesList } = location.state;               // includes nightLength within the page state 
 
   const navigate = useNavigate();                                                 // Hook for navigation
-
-  const[spoke, setSpoke] = useState(false);
 
   useEffect(() => {                                                                   // listens for messages from the WebSocket (and update state)
       if (!ws) {
@@ -34,11 +35,7 @@ function Night() {
       }else if(ws){  
         const handleMessage = (event) => {
             const data = JSON.parse(event.data);
-            if (data.type === 'rolesList') {
-                setRolesList(data.roleDesc);
-            } else if (data.type === 'startVoting') {
-                setSpoke(false);
-                console.log("voting!");
+            if (data.type === 'startVoting') {
                 speak(sound);
                 setVoting(true);                                                      // turns on voting
                 ws.send(JSON.stringify({ type: 'beginNightTimer', nightLength: nightLength }));
@@ -58,7 +55,7 @@ function Night() {
               if (data.phase === 'DAY') {                                             // looks for the phase tag, and will update the IsDay state based on that
                 setVoting(false);  
                 ws.removeEventListener('message', handleMessage);                                                   // turns off voting 
-                navigate('/startGame', { state: { role, playerName, isHost, nightLength} });       // navigates to the startGame.js page                                                             
+                navigate('/startGame', { state: { role, playerName, isHost, nightLength, rolesList} });       // navigates to the startGame.js page                                                             
               } else if (data.phase === 'NIGHT NARRATION'){
                 setNarrating(true);
               }
@@ -72,7 +69,7 @@ function Night() {
         ws.removeEventListener('message', handleMessage);
       };
     }
-  }, [ws, navigate, role, playerName, isHost, voting, nightLength]);                        // Re-run the effect if WebSocket instance changes
+  }, [ws, navigate, role, playerName, isHost, voting, nightLength, rolesList]);                        // Re-run the effect if WebSocket instance changes
 
   useEffect(() => {
     const newAlivePlayers = players.filter(player => !eliminatedPlayers.includes(player));
@@ -87,6 +84,10 @@ function Night() {
     ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));                      // sends the player's vote to the server
   };
 
+  const toggleHelp = () => {
+    setShowHelp(!showHelp);
+  };
+
 function speak(sound) {
   console.log("Mafia announced");
   var audio = new Audio(sound);
@@ -99,13 +100,34 @@ function speak(sound) {
       <div>
       {!isNarrating && (
         <div className="startGameNight">
-        <div className="gameTitle">
+          <div className="gameTitle">
             <h2>MafiUhh...</h2>
+            <div className="help-btn">
+              <button onClick={toggleHelp}>Help</button>
+            </div>
         </div>
-        {isHost && (
-        <div className="user">
-            Host
-        </div>
+
+        {showHelp && (
+          <div className="help-modal-overlay" onClick={toggleHelp}>
+            <div className="help-modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="help-modal-header">
+                <h3>Character Roles</h3>
+                <button className="close-btn" onClick={toggleHelp}>X</button>
+              </div>
+              <div className="help-modal-body">
+                {rolesList
+                  .filter((value, index, self) =>
+                    index === self.findIndex((t) => t.name === value.name)  // Ensures distinct roles by name
+                  )
+                  .map((roleDesc, index) => (
+                  <div className="helplist" key={index}>
+                    <h4>{roleDesc.name}</h4>
+                    <p>{roleDesc.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Display the countdown timer */}

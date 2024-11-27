@@ -10,70 +10,66 @@ function StartGame() {
     const [players, setPlayers] = useState([]);                                     // uses state to store the player list for voting
     const [voting, setVoting] = useState(false);                                    // uses state to determine when voting occurs
     const [votes, setVotes] = useState({});                                         // uses state to store a player's vote
-    const [rolesList, setRolesList] = useState([]);                                 // uses state to store the entire roles list
     const [eliminatedPlayers, setEliminatedPlayers] = useState([]);                 // uses state to store a list of eliminated players
     const [isEliminatedListVisible, setIsEliminatedListVisible] = useState(false);  // uses state to toggle eliminated players list visibility
     const [alivePlayers, setAlivePlayers] = useState([]);                           // uses state to store a list of alive players
     const [isAliveListVisible, setIsAliveListVisible] = useState(false);            // uses state to toggle alive players list visibility
     const [timeLeft, setTimeLeft] = useState(10);                                   // starting timer value (defaults as 10 seconds)
     const [finalVote, setFinalVote] = useState(null);                               // uses state to store the final vote of each user
-
+    const [showHelp, setShowHelp] = useState(false);                                // uses state to toggle the help menu
     const[isNarrating, setNarrating] = useState(false);
 
     const location = useLocation();
-    const { role, playerName, isHost, nightLength } = location.state;               // includes nightLength within the page state (needed for the timer value to transfer) 
+    const { role, playerName, isHost, nightLength, rolesList } = location.state;               // includes nightLength within the page state (needed for the timer value to transfer) 
 
     const navigate = useNavigate();                                                 // Hook for navigation
 
-  useEffect(() => {                                                     // listens for messages from the WebSocket (and update state)
-    if (!ws) {
-      console.log("WebSocket is not initialized");
-      return;
-    }else if(ws){
-      if(!voting){
-        ws.send(JSON.stringify({ type: 'startVote'}));                  // immediately after the start button is clicked, this sends the 'startVote' tag to the backend to activate the voting phase
-      }
-      const handleMessage = (event) => {
-          const data = JSON.parse(event.data);
-          if (data.type === 'rolesList') {
-              setRolesList(data.roleDesc);                                                        // changes the roles list to match the roles descriptions as from mafiaParameter.js
-          } else if (data.type === 'startVoting') {                                               // this is for the start button
-              console.log("voting!");
-              setVoting(true);                                                                    // turns on voting
-              ws.send(JSON.stringify({ type: 'beginDayTimer' }));
-              setPlayers(data.players);
-              setVotes({});                                                                       // reset vote tally for players
-          } else if (data.type === 'voteResults') {
-              setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]);                     // adds the eliminated player to the array
-              setAlivePlayers();                                                                // turns off voting (can be useful for next phase implementation)                                            
-              setMessages(prev => [...prev, data.message]); 
-              setVotes({});                                                                       // reset vote tally for players
-          } else if (data.type === 'voteTie') {
-              setMessages(prev => [...prev, data.message]);
-              setVotes({});                                                                       // reset vote tally for players
-          } else if (data.type === 'timer') {
-            setTimeLeft(data.timeLeft);                                                           // sets the local timer based on the server timer                      
-          } else if (data.type === 'phase') {
-            if (data.phase === 'DAY') {                                                           // looks for the phase tag, and will update the IsDay state based on that
-            } else if (data.phase === 'DAY NARRATION'){
-              setNarrating(true);                                                                  
-            } else {
-              setVoting(false);
-              ws.removeEventListener('message', handleMessage);
-              navigate('/Night', { state: {role, playerName, isHost, nightLength} });                          // move to night page 
+    useEffect(() => {                                                               // listens for messages from the WebSocket (and update state)
+        if (!ws) {
+        console.log("WebSocket is not initialized");
+        return;
+        } else if (ws) {
+            if (!voting) {
+                ws.send(JSON.stringify({ type: 'startVote'}));                      // immediately after the start button is clicked, this sends the 'startVote' tag to the backend to activate the voting phase
             }
-          } else if (data.type === 'gameOver') {
-            setMessages(prev => [...prev, data.message]);
-          }
-      }
-
-    ws.addEventListener('message', handleMessage)
+            const handleMessage = (event) => {
+              const data = JSON.parse(event.data);
+                if (data.type === 'startVoting') {                                           // this is for the start button
+                    setVoting(true);                                                                // turns on voting
+                    ws.send(JSON.stringify({ type: 'beginDayTimer' }));                             // sends the signal to start the day timer
+                    setPlayers(data.players);
+                    setVotes({});                                                                   // reset vote tally for players
+                } else if (data.type === 'voteResults') {
+                    setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]);                 // adds the eliminated player to the array
+                    setAlivePlayers();
+                    setMessages(prev => [...prev, data.message]); 
+                    setVotes({});                                                                   // reset vote tally for players
+                } else if (data.type === 'voteTie') {
+                    setMessages(prev => [...prev, data.message]);
+                    setVotes({});                                                                   // reset vote tally for players
+                } else if (data.type === 'timer') {
+                    setTimeLeft(data.timeLeft);                                                     // sets the local timer based on the server timer                              // debugging
+                } else if (data.type === 'phase') {
+                  if (data.phase === 'DAY') {                                                           // looks for the phase tag, and will update the IsDay state based on that
+                  } else if (data.phase === 'DAY NARRATION'){
+                    setNarrating(true);                                                                  
+                  } else {
+                    setVoting(false);
+                    ws.removeEventListener('message', handleMessage);
+                    navigate('/Night', { state: {role, playerName, isHost, nightLength, rolesList} });                          // move to night page 
+                  }
+                } else if (data.type === 'gameOver') {
+                    setMessages(prev => [...prev, data.message]);
+                }
+            }
+            ws.addEventListener('message', handleMessage)
 
             return () => {
                 ws.removeEventListener('message', handleMessage);
             };
         }
-    }, [ws, navigate, role, playerName, isHost, eliminatedPlayers, players, voting, nightLength]);  // Re-run the effect if WebSocket instance changes
+    }, [ws, navigate, role, playerName, isHost, eliminatedPlayers, players, voting, nightLength, rolesList]);  // Re-run the effect if WebSocket instance changes
+
 
     useEffect(() => {
         const newAlivePlayers = players.filter(player => !eliminatedPlayers.includes(player));
@@ -85,21 +81,55 @@ function StartGame() {
 
         setVotes({ ...votes, [playerName]: true });                                     // stores the votes for players and sets whether they have voted to true
 
-        ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));              // sends the player's vote to the server
-    };
+        ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));                    // sends the player's vote to the server
+  };
 
-    return (
-        <div>
-        {!isNarrating && (
-        <div className="startGameDay">
-            <div className="gameTitle">
-                <h2>MafiUhh...</h2>
+  const toggleHelp = () => {
+    setShowHelp(!showHelp);
+  };
+
+  return (
+    <div>
+    {!isNarrating && (
+      <div className="startGameDay">
+          <div className="gameTitle">
+            <h2>MafiUhh...</h2>
+            <div className="help-btn">
+              <button onClick={toggleHelp}>Help</button>
             </div>
-            {isHost && (
-            <div className="user">
-                Host
+          </div>
+
+        
+
+        {showHelp && (
+          <div className="help-modal-overlay" onClick={toggleHelp}>
+            <div className="help-modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="help-modal-header">
+                <h3>Character Roles</h3>
+                <button className="close-btn" onClick={toggleHelp}>X</button>
+              </div>
+              <div className="help-modal-body">
+                {rolesList
+                  .filter((value, index, self) =>
+                    index === self.findIndex((t) => t.name === value.name)  // Ensures distinct roles by name
+                  )
+                  .map((roleDesc, index) => (
+                  <div className="helplist" key={index}>
+                    <h4>{roleDesc.name}</h4>
+                    <p>{roleDesc.description}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-            )}
+          </div>
+        )}
+
+
+        {isHost && (
+          <div className="user">
+            Host
+          </div>
+        )}
 
         {/* Display the countdown timer */}
         <div className="timerWrapper">
