@@ -33,6 +33,7 @@ function Game() {
                     setMessages(prev => [...prev, `You are assigned the role of ${data.role}`]);
                 } else if (data.type === 'rolesList') {
                     setRolesList(data.roleDesc);                                            // changes the roles list to match the roles descriptions as from mafiaParameter.js
+                    localStorage.setItem('rolesList', JSON.stringify(data.roleDesc));       // saves the roles list into local storage to persist over other webpages
                 } else if (data.type === 'toggleHelpOff') { 
                     setShowHelp(false);                                                     // universal toggle-off for the help menu (occurs after start is initiated)
                 } else if (data.type === 'start') {
@@ -128,7 +129,31 @@ function Game() {
                                 <div>
                                     <button onClick={toggleHelp}>Help</button>
                                 </div>
+
                                 {showHelp && (
+                                    <div className="help-modal-overlay" onClick={toggleHelp}>
+                                        <div className="help-modal-content" onClick={(e) => e.stopPropagation()}>
+                                            <div className="help-modal-header">
+                                                <h3>Character Roles</h3>
+                                                <button className="close-btn" onClick={toggleHelp}>X</button>
+                                            </div>
+                                            <div className="help-modal-body">
+                                                {rolesList
+                                                    .filter((value, index, self) =>
+                                                        index === self.findIndex((t) => t.name === value.name)  // Ensures distinct roles by name
+                                                    )
+                                                    .map((roleDesc, index) => (
+                                                    <div className="helplist" key={index}>
+                                                        <h4>{roleDesc.name}</h4>
+                                                        <p>{roleDesc.description}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* {showHelp && (
                                     <div className ="helpbox">
                                         <h3>Character Roles</h3>
                                         {rolesList
@@ -142,7 +167,8 @@ function Game() {
                                             </div>
                                         ))}
                                     </div>
-                                )}
+                                )} */}
+
                             </div>
                         </div>
 

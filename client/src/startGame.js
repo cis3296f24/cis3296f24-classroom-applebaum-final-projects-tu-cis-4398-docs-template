@@ -13,10 +13,11 @@ function StartGame() {
   const [rolesList, setRolesList] = useState([]);                                 // uses state to store the entire roles list
   const [eliminatedPlayers, setEliminatedPlayers] = useState([]);                 // uses state to store a list of eliminated players
   const [isEliminatedListVisible, setIsEliminatedListVisible] = useState(false);  // uses state to toggle eliminated players list visibility
-  const [alivePlayers, setAlivePlayers] = useState([]);
+  const [alivePlayers, setAlivePlayers] = useState([]);                           // uses state to store list of alive players
   const [isAliveListVisible, setIsAliveListVisible] = useState(false);            // uses state to toggle alive players list visibility
   const [isDay, setIsDay] = useState(true);                                       // uses state to store whether it is night or day game phase
   const [timeLeft, setTimeLeft] = useState(20);                                   // starting timer value (defaults as 10 seconds)
+  const [showHelp, setShowHelp] = useState(false);                                // uses state to toggle the help menu
 
   const[isNarrating, setNarrating] = useState(false);
 
@@ -80,10 +81,15 @@ function StartGame() {
 
   }, [ws, navigate, role, playerName, isHost, eliminatedPlayers, players, voting]);       // Re-run the effect if WebSocket instance changes
 
-  useEffect(() => {
+  useEffect(() => {                                                                       // effect for updating the alive players list every time someone is eliminated
     const newAlivePlayers = players.filter(player => !eliminatedPlayers.includes(player));
     setAlivePlayers(newAlivePlayers);
   }, [players, eliminatedPlayers]);
+
+  useEffect(() => {                                                                       // effect for retrieving roles list from local storage for help button             
+    const storedRolesList = JSON.parse(localStorage.getItem('rolesList'));
+    setRolesList(storedRolesList);
+  }, []);
 
   const voteForPlayer = (playerName) => {
     if (votes[playerName] || eliminatedPlayers.includes(playerName)) return;              // checks to see if a player already voted or dead; prevents a player voting more than once
@@ -91,7 +97,11 @@ function StartGame() {
     setVotes({ ...votes, [playerName]: true });                                           // stores the votes for players and sets whether they have voted to true
 
     ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));                    // sends the player's vote to the server
-};
+  };
+
+  const toggleHelp = () => {
+    setShowHelp(!showHelp);
+  };
 
   return (
     <div>
@@ -99,7 +109,37 @@ function StartGame() {
       <div className="startGameDay">
           <div className="gameTitle">
             <h2>MafiUhh...</h2>
+            <div className="help-btn">
+              <button onClick={toggleHelp}>Help</button>
+            </div>
           </div>
+
+        
+
+        {showHelp && (
+          <div className="help-modal-overlay" onClick={toggleHelp}>
+            <div className="help-modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="help-modal-header">
+                <h3>Character Roles</h3>
+                <button className="close-btn" onClick={toggleHelp}>X</button>
+              </div>
+              <div className="help-modal-body">
+                {rolesList
+                  .filter((value, index, self) =>
+                    index === self.findIndex((t) => t.name === value.name)  // Ensures distinct roles by name
+                  )
+                  .map((roleDesc, index) => (
+                  <div className="helplist" key={index}>
+                    <h4>{roleDesc.name}</h4>
+                    <p>{roleDesc.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+
         {isHost && (
           <div className="user">
             Host

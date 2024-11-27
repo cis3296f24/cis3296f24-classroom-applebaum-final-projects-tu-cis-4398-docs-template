@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useWebSocket } from './WebSocketContext'; // Import the custom hook
 import RoleDisplay from './roleDisplay';
 import { useLocation, useNavigate } from 'react-router-dom';
+import './Night.css';
 
 function Night() {
   const ws = useWebSocket();                                                      // Get the WebSocket instance and connection status
@@ -16,6 +17,7 @@ function Night() {
   const [isAliveListVisible, setIsAliveListVisible] = useState(false);            // uses state to toggle alive players list visibility
   const [isDay, setIsDay] = useState(false);
   const [timeLeft, setTimeLeft] = useState(20);                                   // Starting timer value
+  const [showHelp, setShowHelp] = useState(false);                                // uses state to toggle the help menu
 
   const[isNarrating, setNarrating] = useState(false);
 
@@ -86,12 +88,21 @@ useEffect(() => {
   setAlivePlayers(newAlivePlayers);
 }, [players, eliminatedPlayers]);
 
+useEffect(() => {                                                                       // effect for retrieving roles list from local storage for help button             
+  const storedRolesList = JSON.parse(localStorage.getItem('rolesList'));
+  setRolesList(storedRolesList);
+}, []);
+
 const voteForPlayer = (playerName) => {
   if (votes[playerName] || eliminatedPlayers.includes(playerName)) return;                // checks to see if a player already voted or dead; prevents a player voting more than once
 
   setVotes({ ...votes, [playerName]: true });                                             // stores the votes for players and sets whether they have voted to true
 
   ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));                      // sends the player's vote to the server
+};
+
+const toggleHelp = () => {
+  setShowHelp(!showHelp);
 };
 
 const announceMafiaVote = () => {
@@ -115,11 +126,32 @@ return(
     <div className="startGameNight">
         <div className="gameTitle">
             <h2>MafiUhh...</h2>
+            <div className="help-btn">
+              <button onClick={toggleHelp}>Help</button>
+            </div>
         </div>
-        {isHost && (
-        <div className="user">
-            Host
-        </div>
+
+        {showHelp && (
+          <div className="help-modal-overlay" onClick={toggleHelp}>
+            <div className="help-modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="help-modal-header">
+                <h3>Character Roles</h3>
+                <button className="close-btn" onClick={toggleHelp}>X</button>
+              </div>
+              <div className="help-modal-body">
+                {rolesList
+                  .filter((value, index, self) =>
+                    index === self.findIndex((t) => t.name === value.name)  // Ensures distinct roles by name
+                  )
+                  .map((roleDesc, index) => (
+                  <div className="helplist" key={index}>
+                    <h4>{roleDesc.name}</h4>
+                    <p>{roleDesc.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Display the countdown timer */}
