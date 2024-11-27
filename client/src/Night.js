@@ -118,33 +118,51 @@ function Night() {
         )}
 
         {/* Display the countdown timer */}
-    <div className="timerWrapper">
-        <div className="timer">
-        <div className="timerNumber">{timeLeft}</div>
+        <div className="timerWrapper">
+            <div className="timer">
+            <div className="timerNumber">{timeLeft}</div>
+            </div>
         </div>
-    </div>
 
         {/* Display the user's role */}
         {role && (
             <RoleDisplay role={role}/>
         )}
+          
         {/* Voting Section */}
-      {voting && !eliminatedPlayers.includes(playerName) && (
+        {voting && !eliminatedPlayers.includes(playerName) && (
         <div>
-          <h3>Vote to Eliminate a Player</h3>
-          {players.map((player) => (
+            <h3>Vote to Eliminate a Player</h3>
+            <div>
+                {/* Player Buttons for voting */}
+                {players.map((player) => (
+                    <div key={player}>
+                        <label>
+                            <input
+                                type="radio"                                  // circle button design for now
+                                name="vote"
+                                value={player}
+                                onChange={() => setFinalVote(player)}         // changes the state of the final vote for the user
+                                disabled={eliminatedPlayers.includes(player)} // eliminated players can't vote
+                            />
+                            {player}
+                        </label>
+                    </div>
+                ))}
+            </div>
+            {/* Submit Vote Button */}
             <button
-              key={player}
-              onClick={() => voteForPlayer(player)}
-              disabled={eliminatedPlayers.includes(player)}
+                onClick={() => {
+                    if (finalVote) voteForPlayer(finalVote);                  // submits the player's vote through the voteForPlayer function
+                }}
+                disabled={!finalVote}                                         // button is disabled until a player is selected
             >
-              {player}
+                Submit Vote
             </button>
-          ))}
         </div>
-      )}
+        )}
 
-      <div className="playerListsButtonWrapper">
+        <div className="playerListsButtonWrapper">
         {/* Toggle Button for Eliminated Players List */}
         <div className="elimPlayersListButtonWrapper">
           <button
