@@ -121,10 +121,6 @@ function Game() {
                                         ))}
                                     </div>
                                 </div>
-                                <div className="glow">
-                                    {isHost && <button onClick={goToStartGame}>Start Game</button>}
-                                </div>
-
                                 <div>
                                     <button onClick={toggleHelp}>Help</button>
                                 </div>
@@ -149,7 +145,7 @@ function Game() {
 
                         {isHost && ( 
                         <div className="container-login100">
-                            <div className="wrap-login100">
+                            <div className="wrap-host100">
                                 <h3>Host Options</h3>
                                 <label htmlFor="name">Enter max players:</label>
                                 <input
@@ -178,7 +174,11 @@ function Game() {
                             </div>
                         </div>
                     )}
+                    <div className="startButton">
+                         {isHost && <button onClick={goToStartGame}>Start Game</button>} 
+                    </div>
                 </div>
+                
             )}
         </div>
     );
