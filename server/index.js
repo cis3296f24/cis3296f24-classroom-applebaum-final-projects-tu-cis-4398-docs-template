@@ -48,32 +48,39 @@ wss.on('connection', (ws) => {
             }
 
             players.forEach(player => {
-                if (player.ws !== ws) {
-                    player.ws.send(JSON.stringify({ type: 'message', message: playerName + ' has joined the game!' })); // sends a message to all other players' frontend that a new player has joined 
-                }                                                                                                       // (accomplished by comparing websockets)
+                player.ws.send(JSON.stringify({ type: 'message', message: playerName + ' has joined the game!' }));     // sends a message to all other players' frontend that a new player has joined // (accomplished by comparing websockets)
             });
         } else if (data.type === 'start') {
             console.log(data.maxPlayers);
-            //data.nightLength can be used for the timer *****
             if (players[0].ws === ws) {                                                                                 // checks that the player who clicked the start button is the host
-                assignRoles(players, data.maxPlayers, data.numMafia);                                                                                   // runs the assignRoles() function using the # of people in the players[]
+                assignRoles(players, data.maxPlayers, data.numMafia);                                                   // runs the assignRoles() function using the # of people in the players[]
                 players.forEach(player => {
                     player.ws.send(JSON.stringify({ type: 'toggleHelpOff'}));                                           // sends the 'toggleHelpOff' tag to the frontend (see Game.js for use)
                     player.ws.send(JSON.stringify({ type: 'start'}));                                                   // sends the 'start' tag to the frontend (see Game.js for use)
                     player.ws.send(JSON.stringify({ type: 'message', message: 'The game has started!' }));
                 });
     
-            }else {
+            } else {
                 ws.send(JSON.stringify({ type: 'error', message: 'Only the host can start the game.' }));
             }
         } else if (data.type === 'vote') {
             handleVoting(playerName, data.playerName);                                                                  // when the vote message is received it runs the voting function
-        } else if(data.type === 'startVote'){                                                                           // listens for the signal to begin the voting phase
+        } else if (data.type === 'startVote') {                                                                         // listens for the signal to begin the voting phase
             players.forEach(player => {
-                player.ws.send(JSON.stringify({ type: 'startVoting', players: players.map(p => p.name) }));             // sends the voting button signal to each player's frontend
+                player.ws.send(JSON.stringify({ type: 'startVoting', players: players.map(player => player.name) }));   // sends the voting button signal to each player's frontend
             });
-        } else if (data.type === 'beginTimer') {
+        } else if (data.type === 'newNightTimer') {
+            console.log("received Timer [" + data.nightLength + "].");                                                  // debugging
+            players.forEach(player => {
+                player.ws.send(JSON.stringify({ type: 'newNightTimer', nightLength: data.nightLength }));               // sends the new nighttime timer to each user
+            });
+            timer = data.nightLength;
+        } else if (data.type === 'beginDayTimer') {
             beginTimer();
+            timer = 25; // ISAAC POTENTIAL CHANGE? SO THAT THIS MAYBE WORKS OFF data.dayLength?                         // day timer number declared here****
+        } else if (data.type === 'beginNightTimer') {
+            beginTimer();
+            timer = data.nightLength;                                                                                   // night timer number declared here***
         }
     });
 
