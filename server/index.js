@@ -124,49 +124,35 @@ function doPhaseChange() {
         gamePhase = 'DAY';
     }
 
-    timer = 10;                                                                         // resets the timer number
-
     players.forEach(player => { 
         player.ws.send(JSON.stringify({ type: 'phase', phase: gamePhase }));            // sends out the current timer number to all users' frontend
     });
-
-    beginTimer();                                                                       // restarts the timer
 }
 
 function updateCurrentPlayersList() {                                                   // sends the updated player list to all 
-    const playerNames = players.map(player => player.name);
     players.forEach(player => {
-        player.ws.send(JSON.stringify({
-            type: 'updateCurrentPlayerList',
-            currentPlayers: playerNames
-        }));
+        player.ws.send(JSON.stringify({ type: 'updateCurrentPlayerList', currentPlayers: players.map(player => player.name) }));
     });
 }
 
-function checkWinConditions() {                                                                 // checks if a team has won the game
-    const mafiaCount = players.filter(p => p.team === "MAFIA" && !p.eliminated).length;         // counts mafia that are still alive
-    const citizenCount = players.filter(p => p.team === "CITIZEN" && !p.eliminated).length;     // counts citizens that are still alive
+function checkWinConditions() {                                                                                     // checks if a team has won the game
+    const mafiaCount = players.filter(player => player.team === "MAFIA" && !player.eliminated).length;              // counts mafia that are still alive
+    const citizenCount = players.filter(player => player.team === "CITIZEN" && !player.eliminated).length;          // counts citizens that are still alive
 
-    if (mafiaCount === 0) {                                                                     // if there are no mafia left, citizens win
+    if (mafiaCount === 0) {                                                                                         // if there are no mafia left, citizens win
         players.forEach(player => {
-            const message = player.team === "CITIZEN" ? "You win!" : "You lose.";               // sets a message for who wins and loses, different depending on your team
-            player.ws.send(JSON.stringify({                                                     // sends game over message to front end
-                type: 'gameOver',
-                message: 'Game Over: Citizens wins! ' + message
-            }));
+            const message = player.team === "CITIZEN" ? "You win!" : "You lose.";                                   // sets a message for who wins and loses, different depending on your team
+            player.ws.send(JSON.stringify({ type: 'gameOver', message: 'Game Over: Citizens wins! ' + message }));  // sends game over message to front end
         });
-    } else if (mafiaCount >= citizenCount ) {                                                   // if mafia equal or outnumber citizens, mafia wins
+    } else if (mafiaCount >= citizenCount ) {                                                                       // if mafia equal or outnumber citizens, mafia wins
         players.forEach(player => {
-            const message = player.team === "MAFIA" ? "You win!" : "You lose.";                 // sets a message for who wins and loses, different depending on your team
-            player.ws.send(JSON.stringify({                                                     // sends game over message to front end
-                type: 'gameOver',
-                message: 'Game Over: Mafia wins! ' + message 
-            }));
+            const message = player.team === "MAFIA" ? "You win!" : "You lose.";                                     // sets a message for who wins and loses, different depending on your team
+            player.ws.send(JSON.stringify({ type: 'gameOver', message: 'Game Over: Mafia wins! ' + message }));     // sends game over message to front end
         });
     }
 }
 
-function isMafia(role) {                                                                                                // function to check if a role is on the Mafia team, can be updated with added roles.
+function isMafia(role) {                                                                                            // function to check if a role is on the Mafia team, can be updated with added roles.
     if (role === "Mafia") {
         return true
     }
