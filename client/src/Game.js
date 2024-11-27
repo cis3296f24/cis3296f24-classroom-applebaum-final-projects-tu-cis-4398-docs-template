@@ -18,6 +18,7 @@ function Game() {
   const [numMafia, setNumMafia] = useState(2);              // uses state to change and store numMafia (default is 2)
   const [nightLength, setNightLength] = useState(13);       // uses state to change and store nightLength (default is 13)
 
+
   useEffect(() => {                                                                       // listens for messages from the WebSocket
     if (ws) {
       const handleMessage = (event) => {
@@ -43,6 +44,7 @@ function Game() {
             navigate('/startgame', { state: { role, playerName, isHost, nightLength } }); // sends every user to a new page: start page, passes to the new page: the role, player name, if they are the host, and nighttime timer amount
         } else if (data.type === 'updateCurrentPlayerList') {
             setCurrentPlayers(data.currentPlayers);
+
         }
       }                                                                           
       ws.addEventListener('message', handleMessage)
@@ -121,26 +123,52 @@ function Game() {
                                   {isHost && <button onClick={goToStartGame}>Start Game</button>}
                               </div>
 
-                              <div>
-                                  <button onClick={toggleHelp}>Help</button>
-                              </div>
-                              {showHelp && (
-                                  <div className ="helpbox">
-                                      <h3>Character Roles</h3>
-                                      {rolesList
-                                          .filter((value, index, self) =>
-                                              index === self.findIndex((t) => t.name === value.name)  // Ensures distinct roles by name
-                                          )
-                                          .map((roleDesc, index) => (
-                                          <div className="helplist" key={index}>
-                                              <h4>{roleDesc.name}</h4>
-                                              <p>{roleDesc.description}</p>
-                                          </div>
-                                      ))}
-                                  </div>
-                              )}
-                          </div>
-                      </div>
+                                <div>
+                                    <button onClick={toggleHelp}>Help</button>
+                                </div>
+
+                                {showHelp && (
+                                    <div className="help-modal-overlay" onClick={toggleHelp}>
+                                        <div className="help-modal-content" onClick={(e) => e.stopPropagation()}>
+                                            <div className="help-modal-header">
+                                                <h3>Character Roles</h3>
+                                                <button className="close-btn" onClick={toggleHelp}>X</button>
+                                            </div>
+                                            <div className="help-modal-body">
+                                                {rolesList
+                                                    .filter((value, index, self) =>
+                                                        index === self.findIndex((t) => t.name === value.name)  // Ensures distinct roles by name
+                                                    )
+                                                    .map((roleDesc, index) => (
+                                                    <div className="helplist" key={index}>
+                                                        <h4>{roleDesc.name}</h4>
+                                                        <p>{roleDesc.description}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* {showHelp && (
+                                    <div className ="helpbox">
+                                        <h3>Character Roles</h3>
+                                        {rolesList
+                                            .filter((value, index, self) =>
+                                                index === self.findIndex((t) => t.name === value.name)  // Ensures distinct roles by name
+                                            )
+                                            .map((roleDesc, index) => (
+                                            <div className="helplist" key={index}>
+                                                <h4>{roleDesc.name}</h4>
+                                                <p>{roleDesc.description}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )} */}
+
+                            </div>
+                        </div>
+
 
 
                       {isHost && ( 

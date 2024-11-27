@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useWebSocket } from './WebSocketContext';                                // Import the custom hook
 import RoleDisplay from './roleDisplay';
 import { useLocation, useNavigate } from 'react-router-dom';
+import './Night.css';
 
 function Night() {
   const ws = useWebSocket();                                                      // Get the WebSocket instance and connection status
@@ -14,8 +15,10 @@ function Night() {
   const [isEliminatedListVisible, setIsEliminatedListVisible] = useState(false);  // uses state to toggle eliminated players list visibility
   const [alivePlayers, setAlivePlayers] = useState([]);                           // uses state to store a list of alive players
   const [isAliveListVisible, setIsAliveListVisible] = useState(false);            // uses state to toggle alive players list visibility
+
   const [timeLeft, setTimeLeft] = useState(10);                                   // Starting timer value
   const [finalVote, setFinalVote] = useState(null);                               // uses state to store the final vote of each user
+  const [showHelp, setShowHelp] = useState(false);                                // uses state to toggle the help menu
 
   const[isNarrating, setNarrating] = useState(false);
 
@@ -108,13 +111,34 @@ function Night() {
       <div>
       {!isNarrating && (
         <div className="startGameNight">
-        <div className="gameTitle">
+          <div className="gameTitle">
             <h2>MafiUhh...</h2>
+            <div className="help-btn">
+              <button onClick={toggleHelp}>Help</button>
+            </div>
         </div>
-        {isHost && (
-        <div className="user">
-            Host
-        </div>
+
+        {showHelp && (
+          <div className="help-modal-overlay" onClick={toggleHelp}>
+            <div className="help-modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="help-modal-header">
+                <h3>Character Roles</h3>
+                <button className="close-btn" onClick={toggleHelp}>X</button>
+              </div>
+              <div className="help-modal-body">
+                {rolesList
+                  .filter((value, index, self) =>
+                    index === self.findIndex((t) => t.name === value.name)  // Ensures distinct roles by name
+                  )
+                  .map((roleDesc, index) => (
+                  <div className="helplist" key={index}>
+                    <h4>{roleDesc.name}</h4>
+                    <p>{roleDesc.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Display the countdown timer */}

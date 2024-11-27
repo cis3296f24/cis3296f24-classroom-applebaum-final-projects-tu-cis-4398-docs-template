@@ -75,6 +75,7 @@ function StartGame() {
         }
     }, [ws, navigate, role, playerName, isHost, eliminatedPlayers, players, voting, nightLength]);  // Re-run the effect if WebSocket instance changes
 
+
     useEffect(() => {
         const newAlivePlayers = players.filter(player => !eliminatedPlayers.includes(player));
         setAlivePlayers(newAlivePlayers);
@@ -85,21 +86,55 @@ function StartGame() {
 
         setVotes({ ...votes, [playerName]: true });                                     // stores the votes for players and sets whether they have voted to true
 
-        ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));              // sends the player's vote to the server
-    };
+        ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));                    // sends the player's vote to the server
+  };
 
-    return (
-        <div>
-        {!isNarrating && (
-        <div className="startGameDay">
-            <div className="gameTitle">
-                <h2>MafiUhh...</h2>
+  const toggleHelp = () => {
+    setShowHelp(!showHelp);
+  };
+
+  return (
+    <div>
+    {!isNarrating && (
+      <div className="startGameDay">
+          <div className="gameTitle">
+            <h2>MafiUhh...</h2>
+            <div className="help-btn">
+              <button onClick={toggleHelp}>Help</button>
             </div>
-            {isHost && (
-            <div className="user">
-                Host
+          </div>
+
+        
+
+        {showHelp && (
+          <div className="help-modal-overlay" onClick={toggleHelp}>
+            <div className="help-modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="help-modal-header">
+                <h3>Character Roles</h3>
+                <button className="close-btn" onClick={toggleHelp}>X</button>
+              </div>
+              <div className="help-modal-body">
+                {rolesList
+                  .filter((value, index, self) =>
+                    index === self.findIndex((t) => t.name === value.name)  // Ensures distinct roles by name
+                  )
+                  .map((roleDesc, index) => (
+                  <div className="helplist" key={index}>
+                    <h4>{roleDesc.name}</h4>
+                    <p>{roleDesc.description}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-            )}
+          </div>
+        )}
+
+
+        {isHost && (
+          <div className="user">
+            Host
+          </div>
+        )}
 
         {/* Display the countdown timer */}
         <div className="timerWrapper">
