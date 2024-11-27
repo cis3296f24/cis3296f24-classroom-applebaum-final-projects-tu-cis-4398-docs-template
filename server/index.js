@@ -12,7 +12,6 @@ const cors = require('cors');
 app.use(cors());
 
 let players = [];                                               // stores the Player objects (DO NOT MOVE THIS BELOW THIS POSITION OTHERWISE THERE IS A BUG)
-let timer;                                                      // stores the timer number
 let gamePhase = 'DAY';                                          // stores the default game phase
 let timerInterval = null;
 
@@ -74,13 +73,10 @@ wss.on('connection', (ws) => {
             players.forEach(player => {
                 player.ws.send(JSON.stringify({ type: 'newNightTimer', nightLength: data.nightLength }));               // sends the new nighttime timer to each user
             });
-            timer = data.nightLength;
         } else if (data.type === 'beginDayTimer') {
-            beginTimer();
-            timer = 25; // ISAAC POTENTIAL CHANGE? SO THAT THIS MAYBE WORKS OFF data.dayLength?                         // day timer number declared here****
+            beginTimer(25); // ISAAC POTENTIAL CHANGE? SO THAT THIS MAYBE WORKS OFF data.dayLength?                         // day timer number declared here****
         } else if (data.type === 'beginNightTimer') {
-            beginTimer();
-            timer = data.nightLength;                                                                                   // night timer number declared here***
+            beginTimer(data.nightLength);                                                                                 // night timer number declared here***
         }
     });
 
@@ -93,7 +89,7 @@ wss.on('connection', (ws) => {
     });
 });
 
-function beginTimer() {
+function beginTimer(timer) {
     if (timerInterval) {
         clearInterval(timerInterval);                                                   // checks if the timer is currently running and stops it if so             
     }
@@ -120,14 +116,13 @@ function beginTimer() {
 function doPhaseChange() {
     if (gamePhase === 'DAY') {                                                          // swaps the game phase
         gamePhase = 'DAY NARRATION';
-        timer = 10;
-        beginTimer();
+        beginTimer(10);
+
     } else if(gamePhase === 'DAY NARRATION') {
         gamePhase = 'NIGHT';
     } else if(gamePhase === 'NIGHT') {
         gamePhase = 'NIGHT NARRATION';
-        timer = 10;
-        beginTimer();
+        beginTimer(10);
     } else {
         gamePhase = 'DAY';
     }
@@ -267,11 +262,15 @@ function handleVoting(playerName, targetPlayer) {
         }
 
         console.log("getting results");
-        if (tie) {                                                                              // runs if there is a tie
-            players.forEach(player => {
+        if (tie) {              
+            timer=0;
+            doPhaseChange();                                                              // runs if there is a tie
+            players.forEach(player => {                                                      
                 player.ws.send(JSON.stringify({ type: 'voteTie', message: 'There was a tie. No player is eliminated this round.' }));
             });
-        } else if (eliminatedPlayer) {                                                          // runs if a player is eliminated
+        } else if (eliminatedPlayer) {  
+            timer=0;
+            doPhaseChange()                                                                                                      // runs if a player is eliminated
             players.forEach(player => {
                 player.ws.send(JSON.stringify({ type: 'voteResults', eliminatedPlayer, message:  eliminatedPlayer + ' has been eliminated. They were a ' + eliminatedTeam + "!"}));      // sends the eliminated player tag to everyone's front end with the username
             });

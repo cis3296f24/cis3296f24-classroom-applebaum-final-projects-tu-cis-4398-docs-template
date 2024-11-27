@@ -46,14 +46,12 @@ function Night() {
                 setVotes({});                                                         // reset vote tally for players
             } else if (data.type === 'voteResults') {
                 setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]); 
-                setAlivePlayers();                                                    // adds the eliminated player to the array
-                setVoting(false);                                                     // turns off voting (can be useful for next phase implementation)                                                                  
+                setAlivePlayers();                                                    // adds the eliminated player to the array                                              
                 setMessages(prev => [...prev, data.message]);
                 setVotes({});                                                         // reset vote tally for players
-            } else if (data.type === 'voteTie') {
-                setVoting(false);                                                     // turns off voting
+            } else if (data.type === 'voteTie') {                                              
                 setMessages(prev => [...prev, data.message]);                         // reset vote tally for players
-                setVotes({});                                                         // turns off voting (can be useful for next phase implementation)                            
+                setVotes({});                                                                              
             } else if (data.type === 'timer') {
               setTimeLeft(data.timeLeft);                                             // sets the local timer based on the server timer           
             } else if (data.type === 'phase') {

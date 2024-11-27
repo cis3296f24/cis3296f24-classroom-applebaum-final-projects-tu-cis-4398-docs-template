@@ -45,12 +45,10 @@ function StartGame() {
               setVotes({});                                                                       // reset vote tally for players
           } else if (data.type === 'voteResults') {
               setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]);                     // adds the eliminated player to the array
-              setAlivePlayers();
-              setVoting(false);                                                                   // turns off voting (can be useful for next phase implementation)                                            
+              setAlivePlayers();                                                                // turns off voting (can be useful for next phase implementation)                                            
               setMessages(prev => [...prev, data.message]); 
               setVotes({});                                                                       // reset vote tally for players
           } else if (data.type === 'voteTie') {
-              setVoting(false);                                                                   // turns off voting
               setMessages(prev => [...prev, data.message]);
               setVotes({});                                                                       // reset vote tally for players
           } else if (data.type === 'timer') {
