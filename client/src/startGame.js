@@ -63,6 +63,7 @@ function StartGame() {
             } else {
               setIsDay(false);
               setVoting(false);
+              ws.removeEventListener('message', handleMessage);
               navigate('/Night', { state: {role, playerName, isHost} });                          // move to night page 
             }
           } else if (data.type === 'gameOver') {

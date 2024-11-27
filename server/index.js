@@ -128,8 +128,17 @@ function doPhaseChange() {
 
     players.forEach(player => { 
         player.ws.send(JSON.stringify({ type: 'phase', phase: gamePhase }));            // sends out the current timer number to all users' frontend
-    });                                                                   
+    });
+
+    if(gamePhase === 'NIGHT' || gamePhase === 'DAY'){
+        players.forEach(player => {
+            player.ws.send(JSON.stringify({ type: 'startVoting', players: players.map(p => p.name) }));             // sends the voting button signal to each player's frontend
+        });
+    }
+
+    beginTimer();                                                                       // restarts the timer
 }
+
 
 function updateCurrentPlayersList() {                                                   // sends the updated player list to all 
     const playerNames = players.map(player => player.name);
@@ -263,6 +272,7 @@ function handleVoting(playerName, targetPlayer) {
             }
         }
 
+        console.log("getting results");
         if (tie) {                                                                              // runs if there is a tie
             players.forEach(player => {
                 player.ws.send(JSON.stringify({ type: 'voteTie', message: 'There was a tie. No player is eliminated this round.' }));

@@ -24,22 +24,21 @@ function Night() {
 
   const navigate = useNavigate();                                                 // Hook for navigation
 
-  const[spoke, setSpoke] = useState(true);
+  const[spoke, setSpoke] = useState(false);
 
   useEffect(() => {                                                                   // listens for messages from the WebSocket (and update state)
       if (!ws) {
         console.log("WebSocket is not initialized");
         return;
       }else if(ws){  
-        if(!voting){
-          ws.send(JSON.stringify({ type: 'startVote'}));
-        }
         const handleMessage = (event) => {
             const data = JSON.parse(event.data);
             if (data.type === 'rolesList') {
                 setRolesList(data.roleDesc);
             } else if (data.type === 'startVoting') {
+                setSpoke(false);
                 console.log("voting!");
+                announceMafiaVote();
                 setVoting(true);                                                      // turns on voting
                 ws.send(JSON.stringify({ type: 'beginTimer' }));
                 setPlayers(data.players);
@@ -59,7 +58,8 @@ function Night() {
             } else if (data.type === 'phase') {
               if (data.phase === 'DAY') {                                             // looks for the phase tag, and will update the IsDay state based on that
                 setIsDay(true);
-                setVoting(false);                                                     // turns off voting 
+                setVoting(false);  
+                ws.removeEventListener('message', handleMessage);                                                   // turns off voting 
                 navigate('/startGame', { state: { role, playerName, isHost} });       // navigates to the startGame.js page                                                             
               } else if (data.phase === 'NIGHT NARRATION'){
                 setNarrating(true);
@@ -94,12 +94,13 @@ const voteForPlayer = (playerName) => {
   ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));                      // sends the player's vote to the server
 };
 
-
-const announceMafiaVote = () => {
+function announceMafiaVote() {
   if(!spoke){
     console.log("Speaking!");
      const messageText = "Mafia open your eyes to vote.";
      const utterance = new SpeechSynthesisUtterance(messageText);
+     const voices = speechSynthesis.getVoices();
+     utterance.voice = voices.find(voice => voice.lang === 'en-US');
      utterance.pitch = 1;
      utterance.rate = 1;
      utterance.volume = 1;
@@ -109,6 +110,7 @@ const announceMafiaVote = () => {
      setSpoke(true);
   }
  };
+
 
 return(
     <div>
