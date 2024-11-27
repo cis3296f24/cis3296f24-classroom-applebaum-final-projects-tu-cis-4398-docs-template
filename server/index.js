@@ -121,11 +121,13 @@ function doPhaseChange() {
     if (gamePhase === 'DAY') {                                                          // swaps the game phase
         gamePhase = 'DAY NARRATION';
         timer = 10;
+        beginTimer();
     } else if(gamePhase === 'DAY NARRATION') {
         gamePhase = 'NIGHT';
     } else if(gamePhase === 'NIGHT') {
         gamePhase = 'NIGHT NARRATION';
         timer = 10;
+        beginTimer();
     } else {
         gamePhase = 'DAY';
     }

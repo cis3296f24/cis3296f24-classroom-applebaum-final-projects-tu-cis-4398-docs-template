@@ -58,14 +58,11 @@ function Night() {
               setTimeLeft(data.timeLeft);                                             // sets the local timer based on the server timer           
             } else if (data.type === 'phase') {
               if (data.phase === 'DAY') {                                             // looks for the phase tag, and will update the IsDay state based on that
-                setIsDay(true);
                 setVoting(false);  
                 ws.removeEventListener('message', handleMessage);                                                   // turns off voting 
-                navigate('/startGame', { state: { role, playerName, isHost} });       // navigates to the startGame.js page                                                             
+                navigate('/startGame', { state: { role, playerName, isHost, nightLength} });       // navigates to the startGame.js page                                                             
               } else if (data.phase === 'NIGHT NARRATION'){
                 setNarrating(true);
-              } else{
-                setIsDay(false);
               }
             } else if (data.type === 'gameOver') {
               setMessages(prev => [...prev, data.message]);
