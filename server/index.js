@@ -237,7 +237,7 @@ function handleVoting(playerName, targetPlayer) {
 
         let maxVotes = -1;                                                      // sets the initial vote count for every player to -1
         let eliminatedPlayer = null;                                            // default sets the eliminated player for each round to null
-        let eliminatedTeam = null                                                // default sets the eliminated player role for each round to null
+        let eliminatedTeam = null                                               // default sets the eliminated player role for each round to null
         let tie = false;                                                        // default sets the boolean flag for tie to false
 
         for (const [votedFor, count] of Object.entries(voteCounts)) {           // goes through ALL of the entires in voteCounts (one time run-through)
