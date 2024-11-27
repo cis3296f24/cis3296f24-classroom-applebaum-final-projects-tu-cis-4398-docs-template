@@ -39,7 +39,7 @@ function Game() {
             console.log("Received NEW Night Timer Amount: [" + data.nightLength + "].");  // debugging
             setNightLength(data.nightLength);                                             // receives the new timer value and updates it (required for all non-host users)
         } else if (data.type === 'start') {
-          setNightLength(data.nightLength);                                               // receives the new timer value and updates it (required for all non-host users)             
+            setNightLength(data.nightLength);                                             // receives the new timer value and updates it (required for all non-host users)             
             navigate('/startgame', { state: { role, playerName, isHost, nightLength } }); // sends every user to a new page: start page, passes to the new page: the role, player name, if they are the host, and nighttime timer amount
         } else if (data.type === 'updateCurrentPlayerList') {
             setCurrentPlayers(data.currentPlayers);
