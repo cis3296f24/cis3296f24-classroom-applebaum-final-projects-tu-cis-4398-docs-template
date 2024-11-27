@@ -34,7 +34,6 @@ function StartGame() {
         ws.send(JSON.stringify({ type: 'startVote'}));                  // immediately after the start button is clicked, this sends the 'startVote' tag to the backend to activate the voting phase
       }
       const handleMessage = (event) => {
-          console.log("event!");
           const data = JSON.parse(event.data);
           if (data.type === 'rolesList') {
               setRolesList(data.roleDesc);                                                        // changes the roles list to match the roles descriptions as from mafiaParameter.js
@@ -55,11 +54,12 @@ function StartGame() {
               setMessages(prev => [...prev, data.message]);
               setVotes({});                                                                       // reset vote tally for players
           } else if (data.type === 'timer') {
-            setTimeLeft(data.timeLeft);                                                           // sets the local timer based on the server timer
-            console.log("RECEIVED TIMER: " + data.timeLeft);                                      // debugging
+            setTimeLeft(data.timeLeft);                                                           // sets the local timer based on the server timer                      
           } else if (data.type === 'phase') {
             if (data.phase === 'DAY') {                                                           // looks for the phase tag, and will update the IsDay state based on that
-              setIsDay(true);                                                                     
+              setIsDay(true);
+            } else if (data.phase === 'DAY NARRATION'){
+              setNarrating(true);                                                                  
             } else {
               setIsDay(false);
               setVoting(false);

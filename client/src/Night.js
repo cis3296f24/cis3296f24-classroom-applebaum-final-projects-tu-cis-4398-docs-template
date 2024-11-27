@@ -35,7 +35,6 @@ function Night() {
           ws.send(JSON.stringify({ type: 'startVote'}));
         }
         const handleMessage = (event) => {
-            console.log("event!");
             const data = JSON.parse(event.data);
             if (data.type === 'rolesList') {
                 setRolesList(data.roleDesc);
@@ -56,14 +55,15 @@ function Night() {
                 setMessages(prev => [...prev, data.message]);                         // reset vote tally for players
                 setVotes({});                                                         // turns off voting (can be useful for next phase implementation)                            
             } else if (data.type === 'timer') {
-              setTimeLeft(data.timeLeft);                                             // sets the local timer based on the server timer
-              console.log("RECEIVED TIMER: " + data.timeLeft);                        // debugging
+              setTimeLeft(data.timeLeft);                                             // sets the local timer based on the server timer           
             } else if (data.type === 'phase') {
               if (data.phase === 'DAY') {                                             // looks for the phase tag, and will update the IsDay state based on that
                 setIsDay(true);
                 setVoting(false);                                                     // turns off voting 
                 navigate('/startGame', { state: { role, playerName, isHost} });       // navigates to the startGame.js page                                                             
-              } else {
+              } else if (data.phase === 'NIGHT NARRATION'){
+                setNarrating(true);
+              } else{
                 setIsDay(false);
               }
             } else if (data.type === 'gameOver') {
@@ -93,6 +93,7 @@ const voteForPlayer = (playerName) => {
 
   ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));                      // sends the player's vote to the server
 };
+
 
 const announceMafiaVote = () => {
   if(!spoke){
@@ -216,11 +217,7 @@ return(
             <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
             </div>
         )}
-        </div>
-                                   {/* COMMENTED OUT THE CONTINUE BUTTON FOR NOW */}
-                                   {/*<div className="glow">
-                                        {isHost && <button onClick={phaseChange}>Continue</button>}
-                                    </div>*/}
+        </div> 
         </div>
     )}
     </div>

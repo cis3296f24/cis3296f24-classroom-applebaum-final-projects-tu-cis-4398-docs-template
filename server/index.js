@@ -112,18 +112,23 @@ function beginTimer() {
 
 function doPhaseChange() {
     if (gamePhase === 'DAY') {                                                          // swaps the game phase
+        gamePhase = 'DAY NARRATION';
+        timer = 10;
+    } else if(gamePhase === 'DAY NARRATION') {
         gamePhase = 'NIGHT';
+        timer = 15;
+    } else if(gamePhase === 'NIGHT') {
+        gamePhase = 'NIGHT NARRATION';
+        timer = 10;
     } else {
         gamePhase = 'DAY';
+        timer = 15;
     }
-
-    timer = 10;                                                                         // resets the timer number
+                                                                         // resets the timer number
 
     players.forEach(player => { 
         player.ws.send(JSON.stringify({ type: 'phase', phase: gamePhase }));            // sends out the current timer number to all users' frontend
-    });
-
-    beginTimer();                                                                       // restarts the timer
+    });                                                                   
 }
 
 function updateCurrentPlayersList() {                                                   // sends the updated player list to all 
