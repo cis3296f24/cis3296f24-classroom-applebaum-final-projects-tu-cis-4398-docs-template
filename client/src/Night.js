@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useWebSocket } from './WebSocketContext'; // Import the custom hook
 import RoleDisplay from './roleDisplay';
 import { useLocation, useNavigate } from 'react-router-dom';
+import sound from './Narrations/MafiaCall.mp3'
 
 function Night() {
   const ws = useWebSocket();                                                      // Get the WebSocket instance and connection status
@@ -38,7 +39,7 @@ function Night() {
             } else if (data.type === 'startVoting') {
                 setSpoke(false);
                 console.log("voting!");
-                announceMafiaVote();
+                speak(sound);
                 setVoting(true);                                                      // turns on voting
                 ws.send(JSON.stringify({ type: 'beginTimer' }));
                 setPlayers(data.players);
@@ -94,23 +95,13 @@ const voteForPlayer = (playerName) => {
   ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));                      // sends the player's vote to the server
 };
 
-function announceMafiaVote() {
-  if(!spoke){
-    console.log("Speaking!");
-     const messageText = "Mafia open your eyes to vote.";
-     const utterance = new SpeechSynthesisUtterance(messageText);
-     const voices = speechSynthesis.getVoices();
-     utterance.voice = voices.find(voice => voice.lang === 'en-US');
-     utterance.pitch = 1;
-     utterance.rate = 1;
-     utterance.volume = 1;
- 
-     // Start speaking the messages
-     window.speechSynthesis.speak(utterance);
-     setSpoke(true);
-  }
+function speak(sound) {
+  console.log("Mafia announced");
+  var audio = new Audio(sound);
+  audio.play().catch((error) => {
+    console.error('Audio playback failed:', error);
+  });
  };
-
 
 return(
     <div>
