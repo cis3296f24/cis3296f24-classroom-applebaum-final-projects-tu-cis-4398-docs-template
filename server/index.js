@@ -12,7 +12,7 @@ const cors = require('cors');
 app.use(cors());
 
 let players = [];                                               // stores the Player objects (DO NOT MOVE THIS BELOW THIS POSITION OTHERWISE THERE IS A BUG)
-let timer = 10;                                                 // stores the timer number
+let timer;                                                      // stores the timer number
 let gamePhase = 'DAY';                                          // stores the default game phase
 let timerInterval = null;
 
@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 });
 
 wss.on('connection', (ws) => {
-    console.log("New WebSocket connection established");
+    console.log("[Websocket] Connection Established...");
 
     let playerName;                                             // stores the player name (inputted by the user)
 
@@ -48,32 +48,39 @@ wss.on('connection', (ws) => {
             }
 
             players.forEach(player => {
-                if (player.ws !== ws) {
-                    player.ws.send(JSON.stringify({ type: 'message', message: playerName + ' has joined the game!' })); // sends a message to all other players' frontend that a new player has joined 
-                }                                                                                                       // (accomplished by comparing websockets)
+                player.ws.send(JSON.stringify({ type: 'message', message: playerName + ' has joined the game!' }));     // sends a message to all other players' frontend that a new player has joined // (accomplished by comparing websockets)
             });
         } else if (data.type === 'start') {
             console.log(data.maxPlayers);
-            //data.nightLength can be used for the timer *****
             if (players[0].ws === ws) {                                                                                 // checks that the player who clicked the start button is the host
-                assignRoles(players, data.maxPlayers, data.numMafia);                                                                                   // runs the assignRoles() function using the # of people in the players[]
+                assignRoles(players, data.maxPlayers, data.numMafia);                                                   // runs the assignRoles() function using the # of people in the players[]
                 players.forEach(player => {
                     player.ws.send(JSON.stringify({ type: 'toggleHelpOff'}));                                           // sends the 'toggleHelpOff' tag to the frontend (see Game.js for use)
                     player.ws.send(JSON.stringify({ type: 'start'}));                                                   // sends the 'start' tag to the frontend (see Game.js for use)
                     player.ws.send(JSON.stringify({ type: 'message', message: 'The game has started!' }));
                 });
     
-            }else {
+            } else {
                 ws.send(JSON.stringify({ type: 'error', message: 'Only the host can start the game.' }));
             }
         } else if (data.type === 'vote') {
             handleVoting(playerName, data.playerName);                                                                  // when the vote message is received it runs the voting function
-        } else if(data.type === 'startVote'){                                                                           // listens for the signal to begin the voting phase
+        } else if (data.type === 'startVote') {                                                                         // listens for the signal to begin the voting phase
             players.forEach(player => {
-                player.ws.send(JSON.stringify({ type: 'startVoting', players: players.map(p => p.name) }));             // sends the voting button signal to each player's frontend
+                player.ws.send(JSON.stringify({ type: 'startVoting', players: players.map(player => player.name) }));   // sends the voting button signal to each player's frontend
             });
-        } else if (data.type === 'beginTimer') {
+        } else if (data.type === 'newNightTimer') {
+            console.log("received Timer [" + data.nightLength + "].");                                                  // debugging
+            players.forEach(player => {
+                player.ws.send(JSON.stringify({ type: 'newNightTimer', nightLength: data.nightLength }));               // sends the new nighttime timer to each user
+            });
+            timer = data.nightLength;
+        } else if (data.type === 'beginDayTimer') {
             beginTimer();
+            timer = 25; // ISAAC POTENTIAL CHANGE? SO THAT THIS MAYBE WORKS OFF data.dayLength?                         // day timer number declared here****
+        } else if (data.type === 'beginNightTimer') {
+            beginTimer();
+            timer = data.nightLength;                                                                                   // night timer number declared here***
         }
     });
 
@@ -116,15 +123,12 @@ function doPhaseChange() {
         timer = 10;
     } else if(gamePhase === 'DAY NARRATION') {
         gamePhase = 'NIGHT';
-        timer = 15;
     } else if(gamePhase === 'NIGHT') {
         gamePhase = 'NIGHT NARRATION';
         timer = 10;
     } else {
         gamePhase = 'DAY';
-        timer = 15;
     }
-                                                                         // resets the timer number
 
     players.forEach(player => { 
         player.ws.send(JSON.stringify({ type: 'phase', phase: gamePhase }));            // sends out the current timer number to all users' frontend
@@ -135,45 +139,33 @@ function doPhaseChange() {
             player.ws.send(JSON.stringify({ type: 'startVoting', players: players.map(p => p.name) }));             // sends the voting button signal to each player's frontend
         });
     }
-
-    beginTimer();                                                                       // restarts the timer
 }
 
 
 function updateCurrentPlayersList() {                                                   // sends the updated player list to all 
-    const playerNames = players.map(player => player.name);
     players.forEach(player => {
-        player.ws.send(JSON.stringify({
-            type: 'updateCurrentPlayerList',
-            currentPlayers: playerNames
-        }));
+        player.ws.send(JSON.stringify({ type: 'updateCurrentPlayerList', currentPlayers: players.map(player => player.name) }));
     });
 }
 
-function checkWinConditions() {                                                                 // checks if a team has won the game
-    const mafiaCount = players.filter(p => p.team === "MAFIA" && !p.eliminated).length;         // counts mafia that are still alive
-    const citizenCount = players.filter(p => p.team === "CITIZEN" && !p.eliminated).length;     // counts citizens that are still alive
+function checkWinConditions() {                                                                                     // checks if a team has won the game
+    const mafiaCount = players.filter(player => player.team === "MAFIA" && !player.eliminated).length;              // counts mafia that are still alive
+    const citizenCount = players.filter(player => player.team === "CITIZEN" && !player.eliminated).length;          // counts citizens that are still alive
 
-    if (mafiaCount === 0) {                                                                     // if there are no mafia left, citizens win
+    if (mafiaCount === 0) {                                                                                         // if there are no mafia left, citizens win
         players.forEach(player => {
-            const message = player.team === "CITIZEN" ? "You win!" : "You lose.";               // sets a message for who wins and loses, different depending on your team
-            player.ws.send(JSON.stringify({                                                     // sends game over message to front end
-                type: 'gameOver',
-                message: 'Game Over: Citizens wins! ' + message
-            }));
+            const message = player.team === "CITIZEN" ? "You win!" : "You lose.";                                   // sets a message for who wins and loses, different depending on your team
+            player.ws.send(JSON.stringify({ type: 'gameOver', message: 'Game Over: Citizens wins! ' + message }));  // sends game over message to front end
         });
-    } else if (mafiaCount >= citizenCount ) {                                                   // if mafia equal or outnumber citizens, mafia wins
+    } else if (mafiaCount >= citizenCount ) {                                                                       // if mafia equal or outnumber citizens, mafia wins
         players.forEach(player => {
-            const message = player.team === "MAFIA" ? "You win!" : "You lose.";                 // sets a message for who wins and loses, different depending on your team
-            player.ws.send(JSON.stringify({                                                     // sends game over message to front end
-                type: 'gameOver',
-                message: 'Game Over: Mafia wins! ' + message 
-            }));
+            const message = player.team === "MAFIA" ? "You win!" : "You lose.";                                     // sets a message for who wins and loses, different depending on your team
+            player.ws.send(JSON.stringify({ type: 'gameOver', message: 'Game Over: Mafia wins! ' + message }));     // sends game over message to front end
         });
     }
 }
 
-function isMafia(role) {                                                                                                // function to check if a role is on the Mafia team, can be updated with added roles.
+function isMafia(role) {                                                                                            // function to check if a role is on the Mafia team, can be updated with added roles.
     if (role === "Mafia") {
         return true
     }
@@ -258,7 +250,7 @@ function handleVoting(playerName, targetPlayer) {
 
         let maxVotes = -1;                                                      // sets the initial vote count for every player to -1
         let eliminatedPlayer = null;                                            // default sets the eliminated player for each round to null
-        let eliminatedTeam = null                                                // default sets the eliminated player role for each round to null
+        let eliminatedTeam = null                                               // default sets the eliminated player role for each round to null
         let tie = false;                                                        // default sets the boolean flag for tie to false
 
         for (const [votedFor, count] of Object.entries(voteCounts)) {           // goes through ALL of the entires in voteCounts (one time run-through)
