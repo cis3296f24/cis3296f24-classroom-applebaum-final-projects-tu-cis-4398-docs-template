@@ -12,7 +12,7 @@ const cors = require('cors');
 app.use(cors());
 
 let players = [];                                               // stores the Player objects (DO NOT MOVE THIS BELOW THIS POSITION OTHERWISE THERE IS A BUG)
-let timer = 10;                                                 // stores the timer number
+let timer;                                                      // stores the timer number
 let gamePhase = 'DAY';                                          // stores the default game phase
 let timerInterval = null;
 
@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 });
 
 wss.on('connection', (ws) => {
-    console.log("New WebSocket connection established");
+    console.log("[Websocket] Connection Established...");
 
     let playerName;                                             // stores the player name (inputted by the user)
 
