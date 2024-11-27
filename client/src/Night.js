@@ -184,60 +184,60 @@ function Night() {
             {isAliveListVisible ? "Hide Alive Players" : "Show Alive Players"}
           </button>
         </div>
-      </div>
+        </div>
 
-      {/* Eliminated Players List Modal */}
-      {isEliminatedListVisible && (
-        <div className="elimPlayersList-overlay">
-          <div className="elimPlayersList-modal">
-            <h3>Eliminated Players:</h3>
-            <div className="elimPlayers-list">
-              {eliminatedPlayers.map((player, index) => (
-                  <p key={index} className="elimPlayer-name">{player}</p>
-              ))}
+        {/* Eliminated Players List Modal */}
+        {isEliminatedListVisible && (
+          <div className="elimPlayersList-overlay">
+            <div className="elimPlayersList-modal">
+              <h3>Eliminated Players:</h3>
+              <div className="elimPlayers-list">
+                {eliminatedPlayers.map((player, index) => (
+                    <p key={index} className="elimPlayer-name">{player}</p>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Alive Players List Modal */}
-      {isAliveListVisible && (
-        <div className="alivePlayersList-overlay">
-          <div className="alivePlayersList-modal">
-            <h3>Alive Players:</h3>
-            <div className="alivePlayers-list">
-              {alivePlayers.map((player, index) => (
-                  <p key={index} className="alivePlayer-name">{player}</p>
-              ))}
+        {/* Alive Players List Modal */}
+        {isAliveListVisible && (
+          <div className="alivePlayersList-overlay">
+            <div className="alivePlayersList-modal">
+              <h3>Alive Players:</h3>
+              <div className="alivePlayers-list">
+                {alivePlayers.map((player, index) => (
+                    <p key={index} className="alivePlayer-name">{player}</p>
+                ))}
+              </div>
             </div>
           </div>
+        )}
+                  
         </div>
-      )}
-                
-    </div>
-    )}
-    {isNarrating && (
-        <div className="startGameNight">
-        <div className="gameTitle">
-            <h2>MafiUhh...</h2>
-        </div>
-        {/* Display the elimination messages after voting */}
-        <div>
-        {messages.length > 0 && (
-            <div className="narration">
-            <h3>Game Updates:</h3>
-            <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
+        )}
+        {isNarrating && (
+            <div className="startGameNight">
+            <div className="gameTitle">
+                <h2>MafiUhh...</h2>
+            </div>
+            {/* Display the elimination messages after voting */}
+            <div>
+            {messages.length > 0 && (
+                <div className="narration">
+                <h3>Game Updates:</h3>
+                <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
+                </div>
+            )}
+            </div>
+                                      {/* COMMENTED OUT THE CONTINUE BUTTON FOR NOW */}
+                                      {/*<div className="glow">
+                                            {isHost && <button onClick={phaseChange}>Continue</button>}
+                                        </div>*/}
             </div>
         )}
         </div>
-                                   {/* COMMENTED OUT THE CONTINUE BUTTON FOR NOW */}
-                                   {/*<div className="glow">
-                                        {isHost && <button onClick={phaseChange}>Continue</button>}
-                                    </div>*/}
-        </div>
-    )}
-    </div>
-);
+  );
 }
 
 export default Night;
