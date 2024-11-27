@@ -10,7 +10,7 @@ function Night() {
   const [players, setPlayers] = useState([]);                                     // uses state to store the player list for voting
   const [voting, setVoting] = useState(false);                                    // uses state to determine when voting occurs
   const [votes, setVotes] = useState({});                                         // uses state to store a player's vote
-  const [rolesList, setRolesList] = useState([]);                                 // uses state to store the entire roles list
+  // const [rolesList, setRolesList] = useState([]);                                 // uses state to store the entire roles list
   const [eliminatedPlayers, setEliminatedPlayers] = useState([]);                 // uses state to store a list of eliminated players
   const [isEliminatedListVisible, setIsEliminatedListVisible] = useState(false);  // uses state to toggle eliminated players list visibility
   const [alivePlayers, setAlivePlayers] = useState([]);                           // uses state to store a list of alive players
@@ -23,7 +23,7 @@ function Night() {
   const[isNarrating, setNarrating] = useState(false);
 
   const location = useLocation();
-  const { role, playerName, isHost, nightLength } = location.state;               // includes nightLength within the page state 
+  const { role, playerName, isHost, nightLength, rolesList } = location.state;               // includes nightLength within the page state 
 
   const navigate = useNavigate();                                                 // Hook for navigation
 
@@ -41,9 +41,9 @@ function Night() {
         console.log("event!");
         const data = JSON.parse(event.data);
 
-        if (data.type === 'rolesList') {
-            setRolesList(data.roleDesc);
-        } else if (data.type === 'startVoting') {
+        // if (data.type === 'rolesList') {
+        //     setRolesList(data.roleDesc);
+        if (data.type === 'startVoting') {
             console.log("voting!");
             setVoting(true);                                                                  // turns on voting
             ws.send(JSON.stringify({ type: 'beginNightTimer', nightLength: nightLength }));   // sends the nightLength value to the backend and to begin the timer
@@ -65,7 +65,7 @@ function Night() {
         } else if (data.type === 'phase') {
             if (data.phase === 'DAY') {                                                       // looks for the phase tag, and will change or stay on the page based on that
               setVoting(false);                                                               // turns off voting 
-              navigate('/startGame', { state: { role, playerName, isHost, nightLength } });   // navigates to the startGame.js page (transfers the values within the state to the next page)                                                          
+              navigate('/startGame', { state: { role, playerName, isHost, nightLength, rolesList } });   // navigates to the startGame.js page (transfers the values within the state to the next page)                                                          
             }
         } else if (data.type === 'gameOver') {
           setMessages(prev => [...prev, data.message]);
@@ -90,6 +90,10 @@ function Night() {
     setVotes({ ...votes, [playerName]: true });                                             // stores the votes for players and sets whether they have voted to true
 
     ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));                      // sends the player's vote to the server
+  };
+
+  const toggleHelp = () => {
+    setShowHelp(!showHelp);
   };
 
   const announceMafiaVote = () => {

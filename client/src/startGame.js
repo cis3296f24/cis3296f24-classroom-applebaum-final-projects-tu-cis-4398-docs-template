@@ -10,18 +10,17 @@ function StartGame() {
     const [players, setPlayers] = useState([]);                                     // uses state to store the player list for voting
     const [voting, setVoting] = useState(false);                                    // uses state to determine when voting occurs
     const [votes, setVotes] = useState({});                                         // uses state to store a player's vote
-    const [rolesList, setRolesList] = useState([]);                                 // uses state to store the entire roles list
     const [eliminatedPlayers, setEliminatedPlayers] = useState([]);                 // uses state to store a list of eliminated players
     const [isEliminatedListVisible, setIsEliminatedListVisible] = useState(false);  // uses state to toggle eliminated players list visibility
     const [alivePlayers, setAlivePlayers] = useState([]);                           // uses state to store a list of alive players
     const [isAliveListVisible, setIsAliveListVisible] = useState(false);            // uses state to toggle alive players list visibility
     const [timeLeft, setTimeLeft] = useState(10);                                   // starting timer value (defaults as 10 seconds)
     const [finalVote, setFinalVote] = useState(null);                               // uses state to store the final vote of each user
-
+    const [showHelp, setShowHelp] = useState(false);                                // uses state to toggle the help menu
     const[isNarrating, setNarrating] = useState(false);
 
     const location = useLocation();
-    const { role, playerName, isHost, nightLength } = location.state;               // includes nightLength within the page state (needed for the timer value to transfer) 
+    const { role, playerName, isHost, nightLength, rolesList } = location.state;               // includes nightLength within the page state (needed for the timer value to transfer) 
 
     const navigate = useNavigate();                                                 // Hook for navigation
 
@@ -37,9 +36,7 @@ function StartGame() {
                 console.log("event!" + event);
                 const data = JSON.parse(event.data);
 
-                if (data.type === 'rolesList') {
-                    setRolesList(data.roleDesc);                                                    // changes the roles list to match the roles descriptions as from mafiaParameter.js
-                } else if (data.type === 'startVoting') {                                           // this is for the start button
+                if (data.type === 'startVoting') {                                           // this is for the start button
                     console.log("voting!");
                     setVoting(true);                                                                // turns on voting
                     ws.send(JSON.stringify({ type: 'beginDayTimer' }));                             // sends the signal to start the day timer
@@ -61,7 +58,7 @@ function StartGame() {
                 } else if (data.type === 'phase') {
                     if (data.phase === 'NIGHT') {                                                   // looks for the phase tag, and will change or stay on the page based on that
                         setVoting(false);
-                        navigate('/Night', { state: {role, playerName, isHost, nightLength } });    // move to night page 
+                        navigate('/Night', { state: {role, playerName, isHost, nightLength, rolesList } });    // move to night page 
                     }
                 } else if (data.type === 'gameOver') {
                     setMessages(prev => [...prev, data.message]);
