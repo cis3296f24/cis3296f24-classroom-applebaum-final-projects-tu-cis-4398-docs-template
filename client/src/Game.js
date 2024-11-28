@@ -53,7 +53,7 @@ function Game() {
         ws.removeEventListener('message', handleMessage);
       };
     }
-  }, [ws, navigate, role, playerName, isHost, currentPlayers, nightLength ]); // Re-run the effect if the WebSocket instance changes
+  }, [ws, navigate, role, playerName, isHost, currentPlayers, nightLength, rolesList]); // Re-run the effect if the WebSocket instance changes
 
   const handleJoinGame = () => {
       if (playerName.trim() && ws) {
@@ -119,9 +119,6 @@ function Game() {
                                       ))}
                                   </div>
                               </div>
-                              <div className="glow">
-                                  {isHost && <button onClick={goToStartGame}>Start Game</button>}
-                              </div>
 
                                 <div>
                                     <button onClick={toggleHelp}>Help</button>
@@ -171,44 +168,44 @@ function Game() {
 
 
 
-                      {isHost && ( 
-                      <div className="container-login100">
-                          <div className="wrap-login100">
-                              <h3>Host Options</h3>
-                              <label htmlFor="name">Enter max players:</label>
-                              <input
-                                  type="text"
-                                  
-                                  value={maxPlayers}
-                                  //change value based on max players
-                                  onChange={(e) => setMaxPlayers(e.target.value)}
-                              />
-                              <label htmlFor="name">Enter # of mafia:</label>
-                              <input
-                                  type="text"
-                                  
-                                  value={numMafia}
-                                  //change value based on # of mafia
-                                  onChange={(e) => setNumMafia(e.target.value)}
-                              />
-                              <label htmlFor="nightLength">Enter length of night (in seconds):</label>
-                              <input
-                                  type="number"
-                                  value={nightLength}
-                                  onChange={(e) => {
-                                    const newValue = Number(e.target.value);
-                                    setNightLength(newValue);
-                                    console.log("Updated state (nightLength): ", newValue);
-                                    ws.send(JSON.stringify({ type: 'newNightTimer', nightLength: newValue }));
-                                }}
-                              />
-                          </div>
-                      </div>
-                  )}
-              </div>
-          )}
-      </div>
-  );
+                        {isHost && ( 
+                        <div className="container-login100">
+                            <div className="wrap-login100">
+                                <h3>Host Options</h3>
+                                <label htmlFor="name">Enter max players:</label>
+                                <input
+                                    type="text"
+                                    
+                                    value={maxPlayers}
+                                    //change value based on max players
+                                    onChange={(e) => setMaxPlayers(e.target.value)}
+                                />
+                                <label htmlFor="name">Enter # of mafia:</label>
+                                <input
+                                    type="text"
+                                    
+                                    value={numMafia}
+                                    //change value based on # of mafia
+                                    onChange={(e) => setNumMafia(e.target.value)}
+                                />
+                                <label htmlFor="name">Enter length of night (in seconds):</label>
+                                <input
+                                    type="text"
+                                    
+                                    value={nightLength}
+                                    //change value based on length of night
+                                    onChange={(e) => setNightLength(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                    )}
+                    <div className="startButton">
+                         {isHost && <button onClick={goToStartGame}>Start Game</button>} 
+                    </div>
+                </div>
+            )}
+        </div>
+    );
 }
 
 export default Game;

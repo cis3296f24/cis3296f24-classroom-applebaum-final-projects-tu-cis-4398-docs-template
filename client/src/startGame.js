@@ -33,11 +33,8 @@ function StartGame() {
                 ws.send(JSON.stringify({ type: 'startVote'}));                      // immediately after the start button is clicked, this sends the 'startVote' tag to the backend to activate the voting phase
             }
             const handleMessage = (event) => {
-                console.log("event!" + event);
-                const data = JSON.parse(event.data);
-
+              const data = JSON.parse(event.data);
                 if (data.type === 'startVoting') {                                           // this is for the start button
-                    console.log("voting!");
                     setVoting(true);                                                                // turns on voting
                     ws.send(JSON.stringify({ type: 'beginDayTimer' }));                             // sends the signal to start the day timer
                     setPlayers(data.players);
@@ -45,21 +42,22 @@ function StartGame() {
                 } else if (data.type === 'voteResults') {
                     setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]);                 // adds the eliminated player to the array
                     setAlivePlayers();
-                    setVoting(false);                                                               // turns off voting (can be useful for next phase implementation)                                            
                     setMessages(prev => [...prev, data.message]); 
                     setVotes({});                                                                   // reset vote tally for players
                 } else if (data.type === 'voteTie') {
-                    setVoting(false);                                                               // turns off voting
                     setMessages(prev => [...prev, data.message]);
                     setVotes({});                                                                   // reset vote tally for players
                 } else if (data.type === 'timer') {
-                    setTimeLeft(data.timeLeft);                                                     // sets the local timer based on the server timer
-                    console.log("RECEIVED TIMER: " + data.timeLeft);                                // debugging
+                    setTimeLeft(data.timeLeft);                                                     // sets the local timer based on the server timer                              // debugging
                 } else if (data.type === 'phase') {
-                    if (data.phase === 'NIGHT') {                                                   // looks for the phase tag, and will change or stay on the page based on that
-                        setVoting(false);
-                        navigate('/Night', { state: {role, playerName, isHost, nightLength, rolesList } });    // move to night page 
-                    }
+                  if (data.phase === 'DAY') {                                                           // looks for the phase tag, and will update the IsDay state based on that
+                  } else if (data.phase === 'DAY NARRATION'){
+                    setNarrating(true);                                                                  
+                  } else {
+                    setVoting(false);
+                    ws.removeEventListener('message', handleMessage);
+                    navigate('/Night', { state: {role, playerName, isHost, nightLength, rolesList} });                          // move to night page 
+                  }
                 } else if (data.type === 'gameOver') {
                     setMessages(prev => [...prev, data.message]);
                 }
@@ -70,7 +68,7 @@ function StartGame() {
                 ws.removeEventListener('message', handleMessage);
             };
         }
-    }, [ws, navigate, role, playerName, isHost, eliminatedPlayers, players, voting, nightLength]);  // Re-run the effect if WebSocket instance changes
+    }, [ws, navigate, role, playerName, isHost, eliminatedPlayers, players, voting, nightLength, rolesList]);  // Re-run the effect if WebSocket instance changes
 
 
     useEffect(() => {
