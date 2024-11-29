@@ -20,7 +20,7 @@ function StartGame() {
     const[isNarrating, setNarrating] = useState(false);
 
     const location = useLocation();
-    const { role, playerName, isHost, nightLength, rolesList } = location.state;               // includes nightLength within the page state (needed for the timer value to transfer) 
+    const { role, playerName, isHost, dayLength, nightLength, rolesList } = location.state;               // includes dayLength and nightLength within the page state (needed for the timer value to transfer) 
 
     const navigate = useNavigate();                                                 // Hook for navigation
 
@@ -39,7 +39,7 @@ function StartGame() {
                 if (data.type === 'startVoting') {                                           // this is for the start button
                     console.log("voting!");
                     setVoting(true);                                                                // turns on voting
-                    ws.send(JSON.stringify({ type: 'beginDayTimer' }));                             // sends the signal to start the day timer
+                    ws.send(JSON.stringify({ type: 'beginDayTimer', dayLength: dayLength}));                             // sends the signal to start the day timer
                     setPlayers(data.players);
                     setVotes({});                                                                   // reset vote tally for players
                 } else if (data.type === 'voteResults') {
@@ -58,7 +58,7 @@ function StartGame() {
                 } else if (data.type === 'phase') {
                     if (data.phase === 'NIGHT') {                                                   // looks for the phase tag, and will change or stay on the page based on that
                         setVoting(false);
-                        navigate('/Night', { state: {role, playerName, isHost, nightLength, rolesList } });    // move to night page 
+                        navigate('/Night', { state: {role, playerName, isHost, dayLength, nightLength, rolesList } });    // move to night page 
                     }
                 } else if (data.type === 'gameOver') {
                     setMessages(prev => [...prev, data.message]);
@@ -70,7 +70,7 @@ function StartGame() {
                 ws.removeEventListener('message', handleMessage);
             };
         }
-    }, [ws, navigate, role, playerName, isHost, eliminatedPlayers, players, voting, nightLength]);  // Re-run the effect if WebSocket instance changes
+    }, [ws, navigate, role, playerName, isHost, eliminatedPlayers, players, voting, dayLength, nightLength]);  // Re-run the effect if WebSocket instance changes
 
 
     useEffect(() => {

@@ -14,9 +14,10 @@ function Game() {
   const [currentPlayers, setCurrentPlayers] = useState([]);
   const ws = useWebSocket();                                // Get the WebSocket instance from context
   const navigate = useNavigate();                           // Hook for navigation
-  const [maxPlayers, setMaxPlayers] = useState(15);         // uses state to change and store maxPlayers (default is 15)
+  const [maxPlayers, setMaxPlayers] = useState(6);         // uses state to change and store maxPlayers (default is 15)
   const [numMafia, setNumMafia] = useState(2);              // uses state to change and store numMafia (default is 2)
   const [nightLength, setNightLength] = useState(13);       // uses state to change and store nightLength (default is 13)
+  const [dayLength, setDayLength] = useState(13);       // uses state to change and store dayLength (default is 13)
 
 
   useEffect(() => {                                                                       // listens for messages from the WebSocket
@@ -39,9 +40,13 @@ function Game() {
         } else if (data.type === 'newNightTimer') {
             console.log("Received NEW Night Timer Amount: [" + data.nightLength + "].");  // debugging
             setNightLength(data.nightLength);                                             // receives the new timer value and updates it (required for all non-host users)
-        } else if (data.type === 'start') {
-            setNightLength(data.nightLength);                                             // receives the new timer value and updates it (required for all non-host users)             
-            navigate('/startgame', { state: { role, playerName, isHost, nightLength, rolesList } }); // sends every user to a new page: start page, passes to the new page: the role, player name, if they are the host, and nighttime timer amount
+        } else if (data.type === 'newDayTimer') {
+            console.log("Received NEW Day Timer Amount: [" + data.dayLength + "].");  // debugging
+            setDayLength(data.dayLength);                                             // receives the new timer value and updates it (required for all non-host users)
+        }else if (data.type === 'start') {
+            setNightLength(data.nightLength);
+            setDayLength(data.dayLength);                                             // receives the new timer value and updates it (required for all non-host users)             
+            navigate('/startgame', { state: { role, playerName, isHost, dayLength, nightLength, rolesList } }); // sends every user to a new page: start page, passes to the new page: the role, player name, if they are the host, and nighttime timer amount
         } else if (data.type === 'updateCurrentPlayerList') {
             setCurrentPlayers(data.currentPlayers);
 
@@ -64,7 +69,7 @@ function Game() {
 
   const startGame = () => {
       if (isHost && ws) {
-          ws.send(JSON.stringify({ type: 'start', maxPlayers: maxPlayers, numMafia: numMafia, nightLength: nightLength })); // sends the 'start' tag to the backend
+          ws.send(JSON.stringify({ type: 'start', maxPlayers: maxPlayers, numMafia: numMafia, dayLength: dayLength, nightLength: nightLength })); // sends the 'start' tag to the backend
       }
   };
 
@@ -175,7 +180,7 @@ function Game() {
                       <div className="container-login100">
                           <div className="wrap-login100">
                               <h3>Host Options</h3>
-                              <label htmlFor="name">Enter max players:</label>
+                              <label htmlFor="name">Enter number of players:</label>
                               <input
                                   type="text"
                                   
@@ -200,6 +205,17 @@ function Game() {
                                     setNightLength(newValue);
                                     console.log("Updated state (nightLength): ", newValue);
                                     ws.send(JSON.stringify({ type: 'newNightTimer', nightLength: newValue }));
+                                }}
+                              />
+                              <label htmlFor="dayLength">Enter length of day (in seconds):</label>
+                              <input
+                                  type="number"
+                                  value={dayLength}
+                                  onChange={(e) => {
+                                    const newValue = Number(e.target.value);
+                                    setDayLength(newValue);
+                                    console.log("Updated state (dayLength): ", newValue);
+                                    ws.send(JSON.stringify({ type: 'newDayTimer', dayLength: newValue }));
                                 }}
                               />
                           </div>

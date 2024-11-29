@@ -75,9 +75,15 @@ wss.on('connection', (ws) => {
                 player.ws.send(JSON.stringify({ type: 'newNightTimer', nightLength: data.nightLength }));               // sends the new nighttime timer to each user
             });
             timer = data.nightLength;
+        } else if (data.type === 'newDaytTimer') {
+            console.log("received Timer [" + data.dayLength + "].");                                                  // debugging
+            players.forEach(player => {
+                player.ws.send(JSON.stringify({ type: 'newDayTimer', dayLength: data.dayLength }));               // sends the new daytime timer to each user
+            });
+            timer = data.dayLength;
         } else if (data.type === 'beginDayTimer') {
             beginTimer();
-            timer = 25; // ISAAC POTENTIAL CHANGE? SO THAT THIS MAYBE WORKS OFF data.dayLength?                         // day timer number declared here****
+            timer = data.dayLength;                                                                                     // day timer number declared here****
         } else if (data.type === 'beginNightTimer') {
             beginTimer();
             timer = data.nightLength;                                                                                   // night timer number declared here***
