@@ -23,7 +23,7 @@ function Night() {
   const[isNarrating, setNarrating] = useState(false);
 
   const location = useLocation();
-  const { role, playerName, isHost, nightLength, rolesList } = location.state;               // includes nightLength within the page state 
+  const { role, playerName, isHost, dayLength, nightLength, rolesList } = location.state;               // includes dayLength and nightLength within the page state 
 
   const navigate = useNavigate();                                                 // Hook for navigation
 
@@ -64,8 +64,9 @@ function Night() {
             console.log("RECEIVED TIMER: " + data.timeLeft);                                  // debugging
         } else if (data.type === 'phase') {
             if (data.phase === 'DAY') {                                                       // looks for the phase tag, and will change or stay on the page based on that
-              setVoting(false);                                                               // turns off voting 
-              navigate('/startGame', { state: { role, playerName, isHost, nightLength, rolesList } });   // navigates to the startGame.js page (transfers the values within the state to the next page)                                                          
+              setVoting(false);
+              console.log("PASSING VALUE::: " + dayLength);                                                               // turns off voting 
+              navigate('/startGame', { state: { role, playerName, isHost, dayLength, nightLength, rolesList } });   // navigates to the startGame.js page (transfers the values within the state to the next page)                                                          
             }
         } else if (data.type === 'gameOver') {
           setMessages(prev => [...prev, data.message]);
