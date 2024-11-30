@@ -12,7 +12,8 @@ const cors = require('cors');
 app.use(cors());
 
 let players = [];                                               // stores the Player objects (DO NOT MOVE THIS BELOW THIS POSITION OTHERWISE THERE IS A BUG)
-let timer;                                                      // stores the timer number
+let dayTimer;    
+let nightTimer;                                                  // stores the timer number
 let gamePhase = 'DAY';                                          // stores the default game phase
 let timerInterval = null;
 
@@ -70,23 +71,23 @@ wss.on('connection', (ws) => {
                 player.ws.send(JSON.stringify({ type: 'startVoting', players: players.map(player => player.name) }));   // sends the voting button signal to each player's frontend
             });
         } else if (data.type === 'newNightTimer') {
-            console.log("received Timer [" + data.nightLength + "].");                                                  // debugging
+            console.log("received night Timer [" + data.nightLength + "].");                                                  // debugging
             players.forEach(player => {
                 player.ws.send(JSON.stringify({ type: 'newNightTimer', nightLength: data.nightLength }));               // sends the new nighttime timer to each user
             });
-            timer = data.nightLength;
-        } else if (data.type === 'newDaytTimer') {
-            console.log("received Timer [" + data.dayLength + "].");                                                  // debugging
+            nightTimer = data.nightLength;
+        } else if (data.type === 'newDayTimer') {
+            console.log("received day Timer [" + data.dayLength + "].");                                                  // debugging
             players.forEach(player => {
                 player.ws.send(JSON.stringify({ type: 'newDayTimer', dayLength: data.dayLength }));               // sends the new daytime timer to each user
             });
-            timer = data.dayLength;
+            dayTimer = data.dayLength;
         } else if (data.type === 'beginDayTimer') {
-            beginTimer();
-            timer = data.dayLength;                                                                                     // day timer number declared here****
+            beginDayTimer();
+            dayTimer = data.dayLength;                                                                                     // day timer number declared here****
         } else if (data.type === 'beginNightTimer') {
-            beginTimer();
-            timer = data.nightLength;                                                                                   // night timer number declared here***
+            beginNightTimer();
+            nightTimer = data.nightLength;                                                                                   // night timer number declared here***
         }
     });
 
@@ -99,25 +100,49 @@ wss.on('connection', (ws) => {
     });
 });
 
-function beginTimer() {
+function beginDayTimer() {
     if (timerInterval) {
         clearInterval(timerInterval);                                                   // checks if the timer is currently running and stops it if so             
     }
 
     players.forEach(player => { 
-        player.ws.send(JSON.stringify({ type: 'timer', timeLeft: timer }));             // sends out the current timer number to all users' frontend
+        player.ws.send(JSON.stringify({ type: 'timer', timeLeft: dayTimer }));             // sends out the current timer number to all users' frontend
     });
 
     timerInterval = setInterval(() => {
-        console.log("Timer: " + timer);                                                 // runs through a loop (1000 ms/1 sec) doing the following...
-        timer--;
+        console.log("Day Timer: " + dayTimer);                                                 // runs through a loop (1000 ms/1 sec) doing the following...
+        dayTimer--;
 
-        if (timer <= 0) {                                                               // checks if the timer is at 0
+        if (dayTimer <= 0) {                                                               // checks if the timer is at 0
             clearInterval(timerInterval);                                               // stops timer if it hits 0
             doPhaseChange();                                                            // runs phase change function
         } else {
             players.forEach(player => { 
-                player.ws.send(JSON.stringify({ type: 'timer', timeLeft: timer }));     // sends out the current timer number to all users' frontend
+                player.ws.send(JSON.stringify({ type: 'timer', timeLeft: dayTimer }));     // sends out the current timer number to all users' frontend
+            });
+        }
+    }, 1000);
+}
+
+function beginNightTimer() {
+    if (timerInterval) {
+        clearInterval(timerInterval);                                                   // checks if the timer is currently running and stops it if so             
+    }
+
+    players.forEach(player => { 
+        player.ws.send(JSON.stringify({ type: 'timer', timeLeft: nightTimer }));             // sends out the current timer number to all users' frontend
+    });
+
+    timerInterval = setInterval(() => {
+        console.log("Night Timer: " + nightTimer);                                                 // runs through a loop (1000 ms/1 sec) doing the following...
+        nightTimer--;
+
+        if (nightTimer <= 0) {                                                               // checks if the timer is at 0
+            clearInterval(timerInterval);                                               // stops timer if it hits 0
+            doPhaseChange();                                                            // runs phase change function
+        } else {
+            players.forEach(player => { 
+                player.ws.send(JSON.stringify({ type: 'timer', timeLeft: nightTimer }));     // sends out the current timer number to all users' frontend
             });
         }
     }, 1000);

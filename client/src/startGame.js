@@ -39,6 +39,7 @@ function StartGame() {
                 if (data.type === 'startVoting') {                                           // this is for the start button
                     console.log("voting!");
                     setVoting(true);                                                                // turns on voting
+                    console.log('--------day length: ' + dayLength);
                     ws.send(JSON.stringify({ type: 'beginDayTimer', dayLength: dayLength}));                             // sends the signal to start the day timer
                     setPlayers(data.players);
                     setVotes({});                                                                   // reset vote tally for players

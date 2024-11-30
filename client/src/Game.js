@@ -201,10 +201,10 @@ function Game() {
                                   type="number"
                                   value={nightLength}
                                   onChange={(e) => {
-                                    const newValue = Number(e.target.value);
-                                    setNightLength(newValue);
-                                    console.log("Updated state (nightLength): ", newValue);
-                                    ws.send(JSON.stringify({ type: 'newNightTimer', nightLength: newValue }));
+                                    const newNightValue = Number(e.target.value);
+                                    setNightLength(newNightValue);
+                                    console.log("Updated state (nightLength): ", newNightValue);
+                                    ws.send(JSON.stringify({ type: 'newNightTimer', nightLength: newNightValue }));
                                 }}
                               />
                               <label htmlFor="dayLength">Enter length of day (in seconds):</label>
@@ -212,10 +212,10 @@ function Game() {
                                   type="number"
                                   value={dayLength}
                                   onChange={(e) => {
-                                    const newValue = Number(e.target.value);
-                                    setDayLength(newValue);
-                                    console.log("Updated state (dayLength): ", newValue);
-                                    ws.send(JSON.stringify({ type: 'newDayTimer', dayLength: newValue }));
+                                    const newDayValue = Number(e.target.value);
+                                    setDayLength(newDayValue);
+                                    console.log("Updated state (dayLength): ", newDayValue);
+                                    ws.send(JSON.stringify({ type: 'newDayTimer', dayLength: newDayValue }));
                                 }}
                               />
                           </div>
