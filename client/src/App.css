@@ -1,0 +1,142 @@
+.App {
+  text-align: center;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+.gameTitle {
+  display: flex;
+  font-size: xx-large;
+  justify-content: center;
+  color: #c61d1d; /* Lighter red for better readability */
+  font-family: Impact, fantasy;
+  padding-top: 30px;
+}
+
+
+.login{
+  display: flex;
+  flex-direction: column;
+  background-image: linear-gradient(rgb(0, 0, 0), rgb(227, 25, 25) 130%);
+  height: 100vh;
+}
+
+
+.container-login100 {
+  display: flex;    
+  place-items: center;     /* Centers both horizontally and vertically */        /* Ensure the container takes up full height */
+  padding: 10px 25px 30px 25px;
+  flex-direction: column;
+  height: 100vh;
+  overflow-x: hidden;
+}
+
+.wrap-login100 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;         /* Center children horizontally */
+  justify-content: center;     /* Center children vertically */
+  width: 90%;
+  height: 100%;
+  max-width: 480px;          /* Optional: limit max width for larger screens */
+  max-height: 500px;            /* Stretch vertically */
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  padding: 10px 55px 10px 55px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+
+.wrap-login100 button {
+  border-radius: 2px;
+  margin-top:10px;
+  outline: none;
+  border: none;
+  background: black;
+  color: red;
+  padding: 10px 20px;
+  font-size: 16px;
+}
+
+.wrap-login100 input{
+  height: 30px;
+  width: 200px;
+  border-radius: 0px;
+  border: none;
+  border-bottom: 1px solid rgb(191, 4, 4);
+}
+
+.wrap-login100 input:focus {
+  outline:none;
+}
+
+
+.loginButton-wrap {
+  display: flex;
+  justify-content: center;
+  padding-top: 13px;
+}
+
+.glow button:hover {
+  background: red;
+  color: black;
+}
+
+
+.helpbox{
+  border-radius: 2px;
+  width: 100%;
+  padding: 20px;
+  text-align: center;
+  margin-top: 20px;
+  border: 1px solid #c61d1d;
+}
+
+.helpbox h3{
+  font-family: Helvetica;
+  font-weight: bolder;
+}
+.helplist h4,
+.helplist p {
+  margin: 0;  /* Remove any default margin */
+  padding: 5px; /* Remove any default padding */
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
