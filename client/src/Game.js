@@ -51,7 +51,15 @@ function Game() {
             setCurrentPlayers(data.currentPlayers);
 
         }
-      }                                                                           
+      }           
+      
+      ws.onclose = (event) => {
+        console.log('WebSocket connection closed.');
+        // You can check the close code or reason if needed
+        console.log(`Close code: ${event.code}`);
+        console.log(`Close reason: ${event.reason}`);
+      };
+
       ws.addEventListener('message', handleMessage)
 
       return () => {
@@ -78,7 +86,7 @@ function Game() {
   };
     
   const goToStartGame = () => {
-      if (currentPlayers.length <= maxPlayers && numMafia < maxPlayers){
+      if (numMafia < maxPlayers){
           startGame();
       }
   };
