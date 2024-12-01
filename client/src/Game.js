@@ -19,7 +19,8 @@ function Game() {
   const [nightLength, setNightLength] = useState(13);       // uses state to change and store nightLength (default is 13)
   const [dayLength, setDayLength] = useState(13);       // uses state to change and store dayLength (default is 13)
   const [invalidPlayerNameMessage, setInvalidPlayerNameMessage] = useState(''); // uses state to store messages for invalid player names
-
+  const [disconnectMessage, setDisconnectMessage] = useState(null); // State for connection status message
+  
 
   useEffect(() => {                                                                       // listens for messages from the WebSocket
     if (ws) {
@@ -56,7 +57,16 @@ function Game() {
         } else if (data.type === 'validPlayerName') {                                   // if player name is valid, joins the player
             setIsJoined(true);                                                          // marks the player as joined to hide join controls/buttons
         }
-      }                                                                           
+      }           
+      
+      ws.onclose = (event) => {
+        console.log('WebSocket connection closed.');
+        // You can check the close code or reason if needed
+        console.log(`Close code: ${event.code}`);
+        console.log(`Close reason: ${event.reason}`);
+        setDisconnectMessage(`You have been kicked: ${event.code} - ${event.reason}`);
+      };
+
       ws.addEventListener('message', handleMessage)
 
       return () => {
@@ -82,56 +92,62 @@ function Game() {
   };
     
   const goToStartGame = () => {
-    if (currentPlayers.length <= maxPlayers && numMafia < maxPlayers){
-        startGame();
-    }
+      if (numMafia < maxPlayers){
+          startGame();
+      }
   };
 
-    return (
-        <div>
-            {!isJoined ? (
-                <div className="login">
-                    <div className="gameTitle">
-                        <h2>MAFIUHH...</h2>
-                    </div>
-                    <div className="container-login100">
-                        <div className="wrap-login100">
-                            <input
-                                type="text"
-                                placeholder="Enter your name"
-                                value={playerName}
-                                onChange={(e) => setPlayerName(e.target.value)}
-                            />
-                            {invalidPlayerNameMessage && <p className="invalidPlayerNameMessage">{invalidPlayerNameMessage}</p>}
-                            <div className="glow">
-                                <button className="lgn-btn" onClick={handleJoinGame}>
-                                    Join Game
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            ) : (
-                <div className="login">
-                    <div className="gameTitle">
-                        <h2>MAFIUHH...</h2>
-                    </div>
-                        <div className="container-login100">
-                            <div className="wrap-login100">
-                                <div className = "host-header">
-                                    {isHost && <h3>You are the Host</h3>}
+  return (
+      <div>
+          {!isJoined ? (
+              <div className="login">
+                  <div className="gameTitle">
+                      <h2>MAFIUHH...</h2>
+                  </div>
+                  <div className="container-login100">
+                      <div className="wrap-login100">
+                          <input
+                              type="text"
+                              placeholder="Enter your name"
+                              value={playerName}
+                              onChange={(e) => setPlayerName(e.target.value)}
+                          />
+                          <div className="glow">
+                              <button className="lgn-btn" onClick={handleJoinGame}>
+                                  Join Game
+                              </button>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          ) : (
+              <div className="login">
+                  <div className="gameTitle">
+                      <h2>MAFIUHH...</h2>
+                  </div>
+                      <div className="container-login100">
+                          <div className="wrap-login100">
+                              <div className = "host-header">
+                                  {isHost && <h3>You are the Host</h3>}
+                              </div>
+
+                              {disconnectMessage && (
+                                <div style={{ color: 'red', fontWeight: 'bold', marginTop: '20px' }}>
+                                    {disconnectMessage}
                                 </div>
-                                <div className="players-container">
-                                    <h2>Current Players</h2>
-                                    <div id="players-list" className="players-list">
-                                        {currentPlayers.map((player, index) => (
-                                            <p key={index} className="player-name">{player}</p>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="glow">
-                                    {isHost && <button onClick={goToStartGame}>Start Game</button>}
-                                </div>
+                              )}
+
+                              <div className="players-container">
+                                  <h2>Current Players</h2>
+                                  <div id="players-list" className="players-list">
+                                      {currentPlayers.map((player, index) => (
+                                          <p key={index} className="player-name">{player}</p>
+                                      ))}
+                                  </div>
+                              </div>
+                              <div className="glow">
+                                  {isHost && <button onClick={goToStartGame}>Start Game</button>}
+                              </div>
 
                                 <div>
                                     <button onClick={toggleHelp}>Help</button>
