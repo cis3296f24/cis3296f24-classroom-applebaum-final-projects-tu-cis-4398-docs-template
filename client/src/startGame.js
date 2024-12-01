@@ -49,14 +49,13 @@ function StartGame() {
                     setAlivePlayers();
                     setVoting(false);                                                               // turns off voting (can be useful for next phase implementation)                                            
                     setEliminationMessage(data.message);                                            // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
-                    console.log("Elimination Message: ", eliminationMessage); 
                     setVotes({});                                                                   // reset vote tally for players
-                    navigate('/Eliminated', {state: {dayLength, nightLength, eliminationMessage: data.message, currentPhase: "DAY"}});           // send players to Eliminated screen to see message of who is eliminated
+                    navigate('/Eliminated', {state: { role, playerName, isHost, rolesList, dayLength, nightLength, eliminationMessage: data.message, currentPhase: "DAY"}});           // send players to Eliminated screen to see message of who is eliminated
                 } else if (data.type === 'voteTie') {
                     setVoting(false);                                                               // turns off voting
                     setEliminationMessage(data.message);                                            // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
                     setVotes({});                                                                   // reset vote tally for players
-                    navigate('/Eliminated', {state: {dayLength, nightLength, eliminationMessage: data.message, currentPhase: "DAY"}});           // send players to Eliminated screen to see message of who tie
+                    navigate('/Eliminated', {state: { role, playerName, isHost, rolesList, dayLength, nightLength, eliminationMessage: data.message, currentPhase: "DAY"}});           // send players to Eliminated screen to see message of who tie
                 } else if (data.type === 'timer') {
                     setTimeLeft(data.timeLeft);                                                     // sets the local timer based on the server timer
                     console.log("RECEIVED TIMER: " + data.timeLeft);                                // debugging
@@ -99,14 +98,12 @@ function StartGame() {
     <div>
     {!isNarrating && (
       <div className="startGameDay">
-          <div className="gameTitle">
+        <div className="gameTitle">
             <h2>MafiUhh...</h2>
             <div className="help-btn">
-              <button onClick={toggleHelp}>Help</button>
+                <button onClick={toggleHelp}>Help</button>
             </div>
-          </div>
-
-        
+        </div>
 
         {showHelp && (
           <div className="help-modal-overlay" onClick={toggleHelp}>

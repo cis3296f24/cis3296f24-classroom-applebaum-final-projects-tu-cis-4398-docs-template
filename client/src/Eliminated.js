@@ -12,23 +12,25 @@ function Eliminated() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      console.log(`Current phase: ${currentPhase}`);
-      if (currentPhase === 'DAY') {
-        console.log('Night Length: ' + nightLength);
+      if (currentPhase === 'DAY') {   // if it was day phase, navigate to night
         navigate('/Night', { state: {role, playerName, isHost, dayLength, nightLength, rolesList, eliminationMessage, currentPhase } });              
-      } else if (currentPhase === 'NIGHT') {
-        console.log('Day Length: ' + dayLength);
+      } else if (currentPhase === 'NIGHT') {    // if it was night phase, navigate to day
         navigate('/StartGame', { state: {role, playerName, isHost, dayLength, nightLength, rolesList, eliminationMessage, currentPhase } });                  
       }
-    }, 10000); // 10 seconds
+    }, 10000); // navigates to specified page after 10 seconds
 
     return () => clearTimeout(timer); // Clean up the timer
-    console.log('Timer cleared');
   }, [currentPhase, ws, nightLength, dayLength]);
 
   return (
     <div className="eliminatedPage">
-      <h2>Elimination Results</h2>
+      <div className="gameTitle">
+        <h2>MafiUhh...</h2>
+      </div>
+
+      <div className="eliminatedHeader">
+        <h2>Elimination Results</h2>
+      </div>
       <div className="eliminatedContent">
         {eliminationMessage}
       </div>
