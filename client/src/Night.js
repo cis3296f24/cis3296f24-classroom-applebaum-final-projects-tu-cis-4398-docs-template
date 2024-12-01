@@ -10,7 +10,6 @@ function Night() {
   const [players, setPlayers] = useState([]);                                     // uses state to store the player list for voting
   const [voting, setVoting] = useState(false);                                    // uses state to determine when voting occurs
   const [votes, setVotes] = useState({});                                         // uses state to store a player's vote
-  // const [rolesList, setRolesList] = useState([]);                                 // uses state to store the entire roles list
   const [eliminatedPlayers, setEliminatedPlayers] = useState([]);                 // uses state to store a list of eliminated players
   const [isEliminatedListVisible, setIsEliminatedListVisible] = useState(false);  // uses state to toggle eliminated players list visibility
   const [alivePlayers, setAlivePlayers] = useState([]);                           // uses state to store a list of alive players
@@ -23,7 +22,7 @@ function Night() {
   const[isNarrating, setNarrating] = useState(false);
 
   const location = useLocation();
-  const { role, playerName, isHost, dayLength, nightLength, rolesList } = location.state;               // includes dayLength and nightLength within the page state 
+  const { role, playerName, isHost, nightLength, rolesList } = location.state;               // includes nightLength within the page state 
 
   const navigate = useNavigate();                                                 // Hook for navigation
 
@@ -41,8 +40,6 @@ function Night() {
         console.log("event!");
         const data = JSON.parse(event.data);
 
-        // if (data.type === 'rolesList') {
-        //     setRolesList(data.roleDesc);
         if (data.type === 'startVoting') {
             console.log("voting!");
             setVoting(true);                                                                  // turns on voting
@@ -50,23 +47,25 @@ function Night() {
             setPlayers(data.players);
             setVotes({});                                                                     // reset vote tally for players
         } else if (data.type === 'voteResults') {
-            setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]);                   // adds the new eliminated player to the eliminatedPlayers array
-            setAlivePlayers();                                                                // resets the alive players array
-            setVoting(false);                                                                 // turns off voting                                                                  
-            setMessages(prev => [...prev, data.message]);
-            setVotes({});                                                                     // reset vote tally for players
+            setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]);                 // adds the eliminated player to the array
+            setAlivePlayers();
+            setVoting(false);                                                               // turns off voting (can be useful for next phase implementation)                                            
+            setEliminationMessage(data.message);                                            // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
+            console.log("Elimination Message: ", eliminationMessage); 
+            setVotes({});                                                                   // reset vote tally for players
+            navigate('/Eliminated', {state: {eliminationMessage: data.message}});           // send players to Eliminated screen to see message of who is eliminated
         } else if (data.type === 'voteTie') {
-            setVoting(false);                                                                 // turns off voting
-            setMessages(prev => [...prev, data.message]);                                   
-            setVotes({});                                                                     // reset vote tally for players                          
+            setVoting(false);                                                               // turns off voting
+            setEliminationMessage(data.message);                                            // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
+            setVotes({});                                                                   // reset vote tally for players
+            navigate('/Eliminated', {state: {eliminationMessage: data.message}});           // send players to Eliminated screen to see message of who tie                        
         } else if (data.type === 'timer') {
             setTimeLeft(data.timeLeft);                                                       // sets the local timer based on the server timer
             console.log("RECEIVED TIMER: " + data.timeLeft);                                  // debugging
         } else if (data.type === 'phase') {
             if (data.phase === 'DAY') {                                                       // looks for the phase tag, and will change or stay on the page based on that
-              setVoting(false);
-              console.log("PASSING VALUE::: " + dayLength);                                                               // turns off voting 
-              navigate('/startGame', { state: { role, playerName, isHost, dayLength, nightLength, rolesList } });   // navigates to the startGame.js page (transfers the values within the state to the next page)                                                          
+              setVoting(false);                                                               // turns off voting 
+              navigate('/startGame', { state: { role, playerName, isHost, nightLength, rolesList } });   // navigates to the startGame.js page (transfers the values within the state to the next page)                                                          
             }
         } else if (data.type === 'gameOver') {
           setMessages(prev => [...prev, data.message]);
