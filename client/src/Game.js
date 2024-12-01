@@ -18,6 +18,8 @@ function Game() {
   const [numMafia, setNumMafia] = useState(2);              // uses state to change and store numMafia (default is 2)
   const [nightLength, setNightLength] = useState(13);       // uses state to change and store nightLength (default is 13)
   const [dayLength, setDayLength] = useState(13);       // uses state to change and store dayLength (default is 13)
+  const [disconnectMessage, setDisconnectMessage] = useState(null); // State for connection status message
+
 
 
   useEffect(() => {                                                                       // listens for messages from the WebSocket
@@ -58,6 +60,7 @@ function Game() {
         // You can check the close code or reason if needed
         console.log(`Close code: ${event.code}`);
         console.log(`Close reason: ${event.reason}`);
+        setDisconnectMessage(`You have been kicked: ${event.code} - ${event.reason}`);
       };
 
       ws.addEventListener('message', handleMessage)
@@ -124,6 +127,13 @@ function Game() {
                               <div className = "host-header">
                                   {isHost && <h3>You are the Host</h3>}
                               </div>
+
+                              {disconnectMessage && (
+                                <div style={{ color: 'red', fontWeight: 'bold', marginTop: '20px' }}>
+                                    {disconnectMessage}
+                                </div>
+                              )}
+
                               <div className="players-container">
                                   <h2>Current Players</h2>
                                   <div id="players-list" className="players-list">
