@@ -127,17 +127,10 @@ function StartGame() {
           </div>
         )}
 
-
-        {isHost && (
-          <div className="user">
-            Host
-          </div>
-        )}
-
         {/* Display the countdown timer */}
         <div className="timerWrapper">
             <div className="timer">
-            <div className="timerNumber">{timeLeft}</div>
+                <div className="timerNumber">{timeLeft}</div>
             </div>
         </div>
 
@@ -234,25 +227,21 @@ function StartGame() {
         )}
         {isNarrating && (
             <div className="startGameNight">
-            <div className="gameTitle">
-                <h2>MafiUhh...</h2>
-            </div>
-            {/* Display the elimination messages after voting */}
-            <div>
-            {messages.length > 0 && (
-                <div className="narration">
-                <h3>Game Updates:</h3>
-                <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
+                <div className="gameTitle">
+                    <h2>MafiUhh...</h2>
                 </div>
-            )}
-            </div>
-                                    {/* COMMENTED OUT THE CONTINUE BUTTON FOR NOW */}
-                                    {/*<div className="glow">
-                                            {isHost && <button onClick={phaseChange}>Continue</button>}
-                                        </div>*/}
+                {/* Display the elimination messages after voting */}
+                <div>
+                    {messages.length > 0 && (
+                        <div className="narration">
+                            <h3>Game Updates:</h3>
+                            <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
+                        </div>
+                    )}
+                </div>
             </div>
         )}
-        </div>
+    </div>
     );
 }
 

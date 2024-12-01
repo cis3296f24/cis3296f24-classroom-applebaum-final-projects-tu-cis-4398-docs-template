@@ -12,8 +12,7 @@ const cors = require('cors');
 app.use(cors());
 
 let players = [];                                               // stores the Player objects (DO NOT MOVE THIS BELOW THIS POSITION OTHERWISE THERE IS A BUG)
-let dayTimer;    
-let nightTimer;                                                  // stores the timer number
+let timer;                                                      // stores the timer number
 let gamePhase = 'DAY';                                          // stores the default game phase
 let timerInterval = null;
 
@@ -35,6 +34,14 @@ wss.on('connection', (ws) => {
 
         if (data.type === 'join') {
             playerName = data.name;                             // assigns the name input from the user as their player name
+
+            console.log('Player Name: ' + playerName);
+
+            const isPlayerNameValid = checkPlayerNameValid(playerName, ws);     // check if player name is valid
+
+            if(!isPlayerNameValid) {                                        // if player name invalid, return immediately so this player does not join
+                return;
+            }
 
             const newPlayer = new Player(playerName, null);     // initializes a new player object corresponding to the user
             newPlayer.ws = ws;                                  // assigns the websocket to the player's object
@@ -71,23 +78,17 @@ wss.on('connection', (ws) => {
                 player.ws.send(JSON.stringify({ type: 'startVoting', players: players.map(player => player.name) }));   // sends the voting button signal to each player's frontend
             });
         } else if (data.type === 'newNightTimer') {
-            console.log("received night Timer [" + data.nightLength + "].");                                                  // debugging
+            console.log("received Timer [" + data.nightLength + "].");                                                  // debugging
             players.forEach(player => {
                 player.ws.send(JSON.stringify({ type: 'newNightTimer', nightLength: data.nightLength }));               // sends the new nighttime timer to each user
             });
-            nightTimer = data.nightLength;
-        } else if (data.type === 'newDayTimer') {
-            console.log("received day Timer [" + data.dayLength + "].");                                                  // debugging
-            players.forEach(player => {
-                player.ws.send(JSON.stringify({ type: 'newDayTimer', dayLength: data.dayLength }));               // sends the new daytime timer to each user
-            });
-            dayTimer = data.dayLength;
+            timer = data.nightLength;
         } else if (data.type === 'beginDayTimer') {
-            beginDayTimer();
-            dayTimer = data.dayLength;                                                                                     // day timer number declared here****
+            beginTimer();
+            timer = 25; // ISAAC POTENTIAL CHANGE? SO THAT THIS MAYBE WORKS OFF data.dayLength?                         // day timer number declared here****
         } else if (data.type === 'beginNightTimer') {
-            beginNightTimer();
-            nightTimer = data.nightLength;                                                                                   // night timer number declared here***
+            beginTimer();
+            timer = data.nightLength;                                                                                   // night timer number declared here***
         }
     });
 
@@ -100,49 +101,44 @@ wss.on('connection', (ws) => {
     });
 });
 
-function beginDayTimer() {
+function checkPlayerNameValid(playerName, ws) {                                                    // function to check valid player names
+    const currentPlayers = players.map(player => player.name);
+    console.log("Current Players:" + currentPlayers);
+    if (playerName.length > 24) {                                                         // player name must be less than 25 characters
+        console.log("Name Too Long !!!");
+        ws.send(JSON.stringify({type: 'invalidPlayerName', message: "Name must be less than 25 characters long, try again."}));
+        return false;                     
+    }
+    if (currentPlayers.includes(playerName)) {                                              // player name must be unique => not in currentPlayers
+        console.log("Name already Taken !!!");
+        ws.send(JSON.stringify({type: 'invalidPlayerName', message: "Name already taken, try again."}));
+        return false;
+    }
+
+    ws.send(JSON.stringify({type: 'validPlayerName'}));                                     // if name is valid, send to client to set isJoined(true)
+    return true;
+  }
+
+
+function beginTimer() {
     if (timerInterval) {
         clearInterval(timerInterval);                                                   // checks if the timer is currently running and stops it if so             
     }
 
     players.forEach(player => { 
-        player.ws.send(JSON.stringify({ type: 'timer', timeLeft: dayTimer }));             // sends out the current timer number to all users' frontend
+        player.ws.send(JSON.stringify({ type: 'timer', timeLeft: timer }));             // sends out the current timer number to all users' frontend
     });
 
     timerInterval = setInterval(() => {
-        console.log("Day Timer: " + dayTimer);                                                 // runs through a loop (1000 ms/1 sec) doing the following...
-        dayTimer--;
+        console.log("Timer: " + timer);                                                 // runs through a loop (1000 ms/1 sec) doing the following...
+        timer--;
 
-        if (dayTimer <= 0) {                                                               // checks if the timer is at 0
+        if (timer <= 0) {                                                               // checks if the timer is at 0
             clearInterval(timerInterval);                                               // stops timer if it hits 0
             doPhaseChange();                                                            // runs phase change function
         } else {
             players.forEach(player => { 
-                player.ws.send(JSON.stringify({ type: 'timer', timeLeft: dayTimer }));     // sends out the current timer number to all users' frontend
-            });
-        }
-    }, 1000);
-}
-
-function beginNightTimer() {
-    if (timerInterval) {
-        clearInterval(timerInterval);                                                   // checks if the timer is currently running and stops it if so             
-    }
-
-    players.forEach(player => { 
-        player.ws.send(JSON.stringify({ type: 'timer', timeLeft: nightTimer }));             // sends out the current timer number to all users' frontend
-    });
-
-    timerInterval = setInterval(() => {
-        console.log("Night Timer: " + nightTimer);                                                 // runs through a loop (1000 ms/1 sec) doing the following...
-        nightTimer--;
-
-        if (nightTimer <= 0) {                                                               // checks if the timer is at 0
-            clearInterval(timerInterval);                                               // stops timer if it hits 0
-            doPhaseChange();                                                            // runs phase change function
-        } else {
-            players.forEach(player => { 
-                player.ws.send(JSON.stringify({ type: 'timer', timeLeft: nightTimer }));     // sends out the current timer number to all users' frontend
+                player.ws.send(JSON.stringify({ type: 'timer', timeLeft: timer }));     // sends out the current timer number to all users' frontend
             });
         }
     }, 1000);
@@ -189,28 +185,6 @@ function isMafia(role) {                                                        
     }
     return false;
 }
-
-/*
-function assignRoles(players) {                                                                                         // sorts the players
-    const sortedRoles = roles.slice(0, players.length);                                                                 // chooses the number of roles to sort based on the number of players in the join lobby
-
-    for (let currentIndex = sortedRoles.length - 1; currentIndex > 0; currentIndex--) {
-        const randomIndex = Math.floor(Math.random() * (currentIndex + 1));
-        [sortedRoles[currentIndex], sortedRoles[randomIndex]] = [sortedRoles[randomIndex], sortedRoles[currentIndex]];  // simple sorting method
-    }
-
-    players.forEach((player, index) => {
-        const roleName = sortedRoles[index].name;                                                                       // assigns the role given by the sorting method to roleName
-        player.role = roleName;
-        if (isMafia(roleName)) {                                                                                        // assigns teams to players when role is assigned
-            player.team = 'MAFIA';
-        } else {
-            player.team = 'CITIZEN';
-        }
-        player.ws.send(JSON.stringify({ type: 'role', role: roleName }));                                               // sends the roles for each player to the server side
-    });
-}
-*/
 
 function assignRoles(players, maxPlayers, numMafia) {                           // sorts the players
                                                                                 // chooses the number of roles to sort based on the number of players in the join lobby
