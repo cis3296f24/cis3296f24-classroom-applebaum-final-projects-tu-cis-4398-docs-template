@@ -7,7 +7,7 @@ import "./startGame.css"
 function StartGame() {
     const ws = useWebSocket();                                                      // gets the WebSocket instance and connection status
     const [messages, setMessages] = useState([]);
-    const [eliminationMessage, setEliminationMessage] = useState('');
+    const [eliminationMessage, setEliminationMessage] = useState('');               // state to hold elimination message
     const [players, setPlayers] = useState([]);                                     // uses state to store the player list for voting
     const [voting, setVoting] = useState(false);                                    // uses state to determine when voting occurs
     const [votes, setVotes] = useState({});                                         // uses state to store a player's vote
@@ -51,12 +51,12 @@ function StartGame() {
                     setEliminationMessage(data.message);                                            // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
                     console.log("Elimination Message: ", eliminationMessage); 
                     setVotes({});                                                                   // reset vote tally for players
-                    navigate('/Eliminated', {state: {eliminationMessage: data.message}});           // send players to Eliminated screen to see message of who is eliminated
+                    navigate('/Eliminated', {state: {dayLength, nightLength, eliminationMessage: data.message, currentPhase: "DAY"}});           // send players to Eliminated screen to see message of who is eliminated
                 } else if (data.type === 'voteTie') {
                     setVoting(false);                                                               // turns off voting
                     setEliminationMessage(data.message);                                            // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
                     setVotes({});                                                                   // reset vote tally for players
-                    navigate('/Eliminated', {state: {eliminationMessage: data.message}});           // send players to Eliminated screen to see message of who tie
+                    navigate('/Eliminated', {state: {dayLength, nightLength, eliminationMessage: data.message, currentPhase: "DAY"}});           // send players to Eliminated screen to see message of who tie
                 } else if (data.type === 'timer') {
                     setTimeLeft(data.timeLeft);                                                     // sets the local timer based on the server timer
                     console.log("RECEIVED TIMER: " + data.timeLeft);                                // debugging

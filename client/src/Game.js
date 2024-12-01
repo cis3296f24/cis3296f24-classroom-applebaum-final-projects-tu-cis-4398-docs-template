@@ -53,8 +53,8 @@ function Game() {
         } else if (data.type === 'invalidPlayerName') {                                 // if player name is invalid, reset isJoined to false *it should already be false, just a check
             setIsJoined(false);
             setInvalidPlayerNameMessage(data.message);                                  // set the error message for invalid player name
-        } else if (data.type === 'validPlayerName') {
-            setIsJoined(true);                                                  // marks the player as joined to hide join controls/buttons
+        } else if (data.type === 'validPlayerName') {                                   // if player name is valid, joins the player
+            setIsJoined(true);                                                          // marks the player as joined to hide join controls/buttons
         }
       }                                                                           
       ws.addEventListener('message', handleMessage)
@@ -159,23 +159,6 @@ function Game() {
                                         </div>
                                     </div>
                                 )}
-
-                                {/* {showHelp && (
-                                    <div className ="helpbox">
-                                        <h3>Character Roles</h3>
-                                        {rolesList
-                                            .filter((value, index, self) =>
-                                                index === self.findIndex((t) => t.name === value.name)  // Ensures distinct roles by name
-                                            )
-                                            .map((roleDesc, index) => (
-                                            <div className="helplist" key={index}>
-                                                <h4>{roleDesc.name}</h4>
-                                                <p>{roleDesc.description}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )} */}
-
                             </div>
                         </div>
 

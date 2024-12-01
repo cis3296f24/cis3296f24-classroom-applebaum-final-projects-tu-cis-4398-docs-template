@@ -14,7 +14,7 @@ function Night() {
   const [isEliminatedListVisible, setIsEliminatedListVisible] = useState(false);  // uses state to toggle eliminated players list visibility
   const [alivePlayers, setAlivePlayers] = useState([]);                           // uses state to store a list of alive players
   const [isAliveListVisible, setIsAliveListVisible] = useState(false);            // uses state to toggle alive players list visibility
-
+  const [eliminationMessage, setEliminationMessage] = useState('');               // state to hold elimination message
   const [timeLeft, setTimeLeft] = useState(10);                                   // Starting timer value
   const [finalVote, setFinalVote] = useState(null);                               // uses state to store the final vote of each user
   const [showHelp, setShowHelp] = useState(false);                                // uses state to toggle the help menu
@@ -22,7 +22,7 @@ function Night() {
   const[isNarrating, setNarrating] = useState(false);
 
   const location = useLocation();
-  const { role, playerName, isHost, nightLength, rolesList } = location.state;               // includes nightLength within the page state 
+  const { role, playerName, isHost, dayLength, nightLength, rolesList } = location.state;               // includes nightLength within the page state 
 
   const navigate = useNavigate();                                                 // Hook for navigation
 
@@ -53,19 +53,19 @@ function Night() {
             setEliminationMessage(data.message);                                            // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
             console.log("Elimination Message: ", eliminationMessage); 
             setVotes({});                                                                   // reset vote tally for players
-            navigate('/Eliminated', {state: {eliminationMessage: data.message}});           // send players to Eliminated screen to see message of who is eliminated
+            navigate('/Eliminated', {state: {dayLength, nightLength, eliminationMessage: data.message, currentPhase: "NIGHT"}});           // send players to Eliminated screen to see message of who is eliminated
         } else if (data.type === 'voteTie') {
             setVoting(false);                                                               // turns off voting
             setEliminationMessage(data.message);                                            // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
             setVotes({});                                                                   // reset vote tally for players
-            navigate('/Eliminated', {state: {eliminationMessage: data.message}});           // send players to Eliminated screen to see message of who tie                        
+            navigate('/Eliminated', {state: {dayLength, nightLength, eliminationMessage: data.message, currentPhase: "NIGHT"}});           // send players to Eliminated screen to see message of who tie                        
         } else if (data.type === 'timer') {
             setTimeLeft(data.timeLeft);                                                       // sets the local timer based on the server timer
             console.log("RECEIVED TIMER: " + data.timeLeft);                                  // debugging
         } else if (data.type === 'phase') {
             if (data.phase === 'DAY') {                                                       // looks for the phase tag, and will change or stay on the page based on that
               setVoting(false);                                                               // turns off voting 
-              navigate('/startGame', { state: { role, playerName, isHost, nightLength, rolesList } });   // navigates to the startGame.js page (transfers the values within the state to the next page)                                                          
+              navigate('/startGame', { state: { role, playerName, isHost, dayLength, nightLength, rolesList } });   // navigates to the startGame.js page (transfers the values within the state to the next page)                                                          
             }
         } else if (data.type === 'gameOver') {
           setMessages(prev => [...prev, data.message]);
