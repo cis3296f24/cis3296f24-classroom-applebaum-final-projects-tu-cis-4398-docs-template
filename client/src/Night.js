@@ -51,7 +51,6 @@ function Night() {
             setAlivePlayers();
             setVoting(false);                                                               // turns off voting (can be useful for next phase implementation)                                            
             setEliminationMessage(data.message);                                            // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
-            console.log("Elimination Message: ", eliminationMessage); 
             setVotes({});                                                                   // reset vote tally for players
             navigate('/Eliminated', {state: {dayLength, nightLength, eliminationMessage: data.message, currentPhase: "NIGHT"}});           // send players to Eliminated screen to see message of who is eliminated
         } else if (data.type === 'voteTie') {
@@ -59,6 +58,9 @@ function Night() {
             setEliminationMessage(data.message);                                            // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
             setVotes({});                                                                   // reset vote tally for players
             navigate('/Eliminated', {state: {dayLength, nightLength, eliminationMessage: data.message, currentPhase: "NIGHT"}});           // send players to Eliminated screen to see message of who tie                        
+        } else if (data.type === 'dead') {
+          console.log("THIS PERSON IS DEAD");
+          navigate('/Dead');
         } else if (data.type === 'timer') {
             setTimeLeft(data.timeLeft);                                                       // sets the local timer based on the server timer
             console.log("RECEIVED TIMER: " + data.timeLeft);                                  // debugging

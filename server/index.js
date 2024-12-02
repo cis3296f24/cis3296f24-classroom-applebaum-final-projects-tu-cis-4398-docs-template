@@ -298,12 +298,13 @@ function handleVoting(playerName, targetPlayer) {
                 player.ws.send(JSON.stringify({ type: 'voteTie', message: 'There was a tie. No player is eliminated this round.' }));
             });
         } else if (eliminatedPlayer) {                                                          // runs if a player is eliminated
+            const playerToEliminate = players.find(player => player.name === eliminatedPlayer); // sets the status of the eliminated player to true
+            playerToEliminate.eliminate()
+            playerToEliminate.ws.send(JSON.stringify({ type: 'dead'}));
+
             players.forEach(player => {
                 player.ws.send(JSON.stringify({ type: 'voteResults', eliminatedPlayer, message:  eliminatedPlayer + ' has been eliminated. They were a ' + eliminatedTeam + "!"}));      // sends the eliminated player tag to everyone's front end with the username
             });
-
-            const playerToEliminate = players.find(player => player.name === eliminatedPlayer); // sets the status of the eliminated player to true
-            playerToEliminate.eliminate()
 
             checkWinConditions();                                                               // check win conditions after player has been eliminated
         } else {

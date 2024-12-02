@@ -131,8 +131,8 @@
 }
 
 .invalidPlayerNameMessage {
-    font-weight: bold; /* Makes the text bold for emphasis */
-    margin-top: 20px; /* Adds spacing above the message */
-    text-align: center; /* Centers the text below the input field */
-    font-size: 0.9rem; /* Adjusts the font size */
+    font-weight: bold;
+    margin-top: 20px;
+    text-align: center;
+    font-size: 0.9rem;
 }
