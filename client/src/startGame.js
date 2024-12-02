@@ -56,6 +56,8 @@ function StartGame() {
                     setEliminationMessage(data.message);                                            // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
                     setVotes({});                                                                   // reset vote tally for players
                     navigate('/Eliminated', {state: { role, playerName, isHost, rolesList, dayLength, nightLength, eliminationMessage: data.message, currentPhase: "DAY"}});           // send players to Eliminated screen to see message of who tie
+                } else if (data.type === 'dead') {                                                  // if this person receives this dead data type, then they have been eliminated and will be routed to the dead screen
+                    navigate('/Dead');
                 } else if (data.type === 'timer') {
                     setTimeLeft(data.timeLeft);                                                     // sets the local timer based on the server timer
                     console.log("RECEIVED TIMER: " + data.timeLeft);                                // debugging
