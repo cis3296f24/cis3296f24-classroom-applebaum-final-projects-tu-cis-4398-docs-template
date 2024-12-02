@@ -58,9 +58,8 @@ function Night() {
             setEliminationMessage(data.message);                                            // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
             setVotes({});                                                                   // reset vote tally for players
             navigate('/Eliminated', {state: {dayLength, nightLength, eliminationMessage: data.message, currentPhase: "NIGHT"}});           // send players to Eliminated screen to see message of who tie                        
-        } else if (data.type === 'dead') {
-          console.log("THIS PERSON IS DEAD");
-          navigate('/Dead');
+        } else if (data.type === 'dead') {                                                  // if this person receives this dead data type, then they have been eliminated and will be routed to the dead screen
+            navigate('/Dead');
         } else if (data.type === 'timer') {
             setTimeLeft(data.timeLeft);                                                       // sets the local timer based on the server timer
             console.log("RECEIVED TIMER: " + data.timeLeft);                                  // debugging
@@ -69,8 +68,8 @@ function Night() {
               setVoting(false);                                                               // turns off voting 
               navigate('/startGame', { state: { role, playerName, isHost, dayLength, nightLength, rolesList } });   // navigates to the startGame.js page (transfers the values within the state to the next page)                                                          
             }
-        } else if (data.type === 'gameOver') {
-          setMessages(prev => [...prev, data.message]);
+        } else if (data.type === 'gameOver') {                                              // when gameOver data type is received, send player to game over screen
+          navigate('/GameOver', { state: {gameOverMessage: data.message}});
         }
       }
       ws.addEventListener('message', handleMessage)
