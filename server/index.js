@@ -300,7 +300,7 @@ function handleVoting(playerName, targetPlayer) {
         } else if (eliminatedPlayer) {                                                          // runs if a player is eliminated
             const playerToEliminate = players.find(player => player.name === eliminatedPlayer); // sets the status of the eliminated player to true
             playerToEliminate.eliminate()
-            playerToEliminate.ws.send(JSON.stringify({ type: 'dead'}));
+            playerToEliminate.ws.send(JSON.stringify({ type: 'dead'}));                         // send dead data type to player to be sent to dead screen *this must be on the top as to not navigate to the Eliminated screen before
 
             players.forEach(player => {
                 player.ws.send(JSON.stringify({ type: 'voteResults', eliminatedPlayer, message:  eliminatedPlayer + ' has been eliminated. They were a ' + eliminatedTeam + "!"}));      // sends the eliminated player tag to everyone's front end with the username
