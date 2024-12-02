@@ -50,9 +50,9 @@ A laptop with audio recording capabilities. Cellular devices (both android and a
 Development of predefined dictionaries for word categorization (filler words, conjunctions, profanities).
 
 ##UseCase 3:
- Getting GTP input from a speach file
+ Getting GPT input from a speach file
 
-'''mermaid
+```mermaid
 sequenceDiagram
     actor Alice
     participant S as Server/Middleware
