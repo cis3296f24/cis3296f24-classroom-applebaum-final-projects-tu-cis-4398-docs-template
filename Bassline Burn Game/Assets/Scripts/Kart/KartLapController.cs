@@ -117,15 +117,15 @@ public class KartLapController : KartComponent {
         //
         
         // if Game type is practice
-        if ( GameManager.Instance.GameType.IsPracticeMode() ) {
-            CheckpointIndex = checkpoint.index;
-            return;
-        }
+        // if ( GameManager.Instance.GameType.IsPracticeMode() ) {
+        //     CheckpointIndex = checkpoint.index;
+        //     return;
+        // }
 
-        // if current checkpoint is the one directly after the previous checkpoints
-        if ( CheckpointIndex == checkpoint.index - 1 ) {
-            CheckpointIndex++;
-        }
+        // // if current checkpoint is the one directly after the previous checkpoints
+        // if ( CheckpointIndex == checkpoint.index - 1 ) {
+        //     CheckpointIndex++;
+        // }
     }
 
     public void ProcessFinishLine(FinishLine finishLine) {

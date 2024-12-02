@@ -111,7 +111,7 @@ public class GameUI : MonoBehaviour
         timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
 		if (localKartController != null)
         {
-            lapText.text = "Lap: " + localKartController.lapCount.ToString();
+            lapText.text = localKartController.lapCount.ToString() + "/3";
         }
 		
 	}

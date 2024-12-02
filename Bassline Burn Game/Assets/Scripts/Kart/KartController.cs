@@ -1,6 +1,9 @@
 using System;
 using Fusion;
 using UnityEngine;
+using System.Collections.Generic;
+using System.Collections;
+
 
 public class KartController : KartComponent
 {
@@ -19,7 +22,7 @@ public class KartController : KartComponent
 	public float speedToDrift;
 
 	public Rigidbody2D rb;
-	public int lapCount { get; private set; } = 0;
+	public int lapCount { get; private set; } = 1;
 
 	public bool HasFinishedRace => Kart.LapController.EndRaceTick != 0;
 	public bool HasStartedRace => Kart.LapController.StartRaceTick != 0;
@@ -52,6 +55,11 @@ public class KartController : KartComponent
 	[Networked] private Vector2 Position { get; set; }
 	[Networked] private float Rotation { get; set; }
 	public bool CanDrive = false;
+
+	private HashSet<int> checkpointsPassed = new HashSet<int>();
+	private int totalCheckpoints = 6;
+	private int highestCheckpointPassed = 0;
+	private bool finished = false;
 
 	private void Awake()
 	{
@@ -122,7 +130,7 @@ public class KartController : KartComponent
 			
 			Inputs = input;
 		}
-		if(GameManager.Instance.raceStart){
+		if(GameManager.Instance.raceStart && !finished){
 			Move(Inputs);
 			Steer(Inputs);
 
@@ -136,6 +144,8 @@ public class KartController : KartComponent
 				rb.position = Vector2.Lerp(rb.position, Position, Time.deltaTime * 10);
 				rb.rotation = Mathf.LerpAngle(rb.rotation, Rotation, Time.deltaTime * 10);
 			}
+		}else if(finished){
+			rb.velocity = Vector2.zero;
 		}
 		
 
@@ -239,10 +249,102 @@ public class KartController : KartComponent
 	}
 	public void OnTriggerEnter2D(Collider2D other) {
 		if(other.gameObject.name == "Finish"){
-			if (HasInputAuthority)
+			if(HasInputAuthority && lapCount < 3)
 			{
-				lapCount++;
+				if (CheckpointsComplete())
+				{
+					if (lapCount > 3) // Adjust maxLaps based on your TrackDefinition
+					{
+						CompleteRace();
+					}
+					else
+					{
+						lapCount++;
+						ResetCheckpoints(); // Reset for the next lap
+					}
+				}
+			}else{
+				finished = true;
+			}
+		}else if(other.gameObject.name == "Ground"){
+			if(HasInputAuthority){
+				StartCoroutine(RespawnWithDelay(1.0f));
 			}
 		}
 	}
+
+	public bool CheckpointsComplete()
+	{
+		return checkpointsPassed.Count == totalCheckpoints;
+	}
+
+	public void CompleteRace()
+	{
+		lapCount++;
+	}
+
+	public void SetTotalCheckpoints(int count)
+	{
+		totalCheckpoints = count;
+	}
+
+	public void OnCheckpointCrossed(int checkpointID)
+	{
+		if (!checkpointsPassed.Contains(checkpointID))
+		{
+			checkpointsPassed.Add(checkpointID);
+			Debug.Log($"Checkpoint {checkpointID} crossed. Total: {checkpointsPassed.Count}/{totalCheckpoints}");
+
+			if (checkpointID > highestCheckpointPassed)
+			{
+				highestCheckpointPassed = checkpointID;
+			}
+
+			if (checkpointsPassed.Count == totalCheckpoints)
+			{
+				Debug.Log("All checkpoints crossed. Player can finish!");
+			}
+		}
+	}
+
+	public void ResetCheckpoints()
+	{
+		checkpointsPassed.Clear();
+		highestCheckpointPassed = 0;
+		Debug.Log($"Checkpoints reset for lap {lapCount + 1}.");
+	}
+
+	public IEnumerator RespawnWithDelay(float waitTime)
+	{
+		Debug.Log("Respawning in 1 second...");
+
+		// Optional: Disable car controls and play a respawn animation or effect
+		CanDrive = false;
+		rb.velocity = Vector2.zero;
+
+		yield return new WaitForSeconds(waitTime); // Wait for 1 second
+
+		if (highestCheckpointPassed >= 0 && highestCheckpointPassed < Track.Current.checkpoints.Length)
+		{
+			Transform respawnPoint = Track.Current.checkpoints[highestCheckpointPassed].transform;
+
+			// Reset position and velocity
+			rb.position = respawnPoint.position;
+			Rotation = rb.rotation = respawnPoint.eulerAngles.z; 
+			rb.velocity = Vector2.zero;
+			rb.angularVelocity = 0;
+
+	
+
+			Debug.Log($"Respawned at checkpoint {highestCheckpointPassed}");
+		}
+		else
+		{
+			Debug.LogWarning("No valid checkpoint to respawn at.");
+		}
+
+		// Re-enable controls after respawning
+		CanDrive = true;
+	}
+
 }

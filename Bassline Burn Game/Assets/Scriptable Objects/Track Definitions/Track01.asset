@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3edd0af2d2a408e4f99d6a997e6275d6, type: 3}
   m_Name: Track01
   m_EditorClassIdentifier: 
-  trackName: Cavern Cove
-  trackIcon: {fileID: 21300000, guid: d558ff739b0c6eb4fa5a3663917b1f6e, type: 3}
+  trackName: Starter Track
+  trackIcon: {fileID: 21300000, guid: 3d0e070d3b7524a55b82b85db60aab0b, type: 3}
   buildIndex: 2

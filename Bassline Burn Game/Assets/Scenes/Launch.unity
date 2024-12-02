@@ -20771,8 +20771,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5565203122976307857, guid: f87ea1b0d58347047a1995bce4f6c7a5, type: 3}
       propertyPath: kartDefinitions.Array.size
-      value: 1
+      value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 5565203122976307857, guid: f87ea1b0d58347047a1995bce4f6c7a5, type: 3}
+      propertyPath: kartDefinitions.Array.data[1]
+      value: 
+      objectReference: {fileID: 11400000, guid: 2b04fceee3af9b141a04106cfc3ed4c4, type: 2}
+    - target: {fileID: 5565203122976307857, guid: f87ea1b0d58347047a1995bce4f6c7a5, type: 3}
+      propertyPath: kartDefinitions.Array.data[2]
+      value: 
+      objectReference: {fileID: 11400000, guid: b93ea24a71abe01408a5b98e40380be6, type: 2}
     - target: {fileID: 5565203122976307858, guid: f87ea1b0d58347047a1995bce4f6c7a5, type: 3}
       propertyPath: m_Name
       value: Resource Manager
