@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useWebSocket } from './WebSocketContext';                                  // imports the custom hook
 import RoleDisplay from './roleDisplay';
 import { useLocation, useNavigate } from 'react-router-dom';
+import Tick from './Sounds/Tick.mp3'
+import LastTick from './Sounds/LastTick.mp3'
 import "./startGame.css"
 
 function StartGame() {
     const ws = useWebSocket();                                                      // gets the WebSocket instance and connection status
-    const [messages, setMessages] = useState([]);
     const [eliminationMessage, setEliminationMessage] = useState('');               // state to hold elimination message
     const [players, setPlayers] = useState([]);                                     // uses state to store the player list for voting
     const [voting, setVoting] = useState(false);                                    // uses state to determine when voting occurs
@@ -18,7 +19,7 @@ function StartGame() {
     const [timeLeft, setTimeLeft] = useState(10);                                   // starting timer value (defaults as 10 seconds)
     const [finalVote, setFinalVote] = useState(null);                               // uses state to store the final vote of each user
     const [showHelp, setShowHelp] = useState(false);                                // uses state to toggle the help menu
-    const [isNarrating, setNarrating] = useState(false);
+  
 
     const location = useLocation();
     const { role, playerName, isHost, dayLength, nightLength, rolesList } = location.state;               // includes dayLength and nightLength within the page state (needed for the timer value to transfer) 
@@ -59,8 +60,12 @@ function StartGame() {
                 } else if (data.type === 'dead') {                                                  // if this person receives this dead data type, then they have been eliminated and will be routed to the dead screen
                     navigate('/Dead');
                 } else if (data.type === 'timer') {
+                    if(data.timeLeft === 1){
+                        speak(LastTick);
+                      } else if (data.timeLeft !== 0){
+                          speak(Tick);
+                      }
                     setTimeLeft(data.timeLeft);                                                     // sets the local timer based on the server timer
-                    console.log("RECEIVED TIMER: " + data.timeLeft);                                // debugging
                 } else if (data.type === 'phase') {
                     if (data.phase === 'NIGHT') {                                                   // looks for the phase tag, and will change or stay on the page based on that
                         setVoting(false);
@@ -96,9 +101,16 @@ function StartGame() {
     setShowHelp(!showHelp);
   };
 
+  function speak(sound) {
+    console.log("Announce");
+    var audio = new Audio(sound);
+    audio.play().catch((error) => {
+      console.error('Audio playback failed:', error);
+    });
+   };
+
   return (
     <div>
-    {!isNarrating && (
       <div className="startGameDay">
         <div className="gameTitle">
             <h2>MafiUhh...</h2>
@@ -226,24 +238,6 @@ function StartGame() {
             </div>
         )}
         </div>
-        
-        )}
-        {isNarrating && (
-            <div className="startGameNight">
-                <div className="gameTitle">
-                    <h2>MafiUhh...</h2>
-                </div>
-                {/* Display the elimination messages after voting */}
-                <div>
-                    {messages.length > 0 && (
-                        <div className="narration">
-                            <h3>Game Updates:</h3>
-                            <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
-                        </div>
-                    )}
-                </div>
-            </div>
-        )}
     </div>
     );
 }

@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useWebSocket } from './WebSocketContext';                                // Import the custom hook
 import RoleDisplay from './roleDisplay';
 import { useLocation, useNavigate } from 'react-router-dom';
+import MafiaCall from './Sounds/MafiaCall.mp3'
+import Tick from './Sounds/Tick.mp3'
+import LastTick from './Sounds/LastTick.mp3'
 import './Night.css';
 
 function Night() {
   const ws = useWebSocket();                                                      // Get the WebSocket instance and connection status
-  const [messages, setMessages] = useState([]);
   const [players, setPlayers] = useState([]);                                     // uses state to store the player list for voting
   const [voting, setVoting] = useState(false);                                    // uses state to determine when voting occurs
   const [votes, setVotes] = useState({});                                         // uses state to store a player's vote
@@ -18,8 +20,6 @@ function Night() {
   const [timeLeft, setTimeLeft] = useState(10);                                   // Starting timer value
   const [finalVote, setFinalVote] = useState(null);                               // uses state to store the final vote of each user
   const [showHelp, setShowHelp] = useState(false);                                // uses state to toggle the help menu
-
-  const[isNarrating, setNarrating] = useState(false);
 
   const location = useLocation();
   const { role, playerName, isHost, dayLength, nightLength, rolesList } = location.state;               // includes nightLength within the page state 
@@ -37,11 +37,10 @@ function Night() {
         ws.send(JSON.stringify({ type: 'startVote'}));
       }
       const handleMessage = (event) => {
-        console.log("event!");
         const data = JSON.parse(event.data);
 
         if (data.type === 'startVoting') {
-            console.log("voting!");
+            speak(MafiaCall);
             setVoting(true);                                                                  // turns on voting
             ws.send(JSON.stringify({ type: 'beginNightTimer', nightLength: nightLength }));   // sends the nightLength value to the backend and to begin the timer
             setPlayers(data.players);
@@ -61,8 +60,12 @@ function Night() {
         } else if (data.type === 'dead') {                                                  // if this person receives this dead data type, then they have been eliminated and will be routed to the dead screen
             navigate('/Dead');
         } else if (data.type === 'timer') {
+          if(data.timeLeft === 1){
+            speak(LastTick);
+          } else if (data.timeLeft !== 0){ 
+              speak(Tick);
+          }
             setTimeLeft(data.timeLeft);                                                       // sets the local timer based on the server timer
-            console.log("RECEIVED TIMER: " + data.timeLeft);                                  // debugging
         } else if (data.type === 'phase') {
             if (data.phase === 'DAY') {                                                       // looks for the phase tag, and will change or stay on the page based on that
               setVoting(false);                                                               // turns off voting 
@@ -97,24 +100,16 @@ function Night() {
     setShowHelp(!showHelp);
   };
 
-  const announceMafiaVote = () => {
-    if(!spoke){
-      console.log("Speaking!");
-      const messageText = "Mafia open your eyes to vote.";
-      const utterance = new SpeechSynthesisUtterance(messageText);
-      utterance.pitch = 1;
-      utterance.rate = 1;
-      utterance.volume = 1;
-  
-      // Start speaking the messages
-      window.speechSynthesis.speak(utterance);
-      setSpoke(true);
-    }
-  };
+  function speak(sound) {
+    console.log("Announce");
+    var audio = new Audio(sound);
+    audio.play().catch((error) => {
+      console.error('Audio playback failed:', error);
+    });
+   };
 
   return (
       <div>
-      {!isNarrating && (
         <div className="startGameNight">
           <div className="gameTitle">
             <h2>MafiUhh...</h2>
@@ -244,27 +239,6 @@ function Night() {
         )}
                   
         </div>
-        )}
-        {isNarrating && (
-            <div className="startGameNight">
-            <div className="gameTitle">
-                <h2>MafiUhh...</h2>
-            </div>
-            {/* Display the elimination messages after voting */}
-            <div>
-            {messages.length > 0 && (
-                <div className="narration">
-                <h3>Game Updates:</h3>
-                <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
-                </div>
-            )}
-            </div>
-                                      {/* COMMENTED OUT THE CONTINUE BUTTON FOR NOW */}
-                                      {/*<div className="glow">
-                                            {isHost && <button onClick={phaseChange}>Continue</button>}
-                                        </div>*/}
-            </div>
-        )}
         </div>
   );
 }
