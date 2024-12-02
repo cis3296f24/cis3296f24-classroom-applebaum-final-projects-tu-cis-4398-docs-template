@@ -42,6 +42,14 @@ public class Track : NetworkBehaviour
 		
 	}
 
+	private void Start()
+    {
+        for (int i = 0; i < checkpoints.Length; i++)
+        {
+            checkpoints[i].ID = i; // Assign unique ID
+        }
+    }
+
 	private void OnDestroy()
 	{
 		GameManager.SetTrack(null);
