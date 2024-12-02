@@ -64,6 +64,7 @@ public class KartController : KartComponent
 	private void Awake()
 	{
 		collider = GetComponent<CapsuleCollider2D>();
+		
 	}
 
 	public override void Spawned()
@@ -74,6 +75,8 @@ public class KartController : KartComponent
         {
             
         }
+
+
 	}
 
 	private void Update(){
@@ -264,7 +267,7 @@ public class KartController : KartComponent
 					}
 				}
 			}else{
-				finished = true;
+				// finished = true;
 			}
 		}else if(other.gameObject.name == "Ground"){
 			if(HasInputAuthority){
