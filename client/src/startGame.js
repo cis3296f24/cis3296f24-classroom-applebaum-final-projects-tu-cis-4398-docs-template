@@ -66,8 +66,8 @@ function StartGame() {
                         setVoting(false);
                         navigate('/Night', { state: {role, playerName, isHost, dayLength, nightLength, rolesList } });    // move to night page 
                     }
-                } else if (data.type === 'gameOver') {
-                    setMessages(prev => [...prev, data.message]);
+                } else if (data.type === 'gameOver') {                                              // when gameOver data type is received, send player to game over screen
+                    navigate('/GameOver', { state: {gameOverMessage: data.message}});
                 }
             }
             ws.addEventListener('message', handleMessage)

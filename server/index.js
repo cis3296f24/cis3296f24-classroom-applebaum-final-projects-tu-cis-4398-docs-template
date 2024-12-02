@@ -199,12 +199,12 @@ function checkWinConditions() {                                                 
     if (mafiaCount === 0) {                                                                                         // if there are no mafia left, citizens win
         players.forEach(player => {
             const message = player.team === "CITIZEN" ? "You win!" : "You lose.";                                   // sets a message for who wins and loses, different depending on your team
-            player.ws.send(JSON.stringify({ type: 'gameOver', message: 'Game Over: Citizens wins! ' + message }));  // sends game over message to front end
+            player.ws.send(JSON.stringify({ type: 'gameOver', message: 'Game Over: Citizens win! ' + message }));  // sends game over message to front end
         });
     } else if (mafiaCount >= citizenCount ) {                                                                       // if mafia equal or outnumber citizens, mafia wins
         players.forEach(player => {
             const message = player.team === "MAFIA" ? "You win!" : "You lose.";                                     // sets a message for who wins and loses, different depending on your team
-            player.ws.send(JSON.stringify({ type: 'gameOver', message: 'Game Over: Mafia wins! ' + message }));     // sends game over message to front end
+            player.ws.send(JSON.stringify({ type: 'gameOver', message: 'Game Over: Mafia win! ' + message }));     // sends game over message to front end
         });
     }
 }
@@ -302,7 +302,7 @@ function handleVoting(playerName, targetPlayer) {
             playerToEliminate.eliminate()
             playerToEliminate.ws.send(JSON.stringify({ type: 'dead'}));                         // send dead data type to player to be sent to dead screen *this must be on the top as to not navigate to the Eliminated screen before
 
-            players.forEach(player => {
+            players.forEach(player => {                                                         // sends all players result of vote and message
                 player.ws.send(JSON.stringify({ type: 'voteResults', eliminatedPlayer, message:  eliminatedPlayer + ' has been eliminated. They were a ' + eliminatedTeam + "!"}));      // sends the eliminated player tag to everyone's front end with the username
             });
 

@@ -22,6 +22,21 @@ function Eliminated() {
     return () => clearTimeout(timer); // Clean up the timer
   }, [currentPhase, ws, nightLength, dayLength]);
 
+  useEffect(() => {
+    const handleMessage = (event) => {
+        const data = JSON.parse(event.data);
+
+        if (data.type === 'gameOver') {                                              // when gameOver data type is received, send player to game over screen
+        navigate('/GameOver', { state: {gameOverMessage: data.message}});
+        }
+    }
+    ws.addEventListener('message', handleMessage)
+
+    return () => {
+        ws.removeEventListener('message', handleMessage);
+    };
+});
+
   return (
     <div className="eliminatedPage">
       <div className="gameTitle">
