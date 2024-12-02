@@ -12,8 +12,8 @@ const cors = require('cors');
 app.use(cors());
 
 let players = [];                                               // stores the Player objects (DO NOT MOVE THIS BELOW THIS POSITION OTHERWISE THERE IS A BUG)
-let dayTimer;    
-let nightTimer;                                                  // stores the timer number
+let dayTimer;                                                   // stores the night timer number
+let nightTimer;                                                  // stores the day timer number
 let gamePhase = 'DAY';                                          // stores the default game phase
 let timerInterval = null;
 
@@ -35,6 +35,14 @@ wss.on('connection', (ws) => {
 
         if (data.type === 'join') {
             playerName = data.name;                             // assigns the name input from the user as their player name
+
+            console.log('Player Name: ' + playerName);
+
+            const isPlayerNameValid = checkPlayerNameValid(playerName, ws);     // check if player name is valid
+
+            if(!isPlayerNameValid) {                                        // if player name invalid, return immediately so this player does not join
+                return;
+            }
 
             const newPlayer = new Player(playerName, null);     // initializes a new player object corresponding to the user
             newPlayer.ws = ws;                                  // assigns the websocket to the player's object
@@ -102,7 +110,23 @@ wss.on('connection', (ws) => {
     });
 });
 
-function beginDayTimer() {
+function checkPlayerNameValid(playerName, ws) {                                                    // function to check valid player names
+    const currentPlayers = players.map(player => player.name);
+    if (playerName.length > 24) {                                                         // player name must be less than 25 characters
+        ws.send(JSON.stringify({type: 'invalidPlayerName', message: "Name must be less than 25 characters long, try again."}));
+        return false;                     
+    }
+    if (currentPlayers.includes(playerName)) {                                              // player name must be unique => not in currentPlayers
+        ws.send(JSON.stringify({type: 'invalidPlayerName', message: "Name already taken, try again."}));
+        return false;
+    }
+
+    ws.send(JSON.stringify({type: 'validPlayerName'}));                                     // if name is valid, send to client to set isJoined(true)
+    return true;
+  }
+
+
+  function beginDayTimer() {
     if (timerInterval) {
         clearInterval(timerInterval);                                                   // checks if the timer is currently running and stops it if so             
     }
@@ -191,28 +215,6 @@ function isMafia(role) {                                                        
     }
     return false;
 }
-
-/*
-function assignRoles(players) {                                                                                         // sorts the players
-    const sortedRoles = roles.slice(0, players.length);                                                                 // chooses the number of roles to sort based on the number of players in the join lobby
-
-    for (let currentIndex = sortedRoles.length - 1; currentIndex > 0; currentIndex--) {
-        const randomIndex = Math.floor(Math.random() * (currentIndex + 1));
-        [sortedRoles[currentIndex], sortedRoles[randomIndex]] = [sortedRoles[randomIndex], sortedRoles[currentIndex]];  // simple sorting method
-    }
-
-    players.forEach((player, index) => {
-        const roleName = sortedRoles[index].name;                                                                       // assigns the role given by the sorting method to roleName
-        player.role = roleName;
-        if (isMafia(roleName)) {                                                                                        // assigns teams to players when role is assigned
-            player.team = 'MAFIA';
-        } else {
-            player.team = 'CITIZEN';
-        }
-        player.ws.send(JSON.stringify({ type: 'role', role: roleName }));                                               // sends the roles for each player to the server side
-    });
-}
-*/
 
 function kickExcessPlayers(maxPlayers) {
     for (let i = players.length - 1; i >= maxPlayers; i--) { //iterate thorough the players to be removed starting from array's end
