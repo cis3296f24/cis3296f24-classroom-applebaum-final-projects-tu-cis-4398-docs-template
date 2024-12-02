@@ -101,7 +101,6 @@ function Night() {
   };
 
   function speak(sound) {
-    console.log("Announce");
     var audio = new Audio(sound);
     audio.play().catch((error) => {
       console.error('Audio playback failed:', error);

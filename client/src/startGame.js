@@ -35,11 +35,9 @@ function StartGame() {
                 ws.send(JSON.stringify({ type: 'startVote'}));                      // immediately after the start button is clicked, this sends the 'startVote' tag to the backend to activate the voting phase
             }
             const handleMessage = (event) => {
-                console.log("event!" + event);
                 const data = JSON.parse(event.data);
 
                 if (data.type === 'startVoting') {                                           // this is for the start button
-                    console.log("voting!");
                     setVoting(true);                                                                // turns on voting
                     console.log('--------day length: ' + dayLength);
                     ws.send(JSON.stringify({ type: 'beginDayTimer', dayLength: dayLength}));                             // sends the signal to start the day timer
@@ -102,7 +100,6 @@ function StartGame() {
   };
 
   function speak(sound) {
-    console.log("Announce");
     var audio = new Audio(sound);
     audio.play().catch((error) => {
       console.error('Audio playback failed:', error);
