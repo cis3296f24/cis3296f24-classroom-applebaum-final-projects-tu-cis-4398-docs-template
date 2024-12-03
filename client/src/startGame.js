@@ -19,6 +19,7 @@ function StartGame() {
     const [finalVote, setFinalVote] = useState(null);                               // uses state to store the final vote of each user
     const [showHelp, setShowHelp] = useState(false);                                // uses state to toggle the help menu
     const [isNarrating, setNarrating] = useState(false);
+    const [voted, setVoted] = useState(true);
 
     const location = useLocation();
     const { role, playerName, isHost, dayLength, nightLength, rolesList } = location.state;               // includes dayLength and nightLength within the page state (needed for the timer value to transfer) 
@@ -39,7 +40,8 @@ function StartGame() {
 
                 if (data.type === 'startVoting') {                                           // this is for the start button
                     console.log("voting!");
-                    setVoting(true);                                                                // turns on voting
+                    setVoting(true); 
+                    setVoted(false);                                                               // turns on voting
                     console.log('--------day length: ' + dayLength);
                     ws.send(JSON.stringify({ type: 'beginDayTimer', dayLength: dayLength}));                             // sends the signal to start the day timer
                     setPlayers(data.players);
@@ -59,10 +61,17 @@ function StartGame() {
                 } else if (data.type === 'dead') {                                                  // if this person receives this dead data type, then they have been eliminated and will be routed to the dead screen
                     navigate('/Dead');
                 } else if (data.type === 'timer') {
+                    if(data.timeLeft === 1){
+                        console.log(voted);
+                        if(!voted){ //checks if didnt vote then sends empty vote
+                            console.log("voting for no one!")
+                            ws.send(JSON.stringify({ type: 'vote', playerName: null}));
+                        }   
+                    }
                     setTimeLeft(data.timeLeft);                                                     // sets the local timer based on the server timer
                     console.log("RECEIVED TIMER: " + data.timeLeft);                                // debugging
                 } else if (data.type === 'phase') {
-                    if (data.phase === 'NIGHT') {                                                   // looks for the phase tag, and will change or stay on the page based on that
+                    if (data.phase === 'NIGHT') {                                                // looks for the phase tag, and will change or stay on the page based on that
                         setVoting(false);
                         navigate('/Night', { state: {role, playerName, isHost, dayLength, nightLength, rolesList } });    // move to night page 
                     }
@@ -76,7 +85,7 @@ function StartGame() {
                 ws.removeEventListener('message', handleMessage);
             };
         }
-    }, [ws, navigate, role, playerName, isHost, eliminatedPlayers, players, voting, dayLength, nightLength]);  // Re-run the effect if WebSocket instance changes
+    }, [ws, navigate, role, playerName, isHost, eliminatedPlayers, players, voting, dayLength, nightLength, voted]);  // Re-run the effect if WebSocket instance changes
 
 
     useEffect(() => {
@@ -87,14 +96,20 @@ function StartGame() {
     const voteForPlayer = (playerName) => {
         if (votes[playerName] || eliminatedPlayers.includes(playerName)) return;        // checks to see if a player already voted or dead; prevents a player voting more than once
 
+        setVoted(true);
         setVotes({ ...votes, [playerName]: true });                                     // stores the votes for players and sets whether they have voted to true
 
-        ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));                    // sends the player's vote to the server
+        ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));
+                                                                    // sends the player's vote to the server
   };
 
   const toggleHelp = () => {
     setShowHelp(!showHelp);
   };
+
+  useEffect(() => {
+    console.log('Updated voted state:', voted);  // This will run whenever `voted` changes
+  }, [voted]);
 
   return (
     <div>
@@ -147,7 +162,7 @@ function StartGame() {
             <h3>Vote to Eliminate a Player</h3>
             <div>
                 {/* Buttons for voting */}
-                {players.map((player) => (
+                {alivePlayers.map((player) => (
                     <div key={player}>
                         <label>
                             <input
