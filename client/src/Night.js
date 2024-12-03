@@ -169,7 +169,7 @@ function Night() {
         )}
           
         {/* Voting Section */}
-        {voting && !eliminatedPlayers.includes(playerName) && (
+        {voting && !eliminatedPlayers.includes(playerName) && (role !== 'Citizen') && (
         <div>
             <h3>Vote to Eliminate a Player</h3>
             <div>

@@ -39,6 +39,7 @@ function StartGame() {
                 const data = JSON.parse(event.data);
 
                 if (data.type === 'startVoting') {                                           // this is for the start button
+                    console.log(role);
                     console.log("voting!");
                     setVoting(true); 
                     setVoted(false);                                                               // turns on voting
@@ -157,7 +158,7 @@ function StartGame() {
 
 
         {/* Voting Section */}
-        {voting && !eliminatedPlayers.includes(playerName) && (
+        {voting && !eliminatedPlayers.includes(playerName) &&(
         <div>
             <h3>Vote to Eliminate a Player</h3>
             <div>
