@@ -118,7 +118,7 @@
 .startGameDay{
     display:flex;
     flex-direction: column;
-    height: 90vh;
+    height: 100vh;
     background: rgb(253, 253, 253);
 
 }
@@ -126,7 +126,7 @@
 .startGameNight{
   display:flex;
   flex-direction: column;
-  height: 90vh;
+  height: 100vh;
   background-image: linear-gradient(rgb(0, 0, 0), rgb(227, 25, 25) 200%);
 
 }
