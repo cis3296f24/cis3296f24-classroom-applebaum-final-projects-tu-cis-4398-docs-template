@@ -12,6 +12,8 @@ public class GameUI : MonoBehaviour
 	public Text countdownText;
 	public Text timerText;
 	public Text lapText;
+	public GameObject EndUI;
+	public GameObject continueButton;
 	
 
 	public EndRaceUI endRaceScreen;
@@ -111,8 +113,17 @@ public class GameUI : MonoBehaviour
         timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
 		if (localKartController != null)
         {
-            lapText.text = localKartController.lapCount.ToString() + "/3";
+            
+			if(localKartController.lapCount >= 4){
+				EndUI.SetActive(true);
+				continueButton.SetActive(true);
+				lapText.text = "3/3";
+			}else{
+				lapText.text = localKartController.lapCount.ToString() + "/3";
+			}
         }
+
+
 		
 	}
 
@@ -125,101 +136,6 @@ public class GameUI : MonoBehaviour
 	{
 		Kart.OnRaceStart();
 	}
-
-	// public void HideIntro()
-	// {
-	// 	introAnimator.SetTrigger("Exit");
-	// }
-
-	// private void FadeIn()
-	// {
-	// 	StartCoroutine(FadeInRoutine());
-	// }
-
-	// private IEnumerator FadeInRoutine()
-	// {
-	// 	float t = 1;
-	// 	while (t > 0)
-	// 	{
-	// 		fader.alpha = 1 - t;
-	// 		t -= Time.deltaTime;
-	// 		yield return null;
-	// 	}
-	// }
-
-	// private void Update()
-	// {	
-	// 	if(Kart.LapController)
-	// 	if (!Kart || !Kart.LapController.Object || !Kart.LapController.Object.IsValid)
-
-	// 		return;
-
-	// 	if (!_startedCountdown && Track.Current != null && Track.Current.StartRaceTimer.IsRunning)
-	// 	{
-	// 		var remainingTime = Track.Current.StartRaceTimer.RemainingTime(Kart.Runner);
-	// 		if (remainingTime != null && remainingTime <= 3.0f)
-	// 		{
-	// 			_startedCountdown = true;
-	// 			// HideIntro();
-	// 			FadeIn();
-	// 			countdownAnimator.SetTrigger("StartCountdown");
-	// 		}
-		
-			
-	// 	}
-		
-
-	// 	if (Kart.LapController.enabled) UpdateLapTimes();
-		
-	// }
-
-	// private void UpdateLapTimes()
-	// {
-	// 	if (!Kart.LapController.Object || !Kart.LapController.Object.IsValid)
-	// 		return;
-	// 	var lapTimes = Kart.LapController.LapTicks;
-	// 	for (var i = 0; i < Mathf.Min(lapTimes.Length, lapTimeTexts.Length); i++)
-	// 	{
-	// 		var lapTicks = lapTimes.Get(i);
-
-	// 		if (lapTicks == 0)
-	// 		{
-	// 			lapTimeTexts[i].text = "";
-	// 		}
-	// 		else
-	// 		{
-	// 			var previousTicks = i == 0
-	// 				? Kart.LapController.StartRaceTick
-	// 				: lapTimes.Get(i - 1);
-
-	// 			var deltaTicks = lapTicks - previousTicks;
-	// 			var time = TickHelper.TickToSeconds(Kart.Runner, deltaTicks);
-
-	// 			SetLapTimeText(time, i);
-	// 		}
-	// 	}
-
-	// 	SetRaceTimeText(Kart.LapController.GetTotalRaceTime());
-	// }
-
-	// private void SetLapCount(int lap, int maxLaps)
-	// {
-	// 	var text = $"{(lap > maxLaps ? maxLaps : lap)}/{maxLaps}";
-	// 	lapCount.text = text;
-	// }
-
-	// public void SetRaceTimeText(float time)
-	// {
-	// 	raceTimeText.text = $"{(int) (time / 60):00}:{time % 60:00.000}";
-	// }
-
-	// public void SetLapTimeText(float time, int index)
-	// {
-	// 	lapTimeTexts[index].text = $"<color=#FFC600>L{index + 1}</color> {(int) (time / 60):00}:{time % 60:00.000}";
-	// }
-
-	
-
 
 	public void ShowEndRaceScreen()
 	{
