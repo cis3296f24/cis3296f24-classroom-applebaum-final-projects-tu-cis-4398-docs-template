@@ -18,6 +18,7 @@ function Night() {
   const [timeLeft, setTimeLeft] = useState(10);                                   // Starting timer value
   const [finalVote, setFinalVote] = useState(null);                               // uses state to store the final vote of each user
   const [showHelp, setShowHelp] = useState(false);                                // uses state to toggle the help menu
+  const [voted, setVoted] = useState(true);
 
   const[isNarrating, setNarrating] = useState(false);
 
@@ -42,6 +43,7 @@ function Night() {
 
         if (data.type === 'startVoting') {
             console.log("voting!");
+            setVoted(false);
             setVoting(true);                                                                  // turns on voting
             ws.send(JSON.stringify({ type: 'beginNightTimer', nightLength: nightLength }));   // sends the nightLength value to the backend and to begin the timer
             setPlayers(data.players);
@@ -61,6 +63,12 @@ function Night() {
         } else if (data.type === 'dead') {                                                  // if this person receives this dead data type, then they have been eliminated and will be routed to the dead screen
             navigate('/Dead');
         } else if (data.type === 'timer') {
+          if(data.timeLeft === 1){
+            console.log(voted);
+            if(!voted){ //checks if didnt vote then sends empty vote
+                ws.send(JSON.stringify({ type: 'vote', playerName: null}));
+            }   
+        }
             setTimeLeft(data.timeLeft);                                                       // sets the local timer based on the server timer
             console.log("RECEIVED TIMER: " + data.timeLeft);                                  // debugging
         } else if (data.type === 'phase') {
@@ -86,12 +94,14 @@ function Night() {
   }, [players, eliminatedPlayers]);
 
   const voteForPlayer = (playerName) => {
-    if (votes[playerName] || eliminatedPlayers.includes(playerName)) return;                // checks to see if a player already voted or dead; prevents a player voting more than once
+    if (votes[playerName] || eliminatedPlayers.includes(playerName)) return;        // checks to see if a player already voted or dead; prevents a player voting more than once
 
-    setVotes({ ...votes, [playerName]: true });                                             // stores the votes for players and sets whether they have voted to true
+    setVoted(true);
+    setVotes({ ...votes, [playerName]: true });                                     // stores the votes for players and sets whether they have voted to true
 
-    ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));                      // sends the player's vote to the server
-  };
+    ws.send(JSON.stringify({ type: 'vote', playerName: playerName }));
+                                                                // sends the player's vote to the server
+};
 
   const toggleHelp = () => {
     setShowHelp(!showHelp);
@@ -159,7 +169,7 @@ function Night() {
         )}
           
         {/* Voting Section */}
-        {voting && !eliminatedPlayers.includes(playerName) && (
+        {voting && !eliminatedPlayers.includes(playerName) && (role !== 'Citizen') && (
         <div>
             <h3>Vote to Eliminate a Player</h3>
             <div>
