@@ -12,7 +12,6 @@ const cors = require('cors');
 app.use(cors());
 
 let players = [];                                               // stores the Player objects (DO NOT MOVE THIS BELOW THIS POSITION OTHERWISE THERE IS A BUG)
-let alivePlayers = [];
 let dayTimer;                                                   // stores the night timer number
 let nightTimer;                                                  // stores the day timer number
 let gamePhase = 'DAY';                                          // stores the default game phase
@@ -48,7 +47,6 @@ wss.on('connection', (ws) => {
             const newPlayer = new Player(playerName, null);     // initializes a new player object corresponding to the user
             newPlayer.ws = ws;                                  // assigns the websocket to the player's object
             players.push(newPlayer);                            // adds the player object to the players[]
-            alivePlayers.push(newPlayer);
 
             updateCurrentPlayersList();                                                                                 // send updated list to all players after someone joins
 
@@ -80,7 +78,7 @@ wss.on('connection', (ws) => {
             handleVoting(playerName, data.playerName);                                                                  // when the vote message is received it runs the voting function
         } else if (data.type === 'startVote') {                                                                         // listens for the signal to begin the voting phase
             players.forEach(player => {
-                player.ws.send(JSON.stringify({ type: 'startVoting', players: alivePlayers.map(player => player.name) }));   // sends the voting button signal to each player's frontend
+                player.ws.send(JSON.stringify({ type: 'startVoting', players: players.map(player => player.name) }));   // sends the voting button signal to each player's frontend
             });
         } else if (data.type === 'newNightTimer') {
             console.log("received night Timer [" + data.nightLength + "].");                                                  // debugging
@@ -194,7 +192,6 @@ function updateCurrentPlayersList() {                                           
     });
 }
 
-
 function checkWinConditions() {                                                                                     // checks if a team has won the game
     const mafiaCount = players.filter(player => player.team === "MAFIA" && !player.eliminated).length;              // counts mafia that are still alive
     const citizenCount = players.filter(player => player.team === "CITIZEN" && !player.eliminated).length;          // counts citizens that are still alive
@@ -296,7 +293,6 @@ function handleVoting(playerName, targetPlayer) {
                 tie = false;
             } else if(votedFor ==="null" && count > (votedPlayers.length/2)){
                 halfVoted = false;
-
             } else if (count === maxVotes) {                                    // if max votes are equal, set a tie
                 tie = true;
             }
@@ -314,8 +310,7 @@ function handleVoting(playerName, targetPlayer) {
             const playerToEliminate = players.find(player => player.name === eliminatedPlayer); // sets the status of the eliminated player to true
             playerToEliminate.eliminate()
             playerToEliminate.ws.send(JSON.stringify({ type: 'dead'}));                         // send dead data type to player to be sent to dead screen *this must be on the top as to not navigate to the Eliminated screen before
-            updateAlivePlayers = alivePlayers.filter(player => player.name !== eliminatedPlayer);
-            let aliverPlayers = updateAlivePlayers;
+
             players.forEach(player => {                                                         // sends all players result of vote and message
                 player.ws.send(JSON.stringify({ type: 'voteResults', eliminatedPlayer, message:  eliminatedPlayer + ' has been eliminated. They were a ' + eliminatedTeam + "!"}));      // sends the eliminated player tag to everyone's front end with the username
             });
