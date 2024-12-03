@@ -283,8 +283,8 @@ public class Player : MonoBehaviour
 
             
             carSpriteRenderer.transform.localScale = Vector3.one * jumpCurve.Evaluate(jumpCompletedPercentage) * jumpHeightScale;
-            carShadowRenderer.transform.localScale = carSpriteRenderer.transform.localScale * 0.8f;
-            carShadowRenderer.transform.position = new Vector3(1,-1,0.0f)*3*jumpCurve.Evaluate(jumpCompletedPercentage)*jumpHeightScale;
+            carShadowRenderer.transform.localScale = carSpriteRenderer.transform.localScale * 0.75f;
+            carShadowRenderer.transform.localPosition = new Vector3(1,-1,0.0f)*3*jumpCurve.Evaluate(jumpCompletedPercentage)*jumpHeightScale;
 
 
             if(jumpCompletedPercentage == 1.0f){
@@ -295,7 +295,7 @@ public class Player : MonoBehaviour
         }
         carSpriteRenderer.transform.localScale = Vector3.one;
         
-        carShadowRenderer.transform.position = Vector3.zero;
+        carShadowRenderer.transform.localPosition = Vector3.zero;
 
         carShadowRenderer.transform.localScale = carSpriteRenderer.transform.localScale;
 
