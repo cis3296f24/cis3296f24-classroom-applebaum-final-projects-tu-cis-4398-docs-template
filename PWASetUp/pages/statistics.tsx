@@ -11,6 +11,7 @@ import {
   SelectItem,
   Progress,
   Chip,
+  CircularProgress
 } from "@nextui-org/react"
 import { Line, Bar, Doughnut } from 'react-chartjs-2'
 import {
@@ -25,7 +26,7 @@ import {
   ArcElement,
   BarElement,
 } from 'chart.js'
-import db from '../database.js'
+import db, { getStats } from '../database.js'
 
 Chart.register(
   CategoryScale,
@@ -40,9 +41,32 @@ Chart.register(
 )
 
 interface WordData {
+  id?: number;
   word: string;
   count: number;
   timestamp: number;
+  severity?: string;
+  category?: string;
+}
+
+interface ChartData {
+  weeklyActivity: {
+    labels: string[];
+    datasets: Array<{
+      label: string;
+      data: number[];
+      borderColor: string;
+      backgroundColor: string;
+      tension: number;
+    }>;
+  };
+  profanityTrend: {
+    labels: string[];
+    datasets: Array<{
+      data: number[];
+      backgroundColor: string[];
+    }>;
+  };
 }
 
 const Statistics = () => {
@@ -53,47 +77,13 @@ const Statistics = () => {
   const [speechPace, setSpeechPace] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [dailyProgress, setDailyProgress] = useState(0)
-  const [weeklyGoal, setWeeklyGoal] = useState(5000) // Example goal
-
-  // Fetch data from database
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true)
-      try {
-        const words = await db.words.toArray()
-        setWordStats(words)
-        calculateStats(words)
-      } catch (error) {
-        console.error('Error fetching data:', error)
-      }
-      setIsLoading(false)
-    }
-
-    fetchData()
-    const interval = setInterval(fetchData, 5000) // Update every 5 seconds
-    return () => clearInterval(interval)
-  }, [timeRange])
-
-  const calculateStats = (words: WordData[]) => {
-    setTotalWords(words.length)
-    // Calculate profanity rate
-    const profanityWords = words.filter(w => wordbank.includes(w.word.toLowerCase()))
-    setProfanityRate((profanityWords.length / words.length) * 100)
-    // Calculate speech pace
-    const timeSpan = Math.max(...words.map(w => w.timestamp)) - Math.min(...words.map(w => w.timestamp))
-    setSpeechPace(Math.round((words.length / (timeSpan / 60000)) || 0))
-    // Calculate daily progress
-    const dailyWords = words.filter(w => w.timestamp > Date.now() - 86400000).length
-    setDailyProgress((dailyWords / weeklyGoal) * 100)
-  }
-
-  // Real-time data for charts
-  const speechData = {
+  const [weeklyGoal, setWeeklyGoal] = useState(5000)
+  const [speechData, setSpeechData] = useState<ChartData>({
     weeklyActivity: {
       labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
       datasets: [{
         label: 'Words Spoken',
-        data: Array(7).fill(0).map(() => Math.floor(Math.random() * 500) + 100),
+        data: Array(7).fill(0),
         borderColor: 'rgb(99, 102, 241)',
         backgroundColor: 'rgba(99, 102, 241, 0.5)',
         tension: 0.4,
@@ -102,7 +92,7 @@ const Statistics = () => {
     profanityTrend: {
       labels: ['Clean', 'Mild', 'Moderate', 'Severe'],
       datasets: [{
-        data: [70, 15, 10, 5],
+        data: [0, 0, 0, 0],
         backgroundColor: [
           'rgb(34, 197, 94)',
           'rgb(234, 179, 8)',
@@ -111,6 +101,88 @@ const Statistics = () => {
         ],
       }]
     }
+  })
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true)
+      try {
+        const words = await getStats(timeRange)
+        setWordStats(words)
+        calculateStats(words)
+        updateChartData(words)
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
+      setIsLoading(false)
+    }
+
+    fetchData()
+    const interval = setInterval(fetchData, 5000)
+    return () => clearInterval(interval)
+  }, [timeRange])
+
+  const calculateStats = (words: WordData[]) => {
+    setTotalWords(words.length)
+    
+    // Calculate profanity rate
+    const profanityWords = words.filter(w => w.severity !== 'clean')
+    setProfanityRate((profanityWords.length / words.length) * 100 || 0)
+    
+    // Calculate speech pace
+    const timeSpan = Math.max(...words.map(w => w.timestamp)) - Math.min(...words.map(w => w.timestamp))
+    setSpeechPace(Math.round((words.length / (timeSpan / 60000)) || 0))
+    
+    // Calculate daily progress
+    const dailyWords = words.filter(w => w.timestamp > Date.now() - 86400000).length
+    setDailyProgress((dailyWords / weeklyGoal) * 100)
+  }
+
+  const updateChartData = (words: WordData[]) => {
+    // Update weekly activity data
+    const weeklyData = Array(7).fill(0)
+    const now = new Date()
+    const dayOfWeek = now.getDay()
+
+    words.forEach(word => {
+      const wordDate = new Date(word.timestamp)
+      const dayDiff = Math.floor((now.getTime() - wordDate.getTime()) / (1000 * 60 * 60 * 24))
+      if (dayDiff < 7) {
+        const index = (dayOfWeek - dayDiff + 7) % 7
+        weeklyData[index] += 1
+      }
+    })
+
+    // Update profanity distribution data
+    const profanityData = {
+      clean: 0,
+      mild: 0,
+      moderate: 0,
+      severe: 0
+    }
+
+    words.forEach(word => {
+      if (word.severity) {
+        profanityData[word.severity.toLowerCase()] += 1
+      }
+    })
+
+    setSpeechData({
+      weeklyActivity: {
+        ...speechData.weeklyActivity,
+        datasets: [{
+          ...speechData.weeklyActivity.datasets[0],
+          data: weeklyData
+        }]
+      },
+      profanityTrend: {
+        ...speechData.profanityTrend,
+        datasets: [{
+          ...speechData.profanityTrend.datasets[0],
+          data: Object.values(profanityData)
+        }]
+      }
+    })
   }
 
   const exportStats = async () => {
@@ -130,6 +202,18 @@ const Statistics = () => {
     a.click()
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
+  }
+
+  if (isLoading) {
+    return (
+      <Page>
+        <Section>
+          <div className="flex justify-center items-center h-screen">
+            <CircularProgress size="lg" />
+          </div>
+        </Section>
+      </Page>
+    )
   }
 
   return (
