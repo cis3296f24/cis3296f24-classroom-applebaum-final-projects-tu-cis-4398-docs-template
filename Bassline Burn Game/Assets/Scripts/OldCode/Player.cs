@@ -59,6 +59,9 @@ public class Player : MonoBehaviour
     
     //public PlayerInputActions playerControls;
 
+
+    CarSurfaceHandler carSurfaceHandler;
+
     [Header("Inputs")]
     public InputAction playerMovement;
     public InputAction playerRadioNext;
@@ -94,8 +97,7 @@ public class Player : MonoBehaviour
 
     void Start()
     {
-        
-
+        carSurfaceHandler = GetComponent<CarSurfaceHandler>();
         rb = GetComponent<Rigidbody2D>();
         radio = GetComponent<Radio>();
         ChangeStats(radio.currentStation);
@@ -180,7 +182,17 @@ public class Player : MonoBehaviour
             rb.drag = Mathf.Lerp(rb.drag,3.0f,Time.fixedDeltaTime*3);
         }
         else{
-            rb.drag = 0;
+            rb.drag = Mathf.Lerp(rb.drag,0,Time.fixedDeltaTime*10);
+        }
+
+        switch(GetSurface()){
+            case Surface.SurfaceTypes.Offroad: 
+                rb.drag = Mathf.Lerp(rb.drag,9.0f,Time.fixedDeltaTime*3);
+                break;
+            case Surface.SurfaceTypes.Hazard:
+                rb.drag = 0;
+                moveInput = Mathf.Clamp(moveInput, 0, 1.0f);
+                break;
         }
         Vector2 engineForceVector = transform.up *moveInput * base_acceleration * boostMultiplier;
         rb.AddForce(engineForceVector,ForceMode2D.Force);
@@ -268,6 +280,12 @@ public class Player : MonoBehaviour
         return false;
     }
 
+    public Surface.SurfaceTypes GetSurface(){
+        return carSurfaceHandler.GetCurrentSurface();
+    }
+
+
+
     public void Jump(float jumpHeightScale, float jumpPushScale){
         if(!isJumping){
             StartCoroutine(JumpCo(jumpHeightScale, jumpPushScale));
@@ -284,7 +302,7 @@ public class Player : MonoBehaviour
             
             carSpriteRenderer.transform.localScale = Vector3.one * jumpCurve.Evaluate(jumpCompletedPercentage) * jumpHeightScale;
             carShadowRenderer.transform.localScale = carSpriteRenderer.transform.localScale * 0.75f;
-            carShadowRenderer.transform.localPosition = new Vector3(1,-1,0.0f)*3*jumpCurve.Evaluate(jumpCompletedPercentage)*jumpHeightScale;
+            carShadowRenderer.transform.localPosition = new Vector3(0.1f,-0.25f,0.0f)*jumpCurve.Evaluate(jumpCompletedPercentage)*jumpHeightScale;
 
 
             if(jumpCompletedPercentage == 1.0f){

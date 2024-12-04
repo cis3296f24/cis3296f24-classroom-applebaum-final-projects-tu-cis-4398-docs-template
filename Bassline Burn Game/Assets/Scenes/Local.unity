@@ -570,7 +570,8 @@ GameObject:
   - component: {fileID: 105329871}
   - component: {fileID: 105329870}
   - component: {fileID: 105329872}
-  m_Layer: 0
+  - component: {fileID: 105329873}
+  m_Layer: 9
   m_Name: OffRoad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31352,7 +31353,7 @@ TilemapCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 105329867}
-  m_Enabled: 0
+  m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -31374,13 +31375,26 @@ TilemapCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   m_MaximumTileChangeCount: 1000
   m_ExtrusionFactor: 0
   m_UseDelaunayMesh: 0
+--- !u!114 &105329873
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 105329867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b185943c214392741aab6d0123cc844c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  surfaceType: 1
 --- !u!1 &142753204
 GameObject:
   m_ObjectHideFlags: 0
@@ -31989,7 +32003,7 @@ GameObject:
   - component: {fileID: 300649055}
   - component: {fileID: 300649054}
   - component: {fileID: 300649053}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: TrueOutOfBounds
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39892,6 +39906,7 @@ GameObject:
   - component: {fileID: 390441298}
   - component: {fileID: 390441296}
   - component: {fileID: 390441295}
+  - component: {fileID: 390441301}
   - component: {fileID: 390441294}
   - component: {fileID: 390441299}
   - component: {fileID: 390441300}
@@ -40184,7 +40199,7 @@ Transform:
   m_GameObject: {fileID: 390441293}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.132, z: 0}
+  m_LocalPosition: {x: -1.5, y: 0.024, z: 0}
   m_LocalScale: {x: 0.8, y: 0.8, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -40209,7 +40224,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 592aefa93c03848eda78e81ca634cfd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioMixer: {fileID: 0}
+  audioMixer: {fileID: 24100000, guid: 2a04437dd0b1f5245bcb64fc1bd5b927, type: 2}
   radioStations: []
   currentStation: 0
   waitBeforeOff: 15
@@ -40225,6 +40240,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f8af789e7b7ce3428c0655a90395a5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &390441301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 390441293}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2ffe5b20c7a44e429daba797cad442b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  surfaceLayer:
+    serializedVersion: 2
+    m_Bits: 512
 --- !u!1 &411308658
 GameObject:
   m_ObjectHideFlags: 0
@@ -40365,7 +40395,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 592aefa93c03848eda78e81ca634cfd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioMixer: {fileID: 0}
+  audioMixer: {fileID: 24100000, guid: 611efc4ee942841e8a4211338783c594, type: 2}
   radioStations: []
   currentStation: 0
   waitBeforeOff: 15
@@ -40651,7 +40681,7 @@ Transform:
   m_GameObject: {fileID: 429077379}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.528, y: 0.024, z: 0}
+  m_LocalPosition: {x: 1.5, y: 0.024, z: 0}
   m_LocalScale: {x: 0.8, y: 0.8, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -41144,7 +41174,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   audioSource: {fileID: 0}
   stationClips: []
-  currentClip: {fileID: 0}
+  currentClip: {fileID: 8300000, guid: 5b5c23666bb3d4b4ab2ed99bf611a813, type: 3}
   currentClipNumber: 0
   currentRadio: 0
   stopRadio: 0
@@ -46927,7 +46957,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   audioSource: {fileID: 0}
   stationClips: []
-  currentClip: {fileID: 0}
+  currentClip: {fileID: 8300000, guid: 5b5c23666bb3d4b4ab2ed99bf611a813, type: 3}
   currentClipNumber: 0
   currentRadio: 0
   stopRadio: 0
@@ -47185,7 +47215,8 @@ GameObject:
   - component: {fileID: 1154127398}
   - component: {fileID: 1154127400}
   - component: {fileID: 1154127399}
-  m_Layer: 0
+  - component: {fileID: 1154127401}
+  m_Layer: 9
   m_Name: Track
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -73330,6 +73361,19 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!114 &1154127401
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1154127397}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b185943c214392741aab6d0123cc844c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  surfaceType: 0
 --- !u!1 &1243262979
 GameObject:
   m_ObjectHideFlags: 0
@@ -73472,7 +73516,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   audioSource: {fileID: 0}
   stationClips: []
-  currentClip: {fileID: 0}
+  currentClip: {fileID: 8300000, guid: 3a1c346d9d4a7c540b9ea7147b88b277, type: 3}
   currentClipNumber: 0
   currentRadio: 0
   stopRadio: 0
@@ -73625,9 +73669,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1285229509}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d82a459c34881b1459ddf9e6eab39444, type: 3}
+  m_Script: {fileID: 11500000, guid: fa77a20931801445bb15fb1a477bffdf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  target: {fileID: 429077383}
+  distanceMultiplier: 3
+  responsiveness: 0.1
+  maxOffset: 5
 --- !u!114 &1285229512
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -75291,9 +75339,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1742960934}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d82a459c34881b1459ddf9e6eab39444, type: 3}
+  m_Script: {fileID: 11500000, guid: fa77a20931801445bb15fb1a477bffdf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  target: {fileID: 390441295}
+  distanceMultiplier: 3
+  responsiveness: 0.1
+  maxOffset: 5
 --- !u!1 &1744077411
 GameObject:
   m_ObjectHideFlags: 0
@@ -80299,7 +80351,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   audioSource: {fileID: 0}
   stationClips: []
-  currentClip: {fileID: 0}
+  currentClip: {fileID: 8300000, guid: 3a1c346d9d4a7c540b9ea7147b88b277, type: 3}
   currentClipNumber: 0
   currentRadio: 0
   stopRadio: 0
@@ -80868,7 +80920,7 @@ SpriteRenderer:
   m_SortingLayer: 1
   m_SortingOrder: 0
   m_Sprite: {fileID: 1665230257, guid: 1182684bda892c349b7243dd8a122672, type: 3}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.7058824}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
