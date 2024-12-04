@@ -34,13 +34,34 @@ interface Window {
 }
 
 const Index = () => {
+  const [wordbank, setWordbank] = useState<string[]>([]);
+  const [fillerWords, setFillerWords] = useState<string[]>([]);
+
+  // Load word lists function
+  const loadWordLists = async () => {
+    try {
+      const response = await fetch('wordbank.json');
+      if (!response.ok) throw new Error(`Failed to fetch wordbank.json: ${response.statusText}`);
+      const data = await response.json();
+      setWordbank(data.curseWords || []);
+      setFillerWords(data.fillerWords || []);
+      console.log("Word lists loaded:", { wordbank, fillerWords });
+    } catch (error) {
+      console.error("Error loading word lists:", error);
+    }
+  };
+
+  useEffect(() => {
+    loadWordLists(); // Calls the function after component mounts
+  }, []);
+
   const [isMicActive, setIsMicActive] = useState(false); 
   const [isBadWordDetected, setIsBadWordDetected] = useState(false);
   const [bannedWords, setBannedWords] = useState<string[]>([]);
 
   const handleMicToggle = () => {
     setIsMicActive((prevState) => !prevState);
-    speechToText(!isMicActive, handleBadWordDetected); // Pass the new state to speechToText
+    speechToText(!isMicActive, handleBadWordDetected, wordbank); // Pass the new state to speechToText
   };
   const handleBadWordDetected = () => {
     setIsBadWordDetected(true);
@@ -77,7 +98,7 @@ const Index = () => {
 
 let recognition: any = null;
 
-function speechToText(isActive: boolean, handleBadWordDetected: () => void): void {
+function speechToText(isActive: boolean, handleBadWordDetected: () => void, wordbank: string[]): void {
   const output = document.getElementById('output') as HTMLElement | null;
   const detectedWordsOutput = document.getElementById('detectedWords') as HTMLElement | null;
 
@@ -95,25 +116,8 @@ function speechToText(isActive: boolean, handleBadWordDetected: () => void): voi
 
   }
   
-// Declare global variables
-let wordbank: string[] = [];
-let fillerWords: string[] = [];
-let sessionWordCounts = new Map<string, number>();
-let detectedWordsList: string[] = [];
-
-// Load wordbank.json
-async function loadWordLists() {
-  try {
-    const response = await fetch('wordbank.json'); // Adjust the path
-    if (!response.ok) throw new Error(`Failed to fetch wordbank.json: ${response.statusText}`);
-    const data = await response.json();
-    wordbank = data.wordbank || [];
-    fillerWords = data.fillerWords || [];
-    console.log("Word lists loaded:", { wordbank, fillerWords });
-  } catch (error) {
-    console.error("Error loading word lists:", error);
-  }
-}
+  let sessionWordCounts = new Map<string, number>();
+  let detectedWordsList: string[] = [];
 
 // Function to add or increment word count in the database
 async function updateWordCount(word: string) {
@@ -158,7 +162,7 @@ recognition.addEventListener('result', async (event: SpeechRecognitionEvent) => 
       await updateWordCount(word); // Increment count for all words
   
       // Special handling for words in the wordbank
-      if (wordbank.includes(word) || fillerWords.includes(word)) {
+      if (wordbank.includes(word)) {
         vibrationPattern();
         detectedWordsList.push(`${word} (${currentTranscriptCount})`);
       }
