@@ -33,14 +33,37 @@ interface Window {
   webkitSpeechRecognition: any;
 }
 
+export let fullTranscriptGlobal: string = "";
+
 const Index = () => {
+  const [wordbank, setWordbank] = useState<string[]>([]);
+  const [fillerWords, setFillerWords] = useState<string[]>([]);
+
+  // Load word lists function
+  const loadWordLists = async () => {
+    try {
+      const response = await fetch('wordbank.json');
+      if (!response.ok) throw new Error(`Failed to fetch wordbank.json: ${response.statusText}`);
+      const data = await response.json();
+      setWordbank(data.curseWords || []);
+      setFillerWords(data.fillerWords || []);
+      console.log("Word lists loaded:", { wordbank, fillerWords });
+    } catch (error) {
+      console.error("Error loading word lists:", error);
+    }
+  };
+
+  useEffect(() => {
+    loadWordLists(); // Calls the function after component mounts
+  }, []);
+
   const [isMicActive, setIsMicActive] = useState(false); 
   const [isBadWordDetected, setIsBadWordDetected] = useState(false);
   const [bannedWords, setBannedWords] = useState<string[]>([]);
 
   const handleMicToggle = () => {
     setIsMicActive((prevState) => !prevState);
-    speechToText(!isMicActive, handleBadWordDetected); // Pass the new state to speechToText
+    speechToText(!isMicActive, handleBadWordDetected, wordbank); // Pass the new state to speechToText
   };
   const handleBadWordDetected = () => {
     setIsBadWordDetected(true);
@@ -70,6 +93,7 @@ const Index = () => {
         <div>
           <ModifyBannedText bannedWords={bannedWords} setBannedWords={setBannedWords}/>
         </div>
+        <p id="fullTranscript" className='text-center font-semibold text-2xl'></p>
       </Section>
     </Page>
   );
@@ -77,9 +101,11 @@ const Index = () => {
 
 let recognition: any = null;
 
-function speechToText(isActive: boolean, handleBadWordDetected: () => void): void {
+function speechToText(isActive: boolean, handleBadWordDetected: () => void, wordbank: string[]): void {
   const output = document.getElementById('output') as HTMLElement | null;
   const detectedWordsOutput = document.getElementById('detectedWords') as HTMLElement | null;
+  const fullTranscript = document.getElementById('fullTranscript') as HTMLElement | null;
+
 
   const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
@@ -94,67 +120,6 @@ function speechToText(isActive: boolean, handleBadWordDetected: () => void): voi
     recognition.continuous = true;
 
   }
-  
-
-  const wordbank: string[] = [
-    "ass",
-    "bitch",
-    "chink",
-    "coon",
-    "crazy",
-    "crip",
-    "cuck",
-    "cunt",
-    "dick",
-    "douche",
-    "douchebag",
-    "dyke",
-    "fag",
-    "faggot",
-    "fatass",
-    "fuck",
-    "gook",
-    "gyp",
-    "gypsy",
-    "half-breed",
-    "halfbreed",
-    "homo",
-    "hooker",
-    "inbred",
-    "idiot",
-    "insane",
-    "insanity",
-    "lesbo",
-    "negress",
-    "negro",
-    "nig",
-    "nigga",
-    "nigger",
-    "pajeet",
-    "prostitute",
-    "pussie",
-    "pussy",
-    "retard",
-    "shemale",
-    "shit",
-    "skank",
-    "slut",
-    "soyboy",
-    "sperg",
-    "spic",
-    "tard",
-    "tits",
-    "tit",
-    "titty",
-    "trannie",
-    "tranny",
-    "twat",
-    "whore",
-    "wigger",
-    "hello",
-    "we",
-    "you"
-  ]
   
   let sessionWordCounts = new Map<string, number>();
   let detectedWordsList: string[] = [];
@@ -180,6 +145,8 @@ recognition.addEventListener('result', async (event: SpeechRecognitionEvent) => 
     .map(result => result[0].transcript)
     .join(' ')
     .toLowerCase();
+
+    fullTranscriptGlobal = fullTranscript; // Assigning to global variable
 
   //get latest word 
   const currentWord = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
@@ -217,6 +184,7 @@ recognition.addEventListener('result', async (event: SpeechRecognitionEvent) => 
 
   recognition.addEventListener('end', () => {
     console.log("SpeechRecognition stopped")
+    console.log(fullTranscriptGlobal);
   });
 
   if (isActive) {
@@ -228,6 +196,7 @@ recognition.addEventListener('result', async (event: SpeechRecognitionEvent) => 
     };
 
 }
+
 function vibrationPattern(): void {
   const patterns = [
     2000,
