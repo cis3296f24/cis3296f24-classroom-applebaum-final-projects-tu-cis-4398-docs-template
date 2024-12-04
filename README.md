@@ -48,6 +48,25 @@ A laptop with audio recording capabilities. Cellular devices (both android and a
 ### Additional Needs:
 
 Development of predefined dictionaries for word categorization (filler words, conjunctions, profanities).
+
+##UseCase 3:
+ Getting GPT input from a speach file
+
+```mermaid
+sequenceDiagram
+    actor Alice
+    participant S as Server/Middleware
+    participant I as InputFeild
+    participant O as OpenAI
+    participant D as Display
+
+    Alice ->> I: Inputs a file and request chatGTP to look at it
+    Alice -->> D: Looks at Display for respone
+    I ->> S: Sends a request to OpenAI
+    O ->> S: Sends GTP Response 
+    S ->> D: Displays GTP Response 
+```
+
 ## Collaborators
 
 [//]: # ( readme: collaborators -start )

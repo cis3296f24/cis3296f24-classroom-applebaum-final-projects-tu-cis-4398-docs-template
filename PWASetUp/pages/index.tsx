@@ -1,9 +1,11 @@
 import Page from '../components/page'
 import Section from '../components/section'
 import { Button } from '@nextui-org/react'
-import { useEffect } from 'react'
 import RingDevice from '../components/Ring';
 import db from '../database.js';
+import MicCard from 'components/microphone-card';
+import ModifyBannedText from 'components/modify-banned';
+import React, {useState, useEffect} from 'react';
 
 // Type definitions for Speech Recognition
 interface SpeechRecognitionEvent {
@@ -32,35 +34,51 @@ interface Window {
 }
 
 const Index = () => {
-  useEffect(() => {
-    speechToText();
-  }, []);
+  const [isMicActive, setIsMicActive] = useState(false); 
+  const [isBadWordDetected, setIsBadWordDetected] = useState(false);
+  const [bannedWords, setBannedWords] = useState<string[]>([]);
 
+  const handleMicToggle = () => {
+    setIsMicActive((prevState) => !prevState);
+    speechToText(!isMicActive, handleBadWordDetected); // Pass the new state to speechToText
+  };
+  const handleBadWordDetected = () => {
+    setIsBadWordDetected(true);
+    setTimeout(() => setIsBadWordDetected(false), 1000); //reset after 1 sec
+  };
+    
   return (
     <Page>
+      <div className='justify-center w-auto h-auto'>
+        <h2 className = 'text-center font-semibold text-2xl'>Welcome to SpeakSense.</h2>
+        <br></br>
+        <h3 className = 'text-center font-normal text-4xl'>record yourself speaking by pressing the button, and don't, seriously don't, say bad words... <span className='font-black'>or else.</span></h3>
+      </div>
       <Section>
-        <h2 className='text-xl font-semibold text-zinc-800 dark:text-zinc-200'>
-          Record AND GET SHOCKED
-        </h2>
-
+        <div id="micbutton" className='justify-center items-center w-auto'>
+          <MicCard isMicActive={isMicActive} isBadWordDetected = {isBadWordDetected} onToggleMic={handleMicToggle}/>
+        </div>
+        <br></br>
         <div id="speech">
-          <Button color='primary' id="start"> Start speaking </Button>
-          <Button color='primary' id="stop"> Stop speaking </Button>
-          <br></br>
-          <Button color='primary' onClick={vibrationPattern}> Vibrate</Button>
-          <RingDevice />
-          <p id="output"></p>
+          <p id="output" className='text-center font-semibold text-2xl'></p>
           <p id="detectedWords"></p>
+        </div>
+        <br/>
+        <p> this is where we test other functions bc otherwise this looks good i think</p>
+        <RingDevice/>
+        <br/>
+        <div>
+          <ModifyBannedText bannedWords={bannedWords} setBannedWords={setBannedWords}/>
         </div>
       </Section>
     </Page>
   );
 };
 
-function speechToText(): void {
+let recognition: any = null;
+
+function speechToText(isActive: boolean, handleBadWordDetected: () => void): void {
   const output = document.getElementById('output') as HTMLElement | null;
-  const startButton = document.getElementById('start') as HTMLButtonElement | null;
-  const stopButton = document.getElementById('stop') as HTMLButtonElement | null;
   const detectedWordsOutput = document.getElementById('detectedWords') as HTMLElement | null;
 
   const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -69,11 +87,14 @@ function speechToText(): void {
     alert("Your browser does not support the SpeechRecognition API");
     return;
   }
+  if (!recognition) {
+    recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = true;
+    recognition.continuous = true;
 
-  const recognition = new SpeechRecognition();
-  recognition.lang = 'en-US';
-  recognition.interimResults = true;
-  recognition.continuous = true;
+  }
+  
 
   const wordbank: string[] = [
     "ass",
@@ -155,17 +176,19 @@ async function updateWordCount(word: string) {
 
 
 recognition.addEventListener('result', async (event: SpeechRecognitionEvent) => {
-  const transcript = Array.from(event.results)
+  const fullTranscript = Array.from(event.results) //full transcript
     .map(result => result[0].transcript)
     .join(' ')
     .toLowerCase();
 
+  //get latest word 
+  const currentWord = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
   // Display full transcript on the screen
   if (output) {
-    output.innerText = transcript;
+    output.innerText = currentWord;
   }
 
-  const wordsInTranscript = transcript.split(/\s+/);
+  const wordsInTranscript = fullTranscript.split(/\s+/);
 
   for (const word of wordsInTranscript) {
     const currentSessionCount = sessionWordCounts.get(word) || 0;
@@ -183,37 +206,28 @@ recognition.addEventListener('result', async (event: SpeechRecognitionEvent) => 
         vibrationPattern();
         detectedWordsList.push(`${word} (${currentTranscriptCount})`);
       }
+      handleBadWordDetected(); //trigger bad word detected color
     }
-  }
+  };
 
   if (detectedWordsOutput) {
     detectedWordsOutput.innerText = "Detected words: " + detectedWordsList.join(', ');
   }
 });
 
-  recognition.addEventListener('start', () => {
-    if (startButton) startButton.disabled = true;
-    if (stopButton) stopButton.disabled = false;
-  });
-
   recognition.addEventListener('end', () => {
-    if (startButton) startButton.disabled = false;
-    if (stopButton) stopButton.disabled = true;
+    console.log("SpeechRecognition stopped")
   });
 
-  if (startButton) {
-    startButton.addEventListener('click', () => {
+  if (isActive) {
       recognition.start();
-    });
-  }
-
-  if (stopButton) {
-    stopButton.addEventListener('click', () => {
+      console.log("SpeechRecognition Started. ");
+    }else{
       recognition.stop();
-    });
-  }
-}
+      console.log("SpeechRecognition Stopped. ");
+    };
 
+}
 function vibrationPattern(): void {
   const patterns = [
     2000,
