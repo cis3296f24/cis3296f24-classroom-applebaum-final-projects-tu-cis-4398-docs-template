@@ -95,69 +95,27 @@ function speechToText(isActive: boolean, handleBadWordDetected: () => void): voi
 
   }
   
+// Declare global variables
+let wordbank: string[] = [];
+let fillerWords: string[] = [];
+let sessionWordCounts = new Map<string, number>();
+let detectedWordsList: string[] = [];
 
-  const wordbank: string[] = [
-    "ass",
-    "bitch",
-    "chink",
-    "coon",
-    "crazy",
-    "crip",
-    "cuck",
-    "cunt",
-    "dick",
-    "douche",
-    "douchebag",
-    "dyke",
-    "fag",
-    "faggot",
-    "fatass",
-    "fuck",
-    "gook",
-    "gyp",
-    "gypsy",
-    "half-breed",
-    "halfbreed",
-    "homo",
-    "hooker",
-    "inbred",
-    "idiot",
-    "insane",
-    "insanity",
-    "lesbo",
-    "negress",
-    "negro",
-    "nig",
-    "nigga",
-    "nigger",
-    "pajeet",
-    "prostitute",
-    "pussie",
-    "pussy",
-    "retard",
-    "shemale",
-    "shit",
-    "skank",
-    "slut",
-    "soyboy",
-    "sperg",
-    "spic",
-    "tard",
-    "tits",
-    "tit",
-    "titty",
-    "trannie",
-    "tranny",
-    "twat",
-    "whore",
-    "wigger",
-    "hello",
-    "we",
-    "you"
-  ]
-  
-  let sessionWordCounts = new Map<string, number>();
-  let detectedWordsList: string[] = [];
+// Load wordbank.json
+async function loadWordLists() {
+  try {
+    const response = await fetch('wordbank.json'); // Adjust the path
+    if (!response.ok) throw new Error(`Failed to fetch wordbank.json: ${response.statusText}`);
+    const data = await response.json();
+
+    // Assign data to global variables
+    wordbank = data.wordbank || [];
+    fillerWords = data.fillerWords || [];
+    console.log('Wordbank and filler words loaded successfully');
+  } catch (error) {
+    console.error('Error loading word lists:', error);
+  }
+}
 
 // Function to add or increment word count in the database
 async function updateWordCount(word: string) {
