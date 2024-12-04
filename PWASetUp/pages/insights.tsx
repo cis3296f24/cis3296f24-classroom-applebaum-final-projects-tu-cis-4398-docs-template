@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Page from '../components/page';
 import Section from '../components/section';
+import { fullTranscriptGlobal } from 'pages'
 
 const Insights = () => {
   // Set up state to store the API result

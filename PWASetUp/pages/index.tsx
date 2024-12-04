@@ -33,6 +33,8 @@ interface Window {
   webkitSpeechRecognition: any;
 }
 
+export let fullTranscriptGlobal: string = "";
+
 const Index = () => {
   const [wordbank, setWordbank] = useState<string[]>([]);
   const [fillerWords, setFillerWords] = useState<string[]>([]);
@@ -91,6 +93,7 @@ const Index = () => {
         <div>
           <ModifyBannedText bannedWords={bannedWords} setBannedWords={setBannedWords}/>
         </div>
+        <p id="fullTranscript" className='text-center font-semibold text-2xl'></p>
       </Section>
     </Page>
   );
@@ -101,6 +104,8 @@ let recognition: any = null;
 function speechToText(isActive: boolean, handleBadWordDetected: () => void, wordbank: string[]): void {
   const output = document.getElementById('output') as HTMLElement | null;
   const detectedWordsOutput = document.getElementById('detectedWords') as HTMLElement | null;
+  const fullTranscript = document.getElementById('fullTranscript') as HTMLElement | null;
+
 
   const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
@@ -141,6 +146,8 @@ recognition.addEventListener('result', async (event: SpeechRecognitionEvent) => 
     .join(' ')
     .toLowerCase();
 
+    fullTranscriptGlobal = fullTranscript; // Assigning to global variable
+
   //get latest word 
   const currentWord = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
   // Display full transcript on the screen
@@ -177,6 +184,7 @@ recognition.addEventListener('result', async (event: SpeechRecognitionEvent) => 
 
   recognition.addEventListener('end', () => {
     console.log("SpeechRecognition stopped")
+    console.log(fullTranscriptGlobal);
   });
 
   if (isActive) {
@@ -188,6 +196,7 @@ recognition.addEventListener('result', async (event: SpeechRecognitionEvent) => 
     };
 
 }
+
 function vibrationPattern(): void {
   const patterns = [
     2000,
