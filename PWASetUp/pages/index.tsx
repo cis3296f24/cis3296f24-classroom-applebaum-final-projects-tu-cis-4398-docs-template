@@ -107,13 +107,11 @@ async function loadWordLists() {
     const response = await fetch('wordbank.json'); // Adjust the path
     if (!response.ok) throw new Error(`Failed to fetch wordbank.json: ${response.statusText}`);
     const data = await response.json();
-
-    // Assign data to global variables
     wordbank = data.wordbank || [];
     fillerWords = data.fillerWords || [];
-    console.log('Wordbank and filler words loaded successfully');
+    console.log("Word lists loaded:", { wordbank, fillerWords });
   } catch (error) {
-    console.error('Error loading word lists:', error);
+    console.error("Error loading word lists:", error);
   }
 }
 
@@ -160,7 +158,7 @@ recognition.addEventListener('result', async (event: SpeechRecognitionEvent) => 
       await updateWordCount(word); // Increment count for all words
   
       // Special handling for words in the wordbank
-      if (wordbank.includes(word)) {
+      if (wordbank.includes(word) || fillerWords.includes(word)) {
         vibrationPattern();
         detectedWordsList.push(`${word} (${currentTranscriptCount})`);
       }
