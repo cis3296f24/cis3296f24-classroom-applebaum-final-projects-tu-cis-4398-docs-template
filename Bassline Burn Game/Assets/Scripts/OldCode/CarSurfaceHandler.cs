@@ -24,7 +24,7 @@ public class CarSurfaceHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if((transform.position - lastSampledSurfacePosition).sqrMagnitude < 0.75f){
+        if((transform.position - lastSampledSurfacePosition).sqrMagnitude < 0.05f){
             return;
         }
         ContactFilter2D contactFilter2D = new ContactFilter2D();
@@ -47,7 +47,7 @@ public class CarSurfaceHandler : MonoBehaviour
             drivingOnSurface = Surface.SurfaceTypes.Track;
         }
         lastSampledSurfacePosition = transform.position;
-        Debug.Log($"Driving on {drivingOnSurface}");
+        // Debug.Log($"Driving on {drivingOnSurface}");
     }
 
     public Surface.SurfaceTypes GetCurrentSurface(){
