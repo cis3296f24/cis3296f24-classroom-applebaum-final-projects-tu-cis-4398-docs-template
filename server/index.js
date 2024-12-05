@@ -79,6 +79,7 @@ wss.on('connection', (ws) => {
             handleVoting(playerName, data.playerName);                                                                  // when the vote message is received it runs the voting function
         } else if (data.type === 'startVote') {
             alivePlayers = players.filter(player => !player.eliminated);
+            gamePhase = data.gamePhase;
             players.forEach(player => {
                 player.ws.send(JSON.stringify({ type: 'sync'}));   // sync
             });                                                                         // listens for the signal to begin the voting phase
@@ -144,9 +145,8 @@ function checkPlayerNameValid(playerName, ws) {                                 
         console.log("Day Timer: " + dayTimer);                                                 // runs through a loop (1000 ms/1 sec) doing the following...
         dayTimer--;
 
-        if (dayTimer <= 0) {                                                               // checks if the timer is at 0
-            clearInterval(timerInterval);                                               // stops timer if it hits 0
-            doPhaseChange();                                                            // runs phase change function
+        if (dayTimer < 0) {                                                               // checks if the timer is at 0
+            clearInterval(timerInterval);                                               // stops timer if it hits 0                                                        
         } else {
             players.forEach(player => { 
                 player.ws.send(JSON.stringify({ type: 'timer', timeLeft: dayTimer }));     // sends out the current timer number to all users' frontend
@@ -168,9 +168,8 @@ function beginNightTimer() {
         console.log("Night Timer: " + nightTimer);                                                 // runs through a loop (1000 ms/1 sec) doing the following...
         nightTimer--;
 
-        if (nightTimer <= 0) {                                                               // checks if the timer is at 0
+        if (nightTimer < 0) {                                                               // checks if the timer is at 0
             clearInterval(timerInterval);                                               // stops timer if it hits 0
-            doPhaseChange();                                                            // runs phase change function
         } else {
             players.forEach(player => { 
                 player.ws.send(JSON.stringify({ type: 'timer', timeLeft: nightTimer }));     // sends out the current timer number to all users' frontend

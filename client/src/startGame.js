@@ -31,7 +31,7 @@ function StartGame() {
         return;
         } else if (ws) {
             if (!voting) {
-                ws.send(JSON.stringify({ type: 'startVote'}));                      // immediately after the start button is clicked, this sends the 'startVote' tag to the backend to activate the voting phase
+                ws.send(JSON.stringify({ type: 'startVote', gamePhase: 'DAY'}));                      // immediately after the start button is clicked, this sends the 'startVote' tag to the backend to activate the voting phase
             }
             const handleMessage = (event) => {
                 const data = JSON.parse(event.data);
@@ -61,12 +61,12 @@ function StartGame() {
                 } else if (data.type === 'dead') {                                                  // if this person receives this dead data type, then they have been eliminated and will be routed to the dead screen
                     navigate('/Dead');
                 } else if (data.type === 'timer') {
-                    if(data.timeLeft === 1){
+                    if(data.timeLeft === 0){
                         if(!voted){ //checks if didnt vote then sends empty vote
                             console.log("voting for no one!")
                             ws.send(JSON.stringify({ type: 'vote', playerName: null}));
                         }   
-                    } else if (data.timeLeft > 1){
+                    } else if (data.timeLeft > 0){
                         speak(Tick);
                     }
                     setTimeLeft(data.timeLeft);                                                     // sets the local timer based on the server timer

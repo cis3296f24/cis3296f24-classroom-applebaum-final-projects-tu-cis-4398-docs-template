@@ -33,7 +33,7 @@ function Night() {
       return;
     } else if (ws) {  
       if (!voting) {
-        ws.send(JSON.stringify({ type: 'startVote'}));
+        ws.send(JSON.stringify({ type: 'startVote', gamePhase: 'NIGHT'}));
         speak(MafiaCall);
       }
       const handleMessage = (event) => {
@@ -63,12 +63,12 @@ function Night() {
         } else if (data.type === 'dead') {                                                  // if this person receives this dead data type, then they have been eliminated and will be routed to the dead screen
             navigate('/Dead');
         } else if (data.type === 'timer') {
-          if(data.timeLeft === 1){
+          if(data.timeLeft === 0){
             if(!voted){ //checks if didnt vote then sends empty vote
               console.log("Null vote");
                 ws.send(JSON.stringify({ type: 'vote', playerName: null}));
             }   
-        } else if (data.timeLeft > 1){ 
+        } else if (data.timeLeft > 0){ 
           speak(Tick);
       }
             setTimeLeft(data.timeLeft);                                                       // sets the local timer based on the server timer
