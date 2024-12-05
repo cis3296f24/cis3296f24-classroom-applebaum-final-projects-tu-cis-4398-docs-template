@@ -16,6 +16,7 @@ let dayTimer;                                                   // stores the ni
 let nightTimer;                                                  // stores the day timer number
 let gamePhase = 'DAY';                                          // stores the default game phase
 let timerInterval = null;
+let alivePlayers = []; 
 
 app.use(express.static('public'));
 
@@ -76,9 +77,10 @@ wss.on('connection', (ws) => {
             }
         } else if (data.type === 'vote') {
             handleVoting(playerName, data.playerName);                                                                  // when the vote message is received it runs the voting function
-        } else if (data.type === 'startVote') {                                                                         // listens for the signal to begin the voting phase
+        } else if (data.type === 'startVote') {
+            alivePlayers = players.filter(player => !player.eliminated);                                                                         // listens for the signal to begin the voting phase
             players.forEach(player => {
-                player.ws.send(JSON.stringify({ type: 'startVoting', players: players.map(player => player.name) }));   // sends the voting button signal to each player's frontend
+                player.ws.send(JSON.stringify({ type: 'startVoting', players: players.map(player => player.name), alivePlayers: alivePlayers.map(player => player.name) }));   // sends the voting button signal to each player's frontend
             });
         } else if (data.type === 'newNightTimer') {
             console.log("received night Timer [" + data.nightLength + "].");                                                  // debugging
@@ -263,31 +265,43 @@ function handleVoting(playerName, targetPlayer) {
     }
 
     votingPlayer.voteFor(targetPlayer);                                         // updates the voting player' object to signify they have voted, and they have voted for target player               
+    
+    let votingPlayers;
 
-    const alivePlayers = players.filter(player => !player.eliminated);          // filters out the dead players and assigns the remaining to alivePlayers
+    if(gamePhase === 'DAY'){
+        votingPlayers = alivePlayers.map(player => player);          // filters out the dead players and assigns the remaining to alivePlayers
+    } else{
+        votingPlayers = alivePlayers.filter(player => player.role !== 'Citizen');
+    }  
+
     const votedPlayers = alivePlayers.filter(player => player.hasVoted);        // of the alive players, it filters out the players that have voted and assigns them into votedPLayers
 
-    if (votedPlayers.length === alivePlayers.length) {                          // checks if the number of players who voted matches the number of alive players
+    if (votedPlayers.length === votingPlayers.length) {   
+        console.log("hi");                       // checks if the number of players who voted matches the number of alive players
         const voteCounts = {};                                                  // stores the vote tally for each player
 
-        alivePlayers.forEach(player => {
+        votingPlayers.forEach(player => {
             const votedFor = player.targetVote;
-            if (votedFor) {
-                voteCounts[votedFor] = (voteCounts[votedFor] || 0) + 1;         // adds a vote tally to the target player if there is a vote for them, otherwise it defaults to zero
-            }
+            voteCounts[votedFor] = (voteCounts[votedFor] || 0) + 1;         // adds a vote tally to the target player if there is a vote for them, otherwise it defaults to zero
         });
 
         let maxVotes = -1;                                                      // sets the initial vote count for every player to -1
         let eliminatedPlayer = null;                                            // default sets the eliminated player for each round to null
         let eliminatedTeam = null                                               // default sets the eliminated player role for each round to null
         let tie = false;                                                        // default sets the boolean flag for tie to false
+        let halfVoted = true;
+
 
         for (const [votedFor, count] of Object.entries(voteCounts)) {           // goes through ALL of the entires in voteCounts (one time run-through)
-            if (count > maxVotes) {                                             // checks to see if the current player's vote count is higher than the highest vote count
+            console.log(votedFor);
+            console.log(count);
+            if (votedFor !== "null" && count > maxVotes) {                                             // checks to see if the current player's vote count is higher than the highest vote count
                 maxVotes = count;                                               // assigns the number of votes that person received to maxVotes
                 eliminatedPlayer = votedFor;                                    // sets the eliminated player to the person who received the most votes
                 eliminatedTeam = alivePlayers.find(player => player.name === eliminatedPlayer).team; // looks at alivePlayers for the player being eliminated, set eliminatedTeam to that role.
                 tie = false;
+            } else if(votedFor ==="null" && count > (votedPlayers.length/2)){
+                halfVoted = false;
             } else if (count === maxVotes) {                                    // if max votes are equal, set a tie
                 tie = true;
             }
@@ -297,8 +311,12 @@ function handleVoting(playerName, targetPlayer) {
             players.forEach(player => {
                 player.ws.send(JSON.stringify({ type: 'voteTie', message: 'There was a tie. No player is eliminated this round.' }));
             });
+        } else if (!halfVoted) {                                                                              // runs if there is a tie
+            players.forEach(player => {
+                player.ws.send(JSON.stringify({ type: 'voteTie', message: 'No one has been eliminated this round.' }));
+            });
         } else if (eliminatedPlayer) {                                                          // runs if a player is eliminated
-            const playerToEliminate = players.find(player => player.name === eliminatedPlayer); // sets the status of the eliminated player to true
+            const playerToEliminate = alivePlayers.find(player => player.name === eliminatedPlayer); // sets the status of the eliminated player to true
             playerToEliminate.eliminate()
             playerToEliminate.ws.send(JSON.stringify({ type: 'dead'}));                         // send dead data type to player to be sent to dead screen *this must be on the top as to not navigate to the Eliminated screen before
 
@@ -307,7 +325,7 @@ function handleVoting(playerName, targetPlayer) {
             });
 
             checkWinConditions();                                                               // check win conditions after player has been eliminated
-        } else {
+         } else {
             console.error('[Error] No valid player eliminated.');
         }
 
