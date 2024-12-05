@@ -2,9 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class LapCounter : MonoBehaviour
 {
+    public Text positionText;
     int passedCheckPointNumber = 0;
     float timeAtLastPassedCheckPoint = 0;
     int numberOfPasssedCheckPoints = 0;
@@ -26,6 +28,15 @@ public class LapCounter : MonoBehaviour
 
     public float GetTimeAtLastCheckpoint(){
         return timeAtLastPassedCheckPoint;
+    }
+
+    IEnumerator ShowPositionCoRoutine(float delay){
+        positionText.text = $"Position: {carPosition}";
+        positionText.gameObject.SetActive(true);
+        Debug.Log($"Position {carPosition}");
+        yield return new WaitForSeconds(delay);
+        
+        //positionText.gameObject.SetActive(false);
     }
 
     void OnTriggerEnter2D(Collider2D collider2D){
@@ -50,7 +61,15 @@ public class LapCounter : MonoBehaviour
                     }
                 }
 
+                
                 OnPassCheckpoint?.Invoke(this);
+                // StartCoroutine(ShowPositionCoRoutine(1.5f));
+                if(isRaceCompleted){
+                    StartCoroutine(ShowPositionCoRoutine(100));
+                }
+                else{
+                    StartCoroutine(ShowPositionCoRoutine(1.5f));
+                }
             }
         }
 
