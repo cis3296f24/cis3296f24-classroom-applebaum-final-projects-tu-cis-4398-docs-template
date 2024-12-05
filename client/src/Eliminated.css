@@ -1,0 +1,34 @@
+.eliminatedPage {
+    display: flex;
+    flex-direction: column;
+    height: 1000px;
+    align-items: center;
+    background-image: linear-gradient(rgb(0, 0, 0), rgb(227, 25, 25) 200%);
+}
+
+.eliminatedPage .gameTitle {
+    display: flex;
+    background: #000000;
+    font-size: large;
+    justify-content: center;
+    color: #c61d1d;
+    font-family: Impact, fantasy;
+    padding-top: 10px;
+}
+
+.eliminatedHeader {
+    padding: 15px 20px;
+}
+
+.eliminatedHeader h2 {
+    font-size: 2rem;
+    color: #ffffff;
+    text-transform: uppercase;
+}
+
+.eliminatedContent {
+    padding: 20px 30px;
+    font-size: 2rem;
+    line-height: 1.5;
+    color: #e4e4f1;
+}
