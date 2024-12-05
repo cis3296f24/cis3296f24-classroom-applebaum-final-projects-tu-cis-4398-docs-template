@@ -60,7 +60,7 @@ function Eliminated() {
 
 function speak(sound, callback) {
   let audio = new Audio(sound);
-  audio.volume = 0.2;  // Set the volume level (0.0 to 1.0)
+  audio.volume = 0.1;  // Set the volume level (0.0 to 1.0)
 
   // Play the audio
   audio.play().catch((error) => {

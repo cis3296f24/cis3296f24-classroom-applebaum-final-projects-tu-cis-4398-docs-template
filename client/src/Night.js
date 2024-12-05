@@ -34,7 +34,7 @@ function Night() {
     } else if (ws) {  
       if (!voting) {
         ws.send(JSON.stringify({ type: 'startVote', gamePhase: 'NIGHT'}));
-        speak(MafiaCall);
+        speak(MafiaCall, .1);
       }
       const handleMessage = (event) => {
         const data = JSON.parse(event.data);
@@ -69,7 +69,7 @@ function Night() {
                 ws.send(JSON.stringify({ type: 'vote', playerName: null}));
             }   
         } else if (data.timeLeft > 0){ 
-          speak(Tick);
+          speak(Tick, 0.4);
       }
             setTimeLeft(data.timeLeft);                                                       // sets the local timer based on the server timer
         } else if (data.type === 'phase') {
@@ -78,7 +78,7 @@ function Night() {
               navigate('/StartGame', { state: {role, playerName, isHost, dayLength, nightLength, rolesList } });                                                               // turns off voting                       
             }
         } else if (data.type === 'gameOver') {                                              // when gameOver data type is received, send player to game over screen
-          navigate('/GameOver', { state: {gameOverMessage: data.message}});
+          navigate('/GameOver', { state: {gameOverMessage: data.message, winner: data.winner}});
         }
       }
       ws.addEventListener('message', handleMessage)
@@ -107,9 +107,9 @@ function Night() {
     setShowHelp(!showHelp);
   };
 
-  function speak(sound) {
+  function speak(sound, vol) {
     var audio = new Audio(sound);
-    audio.volume = .2;  // Set the volume level (0.0 to 1.0)
+    audio.volume = vol;  // Set the volume level (0.0 to 1.0)
     audio.play().catch((error) => {
       console.error('Audio playback failed:', error);
     });

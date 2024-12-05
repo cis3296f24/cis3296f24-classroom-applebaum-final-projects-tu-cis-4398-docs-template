@@ -67,7 +67,7 @@ function StartGame() {
                             ws.send(JSON.stringify({ type: 'vote', playerName: null}));
                         }   
                     } else if (data.timeLeft > 0){
-                        speak(Tick);
+                        speak(Tick, 0.4);
                     }
                     setTimeLeft(data.timeLeft);                                                     // sets the local timer based on the server timer
                 //} else if (data.type === 'phase') {
@@ -75,8 +75,9 @@ function StartGame() {
                      //   setVoting(false);
                        // navigate('/Night', { state: {role, playerName, isHost, dayLength, nightLength, rolesList } });    // move to night page 
                    // }
-                } else if (data.type === 'gameOver') {                                              // when gameOver data type is received, send player to game over screen
-                    navigate('/GameOver', { state: {gameOverMessage: data.message}});
+                } else if (data.type === 'gameOver') {   
+                    console.log(data.winner);                                           // when gameOver data type is received, send player to game over screen
+                    navigate('/GameOver', { state: {gameOverMessage: data.message, winner: data.winner}});
                 }
             }
             ws.addEventListener('message', handleMessage)
@@ -102,9 +103,9 @@ function StartGame() {
     setShowHelp(!showHelp);
   };
 
-  function speak(sound) {
+  function speak(sound, vol) {
     var audio = new Audio(sound);
-    audio.volume = .2;  // Set the volume level (0.0 to 1.0)
+    audio.volume = vol;  // Set the volume level (0.0 to 1.0)
     audio.play().catch((error) => {
       console.error('Audio playback failed:', error);
     });

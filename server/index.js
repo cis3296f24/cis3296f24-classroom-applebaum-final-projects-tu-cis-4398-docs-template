@@ -200,17 +200,22 @@ function checkWinConditions() {                                                 
     const mafiaCount = players.filter(player => player.team === "MAFIA" && !player.eliminated).length;              // counts mafia that are still alive
     const citizenCount = players.filter(player => player.team === "CITIZEN" && !player.eliminated).length;          // counts citizens that are still alive
 
-    if (mafiaCount === 0) {                                                                                         // if there are no mafia left, citizens win
+    if (mafiaCount === 0) {  
+        clearInterval(timerInterval);                                                                                       // if there are no mafia left, citizens win
         players.forEach(player => {
             const message = player.team === "CITIZEN" ? "You win!" : "You lose.";                                   // sets a message for who wins and loses, different depending on your team
-            player.ws.send(JSON.stringify({ type: 'gameOver', message: 'Game Over: Citizens win! ' + message }));  // sends game over message to front end
+            player.ws.send(JSON.stringify({ type: 'gameOver', message: 'Game Over: Citizens win! ' + message, winner: 'C'}));  // sends game over message to front end
         });
-    } else if (mafiaCount >= citizenCount ) {                                                                       // if mafia equal or outnumber citizens, mafia wins
+        return true;
+    } else if (mafiaCount >= citizenCount ) {  
+        clearInterval(timerInterval);                                                                     // if mafia equal or outnumber citizens, mafia wins
         players.forEach(player => {
             const message = player.team === "MAFIA" ? "You win!" : "You lose.";                                     // sets a message for who wins and loses, different depending on your team
-            player.ws.send(JSON.stringify({ type: 'gameOver', message: 'Game Over: Mafia win! ' + message }));     // sends game over message to front end
+            player.ws.send(JSON.stringify({ type: 'gameOver', message: 'Game Over: Mafia win! ' + message, winner: 'M' }));     // sends game over message to front end
         });
+        return true;
     }
+    return false;
 }
 
 function isMafia(role) {                                                                                            // function to check if a role is on the Mafia team, can be updated with added roles.
@@ -322,14 +327,19 @@ function handleVoting(playerName, targetPlayer) {
             });
         } else if (eliminatedPlayer) {                                                          // runs if a player is eliminated
             const playerToEliminate = alivePlayers.find(player => player.name === eliminatedPlayer); // sets the status of the eliminated player to true
-            playerToEliminate.eliminate()
-            playerToEliminate.ws.send(JSON.stringify({ type: 'dead'}));                         // send dead data type to player to be sent to dead screen *this must be on the top as to not navigate to the Eliminated screen before
+            playerToEliminate.eliminate();
 
-            players.forEach(player => {                                                         // sends all players result of vote and message
-                player.ws.send(JSON.stringify({ type: 'voteResults', eliminatedPlayer, message:  eliminatedPlayer + ' has been eliminated. They were a ' + eliminatedTeam + "!"}));      // sends the eliminated player tag to everyone's front end with the username
-            });
+            let over = checkWinConditions(); // check win conditions after player has been eliminated
 
-            checkWinConditions();                                                               // check win conditions after player has been eliminated
+
+            if(!over){
+                playerToEliminate.ws.send(JSON.stringify({ type: 'dead'}));                         // send dead data type to player to be sent to dead screen *this must be on the top as to not navigate to the Eliminated screen before
+
+                players.forEach(player => {                                                         // sends all players result of vote and message
+                    player.ws.send(JSON.stringify({ type: 'voteResults', eliminatedPlayer, message:  eliminatedPlayer + ' has been eliminated. They were a ' + eliminatedTeam + "!"}));      // sends the eliminated player tag to everyone's front end with the username
+                });
+            }
+                                                              
          } else {
             console.error('[Error] No valid player eliminated.');
         }
