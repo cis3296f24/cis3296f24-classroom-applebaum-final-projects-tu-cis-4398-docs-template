@@ -19,7 +19,6 @@ function Eliminated() {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (currentPhase === 'DAY') {   // if it was day phase, navigate to night
-        speak(CloseEyes);
         navigate('/Night', { state: {role, playerName, isHost, dayLength, nightLength, rolesList} });              
       } else if (currentPhase === 'NIGHT') {    // if it was night phase, navigate to day
         navigate('/StartGame', { state: {role, playerName, isHost, dayLength, nightLength, rolesList } });                  

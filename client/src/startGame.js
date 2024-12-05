@@ -70,11 +70,11 @@ function StartGame() {
                         speak(Tick);
                     }
                     setTimeLeft(data.timeLeft);                                                     // sets the local timer based on the server timer
-                } else if (data.type === 'phase') {
-                    if (data.phase === 'NIGHT') {                                                // looks for the phase tag, and will change or stay on the page based on that
-                        setVoting(false);
-                        navigate('/Night', { state: {role, playerName, isHost, dayLength, nightLength, rolesList } });    // move to night page 
-                    }
+                //} else if (data.type === 'phase') {
+                   // if (data.phase === 'NIGHT') {                                                // looks for the phase tag, and will change or stay on the page based on that
+                     //   setVoting(false);
+                       // navigate('/Night', { state: {role, playerName, isHost, dayLength, nightLength, rolesList } });    // move to night page 
+                   // }
                 } else if (data.type === 'gameOver') {                                              // when gameOver data type is received, send player to game over screen
                     navigate('/GameOver', { state: {gameOverMessage: data.message}});
                 }

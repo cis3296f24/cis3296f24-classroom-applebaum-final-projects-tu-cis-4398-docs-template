@@ -78,7 +78,10 @@ wss.on('connection', (ws) => {
         } else if (data.type === 'vote') {
             handleVoting(playerName, data.playerName);                                                                  // when the vote message is received it runs the voting function
         } else if (data.type === 'startVote') {
-            alivePlayers = players.filter(player => !player.eliminated);                                                                         // listens for the signal to begin the voting phase
+            alivePlayers = players.filter(player => !player.eliminated);
+            players.forEach(player => {
+                player.ws.send(JSON.stringify({ type: 'sync'}));   // sync
+            });                                                                         // listens for the signal to begin the voting phase
             players.forEach(player => {
                 player.ws.send(JSON.stringify({ type: 'startVoting', players: players.map(player => player.name), alivePlayers: alivePlayers.map(player => player.name) }));   // sends the voting button signal to each player's frontend
             });
@@ -278,7 +281,7 @@ function handleVoting(playerName, targetPlayer) {
 
     console.log(votedPlayers.length);
     console.log(votingPlayers.length);
-    
+
     if (votedPlayers.length === votingPlayers.length) {   
         console.log("hi");                       // checks if the number of players who voted matches the number of alive players
         const voteCounts = {};                                                  // stores the vote tally for each player
