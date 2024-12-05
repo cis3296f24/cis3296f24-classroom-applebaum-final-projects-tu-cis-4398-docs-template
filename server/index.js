@@ -271,11 +271,14 @@ function handleVoting(playerName, targetPlayer) {
     if(gamePhase === 'DAY'){
         votingPlayers = alivePlayers.map(player => player);          // filters out the dead players and assigns the remaining to alivePlayers
     } else{
-        votingPlayers = alivePlayers.filter(player => player.role !== 'Citizen');
+        votingPlayers = alivePlayers.filter(player => (player.role !== 'Citizen'));
     }  
 
-    const votedPlayers = alivePlayers.filter(player => player.hasVoted);        // of the alive players, it filters out the players that have voted and assigns them into votedPLayers
+    const votedPlayers = votingPlayers.filter(player => player.hasVoted);        // of the alive players, it filters out the players that have voted and assigns them into votedPLayers
 
+    console.log(votedPlayers.length);
+    console.log(votingPlayers.length);
+    
     if (votedPlayers.length === votingPlayers.length) {   
         console.log("hi");                       // checks if the number of players who voted matches the number of alive players
         const voteCounts = {};                                                  // stores the vote tally for each player

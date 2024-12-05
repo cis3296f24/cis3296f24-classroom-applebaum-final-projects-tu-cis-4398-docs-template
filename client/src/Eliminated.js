@@ -20,14 +20,14 @@ function Eliminated() {
     const timer = setTimeout(() => {
       if (currentPhase === 'DAY') {   // if it was day phase, navigate to night
         speak(CloseEyes);
-        navigate('/Night', { state: {role, playerName, isHost, dayLength, nightLength, rolesList, eliminationMessage, currentPhase } });              
+        navigate('/Night', { state: {role, playerName, isHost, dayLength, nightLength, rolesList} });              
       } else if (currentPhase === 'NIGHT') {    // if it was night phase, navigate to day
-        navigate('/StartGame', { state: {role, playerName, isHost, dayLength, nightLength, rolesList, eliminationMessage, currentPhase } });                  
+        navigate('/StartGame', { state: {role, playerName, isHost, dayLength, nightLength, rolesList } });                  
       }
     }, 10000); // navigates to specified page after 10 seconds
 
     return () => clearTimeout(timer); // Clean up the timer
-  }, [currentPhase, ws, nightLength, dayLength]);
+  }, [currentPhase, ws, nightLength, dayLength, playerName, isHost, navigate, role, rolesList]);
 
 
   useEffect(() => {
@@ -57,7 +57,7 @@ function Eliminated() {
             }
         });
     }
-}
+};
 
 function speak(sound, callback) {
   let audio = new Audio(sound);

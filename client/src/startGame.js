@@ -3,12 +3,10 @@ import { useWebSocket } from './WebSocketContext';                              
 import RoleDisplay from './roleDisplay';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Tick from './Sounds/Tick.mp3'
-import LastTick from './Sounds/LastTick.mp3'
 import "./startGame.css"
 
 function StartGame() {
     const ws = useWebSocket();                                                      // gets the WebSocket instance and connection status
-    const [eliminationMessage, setEliminationMessage] = useState('');               // state to hold elimination message
     const [players, setPlayers] = useState([]);                                     // uses state to store the player list for voting
     const [voting, setVoting] = useState(false);                                    // uses state to determine when voting occurs
     const [votes, setVotes] = useState({});                                         // uses state to store a player's vote
@@ -53,21 +51,17 @@ function StartGame() {
                     setVotes({});                                                                   // reset vote tally for players
                 } else if (data.type === 'voteResults') {
                     setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]);                 // adds the eliminated player to the array
-                    setAlivePlayers();
-                    setVoting(false);                                                               // turns off voting (can be useful for next phase implementation)                                            
-                    setEliminationMessage(data.message);                                            // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
+                    setVoting(false);                                                               // turns off voting (can be useful for next phase implementation)                                                                                       // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
                     setVotes({});                                                                   // reset vote tally for players
                     navigate('/Eliminated', {state: { role, playerName, isHost, rolesList, dayLength, nightLength, eliminationMessage: data.message, currentPhase: "DAY", elimination: true}});           // send players to Eliminated screen to see message of who is eliminated
                 } else if (data.type === 'voteTie') {
-                    setVoting(false);                                                               // turns off voting
-                    setEliminationMessage(data.message);                                            // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
+                    setVoting(false);                                                               // turns off voting                                           // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
                     setVotes({});                                                                   // reset vote tally for players
                     navigate('/Eliminated', {state: { role, playerName, isHost, rolesList, dayLength, nightLength, eliminationMessage: data.message, currentPhase: "DAY", elimination: false}});           // send players to Eliminated screen to see message of who tie
                 } else if (data.type === 'dead') {                                                  // if this person receives this dead data type, then they have been eliminated and will be routed to the dead screen
                     navigate('/Dead');
                 } else if (data.type === 'timer') {
                     if(data.timeLeft === 1){
-                        speak(Tick);
                         if(!voted){ //checks if didnt vote then sends empty vote
                             console.log("voting for no one!")
                             ws.send(JSON.stringify({ type: 'vote', playerName: null}));
@@ -91,7 +85,7 @@ function StartGame() {
                 ws.removeEventListener('message', handleMessage);
             };
         }
-    }, [ws, navigate, role, playerName, isHost, eliminatedPlayers, players, voting, dayLength, nightLength, voted]);  // Re-run the effect if WebSocket instance changes
+    }, [ws, navigate, role, playerName, isHost, eliminatedPlayers, players, voting, dayLength, nightLength, voted, alivePlayers, rolesList]);  // Re-run the effect if WebSocket instance changes
 
 
     const voteForPlayer = (playerName) => {
