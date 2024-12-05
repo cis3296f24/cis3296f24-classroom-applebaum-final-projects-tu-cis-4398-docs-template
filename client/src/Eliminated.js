@@ -2,8 +2,10 @@ import React from 'react';
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useWebSocket } from './WebSocketContext';
-import Elim from './Sounds/Eliminated.mp3';
+import Elim from './Sounds/Elim.mp3';
 import NoElim from './Sounds/NoElim.mp3';
+import CloseEyes from './Sounds/CloseEyes.mp3';
+import EndVote from './Sounds/EndVote.mp3';
 import './Eliminated.css';
 
 function Eliminated() {
@@ -15,6 +17,7 @@ function Eliminated() {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (currentPhase === 'DAY') {   // if it was day phase, navigate to night
+        speak(CloseEyes);
         navigate('/Night', { state: {role, playerName, isHost, dayLength, nightLength, rolesList, eliminationMessage, currentPhase } });              
       } else if (currentPhase === 'NIGHT') {    // if it was night phase, navigate to day
         navigate('/StartGame', { state: {role, playerName, isHost, dayLength, nightLength, rolesList, eliminationMessage, currentPhase } });                  
@@ -25,6 +28,7 @@ function Eliminated() {
   }, [currentPhase, ws, nightLength, dayLength]);
 
   useEffect(() => {
+    speak(EndVote);
     if(elimination){
       speak(Elim);
     }else{
@@ -34,6 +38,7 @@ function Eliminated() {
 
   function speak(sound) {
     var audio = new Audio(sound);
+    audio.volume = .2;  // Set the volume level (0.0 to 1.0)
     audio.play().catch((error) => {
       console.error('Audio playback failed:', error);
     });

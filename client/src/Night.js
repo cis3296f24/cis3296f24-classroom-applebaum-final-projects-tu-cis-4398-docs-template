@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useWebSocket } from './WebSocketContext';                                // Import the custom hook
 import RoleDisplay from './roleDisplay';
 import { useLocation, useNavigate } from 'react-router-dom';
-import MafiaCall from './Sounds/MafiaCall.mp3'
+import MafiaCall from './Sounds/MafiaVote.mp3'
 import Tick from './Sounds/Tick.mp3'
 import LastTick from './Sounds/LastTick.mp3'
 import './Night.css';
@@ -102,6 +102,7 @@ function Night() {
 
   function speak(sound) {
     var audio = new Audio(sound);
+    audio.volume = .2;  // Set the volume level (0.0 to 1.0)
     audio.play().catch((error) => {
       console.error('Audio playback failed:', error);
     });

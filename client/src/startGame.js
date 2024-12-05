@@ -101,6 +101,7 @@ function StartGame() {
 
   function speak(sound) {
     var audio = new Audio(sound);
+    audio.volume = .2;  // Set the volume level (0.0 to 1.0)
     audio.play().catch((error) => {
       console.error('Audio playback failed:', error);
     });
