@@ -2,13 +2,15 @@ import React from 'react';
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useWebSocket } from './WebSocketContext';
+import Elim from './Sounds/Eliminated.mp3';
+import NoElim from './Sounds/NoElim.mp3';
 import './Eliminated.css';
 
 function Eliminated() {
   const ws = useWebSocket();
   const location = useLocation();
   const navigate = useNavigate();
-  const { role, playerName, isHost, rolesList, dayLength, nightLength, eliminationMessage, currentPhase } = location.state;
+  const { role, playerName, isHost, rolesList, dayLength, nightLength, eliminationMessage, currentPhase, elimination } = location.state;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -21,6 +23,21 @@ function Eliminated() {
 
     return () => clearTimeout(timer); // Clean up the timer
   }, [currentPhase, ws, nightLength, dayLength]);
+
+  useEffect(() => {
+    if(elimination){
+      speak(Elim);
+    }else{
+      speak(NoElim);
+    }
+  });
+
+  function speak(sound) {
+    var audio = new Audio(sound);
+    audio.play().catch((error) => {
+      console.error('Audio playback failed:', error);
+    });
+   };
 
   useEffect(() => {
     const handleMessage = (event) => {

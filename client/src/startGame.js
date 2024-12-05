@@ -49,12 +49,12 @@ function StartGame() {
                     setVoting(false);                                                               // turns off voting (can be useful for next phase implementation)                                            
                     setEliminationMessage(data.message);                                            // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
                     setVotes({});                                                                   // reset vote tally for players
-                    navigate('/Eliminated', {state: { role, playerName, isHost, rolesList, dayLength, nightLength, eliminationMessage: data.message, currentPhase: "DAY"}});           // send players to Eliminated screen to see message of who is eliminated
+                    navigate('/Eliminated', {state: { role, playerName, isHost, rolesList, dayLength, nightLength, eliminationMessage: data.message, currentPhase: "DAY", elimination: true}});           // send players to Eliminated screen to see message of who is eliminated
                 } else if (data.type === 'voteTie') {
                     setVoting(false);                                                               // turns off voting
                     setEliminationMessage(data.message);                                            // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
                     setVotes({});                                                                   // reset vote tally for players
-                    navigate('/Eliminated', {state: { role, playerName, isHost, rolesList, dayLength, nightLength, eliminationMessage: data.message, currentPhase: "DAY"}});           // send players to Eliminated screen to see message of who tie
+                    navigate('/Eliminated', {state: { role, playerName, isHost, rolesList, dayLength, nightLength, eliminationMessage: data.message, currentPhase: "DAY", elimination: false}});           // send players to Eliminated screen to see message of who tie
                 } else if (data.type === 'dead') {                                                  // if this person receives this dead data type, then they have been eliminated and will be routed to the dead screen
                     navigate('/Dead');
                 } else if (data.type === 'timer') {
