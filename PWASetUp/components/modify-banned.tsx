@@ -29,8 +29,8 @@ const ModifyBannedText: React.FC<ModifyBannedTextProps> = ({bannedWords, setBann
         <Button className='rounded-t-none' onPress={handleSave}>
             Save Changes
         </Button>
-        <CardFooter>
-            <h4>Additional Bad Words:</h4>
+        <CardFooter className='p-6 flex flex-col space-y-1'>
+            <h4>Added Banned Words:</h4><br/>
             <p>{ bannedWords.join(', ') || 'None' }</p>
         </CardFooter>
     </Card>
