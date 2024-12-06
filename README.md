@@ -101,6 +101,45 @@ The conceptual design involves creating a basic multiplayer racing game with Uni
 
     
 ```
+### Sequence Diagram for Game Loop
+```mermaid
+sequenceDiagram
+    
+   User ->> GameManager: ReadyState()
+   Activate User
+    Activate GameManager
+   GameManager ->> GameUI: StartCountdown()
+   Activate GameUI
+   Activate GameManager
+   GameUI --) GameManager: 
+   Deactivate GameUI
+   Deactivate GameManager
+    Deactivate GameManager
+   GameManager --) User: 
+   Deactivate User
+   User ->> GameUI: LapCount
+   Activate GameUI
+   Activate User
+   GameUI --) User: 
+   Deactivate GameUI
+   Deactivate User
+   User ->> GameUI: Time Passed
+   Activate GameUI
+    Activate User
+   GameUI --) User: 
+   Deactivate GameUI
+    Deactivate User
+
+   User ->> GameManager: Finished()
+   Activate GameManager
+   Activate User
+   GameManager ->> GameUI: Finished()
+   Activate GameUI
+   GameUI --) User: 
+   Deactivate GameUI
+   Deactivate GameManager
+   Deactivate User
+```
 ## Background
 
 Growing up one of the most popular video games were Mariokart. Something about the fun controls made it entertaining for both the casual and hardcore racers. Now that I am a lot older, I want to replicate the game and combine it with my other interest in music. Live radios in games is not a new thing, from Forza to GTA, these games have all had in game radios. What will make this different is the fact that the radio actually affects the games and is not just an extra feature.
