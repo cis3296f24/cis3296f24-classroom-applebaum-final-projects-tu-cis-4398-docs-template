@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@heroicons/react": "^2.2.0",
+    "dexie": "^4.0.9",
+    "dotenv": "^16.4.5",
+    "pnpm": "^9.12.3"
+  }
+}
