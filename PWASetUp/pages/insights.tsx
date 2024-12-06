@@ -8,7 +8,8 @@ import {
   CardHeader,
   Divider,
   Chip,
-  Progress
+  Progress,
+  Button
 } from "@nextui-org/react";
 
 interface AIFeedback {
@@ -21,69 +22,68 @@ interface AIFeedback {
 
 const Insights = () => {
   const [response, setResponse] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false); // Set loading state to false initially
   const [error, setError] = useState<string | null>(null);
   const [processedFeedback, setProcessedFeedback] = useState<AIFeedback | null>(null);
 
-  useEffect(() => {
-    const fetchResponse = async () => {
-      try {
-        if (!fullTranscriptGlobal) {
-          console.log("No transcript available");
-          setError("No speech transcript available. Please record your speech first.");
-          setLoading(false);
-          return;
-        }
+  const fetchResponse = async () => {
+    try {
+      setLoading(true);
+      setError(null); // Reset error before making a new request
 
-        console.log("Sending transcript:", fullTranscriptGlobal);
-        console.log("Attempting to connect to server...");
-        
-        const response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            prompt: `Analyze the following speech transcript: "${fullTranscriptGlobal}". 
-                    Please provide a detailed analysis in the following JSON format:
-                    {
-                      "strengths": ["strength1", "strength2"],
-                      "weaknesses": ["weakness1", "weakness2"],
-                      "tips": ["tip1", "tip2"],
-                      "toneAnalysis": "detailed tone analysis",
-                      "confidenceScore": number between 0-100
-                    }`
-          }),
-        }).catch(error => {
-          console.error("Fetch error:", error);
-          throw new Error("Server connection failed");
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log("Server response:", data);
-        
-        if (!data.message) {
-          throw new Error('Invalid response format');
-        }
-
-        setResponse(data.message);
-        const parsedFeedback = parseAIResponse(data.message);
-        setProcessedFeedback(parsedFeedback);
-      } catch (error) {
-        console.error("Full error:", error);
-        setError((error as Error).message || 'Failed to fetch insights');
-      } finally {
+      if (!fullTranscriptGlobal) {
+        console.log("No transcript available");
+        setError("No speech transcript available. Please record your speech first.");
         setLoading(false);
+        return;
       }
-    };
 
-    fetchResponse();
-  }, []);
+      console.log("Sending transcript:", fullTranscriptGlobal);
+      console.log("Attempting to connect to server...");
+      
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: `Analyze the following speech transcript: "${fullTranscriptGlobal}". 
+                  Please provide a detailed analysis in the following JSON format:
+                  {
+                    "strengths": ["strength1", "strength2"],
+                    "weaknesses": ["weakness1", "weakness2"],
+                    "tips": ["tip1", "tip2"],
+                    "toneAnalysis": "detailed tone analysis",
+                    "confidenceScore": number between 0-100
+                  }`
+        }),
+      }).catch(error => {
+        console.error("Fetch error:", error);
+        throw new Error("Server connection failed");
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Server response:", data);
+      
+      if (!data.message) {
+        throw new Error('Invalid response format');
+      }
+
+      setResponse(data.message);
+      const parsedFeedback = parseAIResponse(data.message);
+      setProcessedFeedback(parsedFeedback);
+    } catch (error) {
+      console.error("Full error:", error);
+      setError((error as Error).message || 'Failed to fetch insights');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const parseAIResponse = (text: string): AIFeedback => {
     try {
@@ -118,6 +118,10 @@ const Insights = () => {
               <p className="text-zinc-500">AI-powered analysis and recommendations</p>
             </div>
           </div>
+
+          <Button onClick={fetchResponse} color="primary" auto disabled={loading}>
+            {loading ? "Analyzing..." : "Analyze Speech"}
+          </Button>
 
           {loading && (
             <Card>
