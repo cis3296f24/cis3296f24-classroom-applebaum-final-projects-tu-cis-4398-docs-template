@@ -16,7 +16,7 @@ const ProfilePage: React.FC = () => {
             {/* Profile Picture */}
             <CardHeader className="flex justify-center display-block">
               <Avatar
-                src="/images/Ian (1).png" 
+                src="/images/Ian.png" 
                 alt="Profile"
                 className="w-24 h-24 rounded-full shadow-lg"
               />
