@@ -7,7 +7,10 @@ const Settings = () => {
   const settingsSections = [
     {
       title: 'Account Settings',
-      links: [{ href: '/settings/account', label: 'Manage Account', icon: <UserCircleIcon className="w-6 h-6 text-zinc-500 dark:text-zinc-300" />, }],
+      links: [
+        { href: '/settings/account', label: 'Manage Account', icon: <UserCircleIcon className="w-6 h-6 text-zinc-500 dark:text-zinc-300" />, },
+        { href: '/settings/data', label: 'Account Data', icon: <UserCircleIcon className="w-6 h-6 text-zinc-500 dark:text-zinc-300" />, }
+      ],
     },
     {
       title: 'Feedback & Support',
