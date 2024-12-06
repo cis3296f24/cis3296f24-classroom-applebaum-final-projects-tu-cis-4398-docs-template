@@ -58,30 +58,29 @@ const Recordings: React.FC = () => {
                   </div>
 
                   {/* Expandable content */}
-                  <div
-                    className={`${
-                      expandedId === recording.id ? 'max-h-40' : 'max-h-0'
-                    } overflow-hidden transition-max-height duration-500 ease-in-out mt-0 flex justify-start space-x-4`}
-                  >
-                    <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-800 transition-all duration-300 ease-in-out">
-                      <PlayCircleIcon  className="h-5 w-5 mr-2" />
-                      Play
-                    </button>
-                    <button className="flex items-center px-4 py-2 bg-gray-100 text-black rounded-lg shadow hover:bg-gray-300 transition-all duration-300 ease-in-out">
-                      <ShareIcon  className="h-5 w-5 mr-2" />
-                      Share
-                    </button>
-                    <button
-                      onClick={() => handleDelete(recording.id)}
-                      className="flex items-center px-4 py-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition-all duration-300 ease-in-out">
-                      <TrashIcon className="h-5 w-5 mr-2"/>
-                      Delete
-                    </button>
-                    <button className="flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg shadow hover:bg-gray-600 transition-all duration-300 ease-in-out">
-                      <PresentationChartBarIcon  className="h-5 w-5 mr-2" />
-                      Insights
-                    </button>
+                  <div className={`${ expandedId === recording.id ? 'max-h-40' : 'max-h-0'} overflow-hidden transition-max-height duration-500 ease-in-out mt-0`}>
+                    <div className="flex flex-wrap gap-2 justify-start">
+                      <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-800 transition-all duration-300 ease-in-out">
+                        <PlayCircleIcon className="h-5 w-5 mr-2" />
+                        Play
+                      </button>
+                      <button className="flex items-center px-4 py-2 bg-gray-100 text-black rounded-lg shadow hover:bg-gray-300 transition-all duration-300 ease-in-out">
+                        <ShareIcon className="h-5 w-5 mr-2" />
+                        Share
+                      </button>
+                      <button
+                        onClick={() => handleDelete(recording.id)}
+                        className="flex items-center px-4 py-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition-all duration-300 ease-in-out">
+                        <TrashIcon className="h-5 w-5 mr-2" />
+                        Delete
+                      </button>
+                      <button className="flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg shadow hover:bg-gray-600 transition-all duration-300 ease-in-out">
+                        <PresentationChartBarIcon className="h-5 w-5 mr-2" />
+                        Insights
+                      </button>
+                    </div>
                   </div>
+
                 </CardBody>
               </Card>
             ))}
