@@ -14,7 +14,6 @@
 Speech-Analysis, Word Frequency Tracking, Progressive Web App, Speech Pattern Analysis, Word Detection, Voice Activation, Profanity Detection
 
 ## Project Description
-
 **SpeakSense** is a progressive web application designed to provide real-time feedback on your speech. Whether you're preparing for a presentation, practicing for an interview, or refining a speech, SpeakSense helps you stay on track by monitoring your speech patterns and providing actionable insights.
 
 ### Key Features
@@ -113,6 +112,35 @@ This is a template from Figma that is touched up. The intention is for the web a
 ## Use Cases
 ```mermaid
 sequenceDiagram 
+actor User
+    participant Microphone
+    participant SpeechRecognition as Speech Recognition
+    participant Database
+    participant StatisticsPage as Statistics Page
+
+    User ->> Microphone: Start Recording
+    Microphone ->> SpeechRecognition: Begin Speech Detection
+    loop While Speaking
+        SpeechRecognition ->> Microphone: Detect Words
+        Microphone ->> SpeechRecognition: Check Banned Words
+        alt If Banned Word is Found
+            SpeechRecognition ->> Microphone: Trigger Alert (Color/Vibration)
+            Microphone ->> Database: Record Word Count
+            Database --) Microphone: Acknowledge Save
+        end
+        SpeechRecognition ->> Database: Save Word Data
+        Database --) SpeechRecognition: Acknowledge Save
+    end
+    User ->> Microphone: Stop Recording
+    Microphone ->> SpeechRecognition: Stop Speech Detection
+    SpeechRecognition ->> Database: Save Final Word Data
+    Database --) SpeechRecognition: Acknowledge Save
+
+    User ->> StatisticsPage: View Statistics
+    StatisticsPage ->> Database: Request Word Data
+    Database --) StatisticsPage: Return Word Data
+    StatisticsPage -->> User: Show "like" Count and Other Insights
+
 ```
 ## UseCase 3:
  Getting GPT input from a speech file
