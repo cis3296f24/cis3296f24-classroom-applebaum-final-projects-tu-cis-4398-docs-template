@@ -205,6 +205,27 @@ sequenceDiagram
  
 ````
 ### Use Case 4: 
+Data Deletion<br>
+This Sequence diagram will go over how the user will go about deleting their personal data files associated with their speech patterns. In short, the user navigates to the page under settings called "Account Data" and selects and confirms their data deletion of their account, which then calls the function "deleetDatabase", which is a function in our database.js file, which deletes the data.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant UI as Settings/Data Page
+    participant Database
+
+    User->>UI: Click "Delete Account Data"
+    UI-->>User: Show confirmation dialog
+    User->>UI: Confirm deletion
+    UI->>Database: Call deleteDatabase()
+    Database-->>UI: Confirm deletion success
+    UI-->>User: Show success message
+    User->>UI: Click "Okay"
+    UI-->>User: Navigate them back to home page
+    User->>Statistics: Checks account details again
+    Statistics-->>User: Display no available data
+
+````
 
  
 ## Explaining key files and functions 
