@@ -69,7 +69,7 @@ const Index = () => {
     } else {
       stopTimer();   // Stop timer when mic is deactivated
     }
-    speechToText(!isMicActive, handleBadWordDetected, wordbank, fillerWords); // Pass the new state to speechToText
+    speechToText(!isMicActive, handleBadWordDetected, wordbank, fillerWords, bannedWords); // Pass the new state to speechToText
   };
 
   const startTimer = () => {
@@ -128,7 +128,7 @@ const Index = () => {
 
 let recognition: any = null;
 
-function speechToText(isActive: boolean, handleBadWordDetected: () => void, wordbank: string[], fillerWords: string[]): void {
+function speechToText(isActive: boolean, handleBadWordDetected: () => void, wordbank: string[], fillerWords: string[], bannedWords: string[]): void {
   const output = document.getElementById('output') as HTMLElement | null;
   const detectedWordsOutput = document.getElementById('detectedWords') as HTMLElement | null;
   const fullTranscript = document.getElementById('fullTranscript') as HTMLElement | null;
@@ -196,7 +196,7 @@ recognition.addEventListener('result', async (event: SpeechRecognitionEvent) => 
       await updateWordCount(word); // Increment count for all words
   
       // Special handling for words in the wordbank
-      if (wordbank.includes(word) || fillerWords.includes(word)) {
+      if (wordbank.includes(word) || fillerWords.includes(word) || bannedWords.includes(word)) {
         vibrationPattern();
         detectedWordsList.push(`${word} (${currentTranscriptCount})`);
       }
@@ -237,7 +237,6 @@ function vibrationPattern(): void {
     alert("Your device does not support the Vibration API. Try on an Android phone!");
   } else {
     window.navigator.vibrate(patterns[2]);
-    alert("This thing just vibrated!");
   }
 }
 
