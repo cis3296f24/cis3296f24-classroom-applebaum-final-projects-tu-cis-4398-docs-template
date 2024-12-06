@@ -69,7 +69,7 @@ const Index = () => {
     } else {
       stopTimer();   // Stop timer when mic is deactivated
     }
-    speechToText(!isMicActive, handleBadWordDetected, wordbank); // Pass the new state to speechToText
+    speechToText(!isMicActive, handleBadWordDetected, wordbank, fillerWords); // Pass the new state to speechToText
   };
 
   const startTimer = () => {
@@ -129,7 +129,7 @@ const Index = () => {
 
 let recognition: any = null;
 
-function speechToText(isActive: boolean, handleBadWordDetected: () => void, wordbank: string[]): void {
+function speechToText(isActive: boolean, handleBadWordDetected: () => void, wordbank: string[], fillerWords: string[]): void {
   const output = document.getElementById('output') as HTMLElement | null;
   const detectedWordsOutput = document.getElementById('detectedWords') as HTMLElement | null;
   const fullTranscript = document.getElementById('fullTranscript') as HTMLElement | null;
@@ -197,7 +197,7 @@ recognition.addEventListener('result', async (event: SpeechRecognitionEvent) => 
       await updateWordCount(word); // Increment count for all words
   
       // Special handling for words in the wordbank
-      if (wordbank.includes(word)) {
+      if (wordbank.includes(word) || fillerWords.includes(word)) {
         vibrationPattern();
         detectedWordsList.push(`${word} (${currentTranscriptCount})`);
       }
