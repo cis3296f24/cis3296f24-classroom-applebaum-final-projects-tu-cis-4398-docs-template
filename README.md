@@ -110,6 +110,9 @@ This is a template from Figma that is touched up. The intention is for the web a
 
 
 ## Use Cases
+
+### Use Case 1
+This use case covers if the user spoke into the mic and wanted to see how many times they said their banned word "like" instatistics 
 ```mermaid
 sequenceDiagram 
 actor User
