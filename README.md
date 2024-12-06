@@ -188,19 +188,100 @@ actor User
 
 ```mermaid
 sequenceDiagram
-    actor User
-    participant S as Server/Middleware
-    participant I as InputFeild
-    participant O as OpenAI
-    participant D as Display
 
-    User ->> I: Inputs a file and request chatGPT to look at it
-    User -->> D: Looks at Display for respone
+    actor User
+    participant D as Insights Screen
+    participant I as InputFeild
+    participant S as Server/Middleware
+    participant O as OpenAI
+    
+    User ->> I: Inputs a file and request chatGTP to look at it
+    User ->>+ D: Looks at Insights for respone
     I ->> S: Sends a request to OpenAI
-    O ->> S: Sends GPT Response 
-    S ->> D: Displays GPT Response 
-```
+    S ->>+ O: Sends request
+    O -->>- S: returns request
+    S -->> D: Displays Request
+    D ->>- Alice: Can veiw response on Insights screen
+ 
+````
 ### Use Case 4: 
+
+ 
+## Explaining key files and functions 
+
+#index.tsx
+
+This is the file that holds majority of the functionality go the PWA. This file leverages the browsers speech recognition API to collect user speech and give feed back based on if the user has said a badword or not. Some functions that help in this are VibrationsPattern(), SpeechToText(), and UpdateWordCount().
+
+VibrationPattern():
+
+This function adds the functionality of vibrating the phone or device. If the device is not able to vibrate it will throw an error saying that the device cannot support the function. 
+
+SpeetchToText():
+
+This function leverages the Web Speech API to process the live speech he user is saying to text. This function can also analyze the text and check it against the word bank of bad words. This function also updates the occurrence of how many times the user says a bad word. This occurrence of the bad word will trigger a vibration.
+
+UpdateWordCount():
+
+This function is an async function that helps the SpeechToText() function by checking the database of words and increasing a counter if a bad word is said.
+
+#chat.js
+
+This is the middleware that talks to openAI ChatGTP API. This will run in the background 
+
+#insights.tsx
+
+This is the frontend that will display the response from chatGTP. Users are also able to input textiles of the speech that they said and get detailed responses from ChatGTP.
+
+#statistics.tsx
+
+This file will display user statistics  like totalWords,  profanityRate, speechPace, wordStats
+
+#profile.tsx
+
+This file allows the user to view their profile page and veiw some highlight stats and profile image.
+
+#modify-Bannedwords.tsx
+
+This file gives the user the functionality to modify the database and add their own banned words.
+
+#Ring.js
+
+This file give the app the functionality to play a sound while the user isa saying a banned word 
+
+#AudioVisalizer.tsx
+
+This file gives the app the functionality to visualize the sound waves of the users voice.
+
+#database.js
+
+This is the database that will give the app the functionality to store words
+
+calculateSeverity():
+
+This views the word that the user is saying and calculates the severity by comparing it to a couple of severity lists
+
+determineCategory():
+
+This function views the speech and filters it into two categories called filter words, and technical terms. 
+
+addWord():
+
+This function will add a new word and update the existing word count 
+
+startSession():
+
+This will start a new listening session 
+
+endSession(): 
+
+This will end the listening session 
+
+getStats():
+
+This will calculate statistics for a given time period 
+
+
 
 ## Collaborators
 
