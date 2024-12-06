@@ -112,10 +112,10 @@ This is a template from Figma that is touched up. The intention is for the web a
 ## Use Cases
 
 ### Use Case 1
-This use case covers if the user spoke into the mic and wanted to see how many times they said their banned word "like" instatistics 
+This sequence diagram highlights the user viewing the Statistics Page. After recording speech and saving word data, the user accesses the Statistics Page, which requests word data from the database. The database returns insights, such as banned word counts (e.g., "like"), which are displayed to the user for analysis.
 ```mermaid
 sequenceDiagram 
-actor User
+    actor User
     participant Microphone
     participant SpeechRecognition as Speech Recognition
     participant Database
@@ -145,26 +145,68 @@ actor User
     StatisticsPage -->> User: Show "like" Count and Other Insights
 
 ```
-## UseCase 3:
- Getting GPT input from a speech file
+
+### Use Case 2:
+
+This sequence diagram shows a user adding banned words, which are stored and displayed in the app. During speech recognition, the app detects these words in real-time, alerts the user, and updates the word count in the database.
+```mermaid
+sequenceDiagram
+actor User
+    participant Index/Homepage
+    participant ModifyBannedText
+    participant SpeechRecognition
+    participant Database
+
+    User->>ModifyBannedText: Enter banned words ("um, like")
+    ModifyBannedText->>Index/Homepage: Update `bannedWords` state
+    Index/Homepage->>User: Display updated banned words list
+
+    User->>Index/Homepage: Toggle microphone (Start Speech Recognition)
+    Index/Homepage->>SpeechRecognition: Start speech recognition
+    SpeechRecognition->>SpeechRecognition: Process audio input
+    SpeechRecognition-->>Index/Homepage: Return transcript of spoken words
+
+    loop Continuous Speech Processing
+        Index/Homepage->>SpeechRecognition: Check for new words in transcript
+        SpeechRecognition-->>Index/Homepage: Detect word ("um")
+        Index/Homepage->>Index/Homepage: Compare with `bannedWords`
+        alt Word is in bannedWords
+            Index/Homepage->>User: Display alert (bad word detected)
+            Index/Homepage->>Database: Update word count
+        else Word not in bannedWords
+            Index/Homepage->>User: Display transcript
+        end
+    end
+
+    User->>Index/Homepage: Toggle microphone (Stop Speech Recognition)
+    Index/Homepage->>SpeechRecognition: Stop recognition
+    SpeechRecognition-->>Index/Homepage: End recognition session
+```
+### Use Case 3:
+ This sequence diagram illustrates the process of a user uploading a file and requesting a response from OpenAI. The user inputs the file and request through an input field and views the display for the response. The input is sent to the server, which communicates with OpenAI. OpenAI processes the request, sends back a response to the server, and the server displays it to the user.
 
 
 ```mermaid
 sequenceDiagram
-    actor Alice
+
+    actor User
     participant D as Insights Screen
     participant I as InputFeild
     participant S as Server/Middleware
     participant O as OpenAI
-
-    Alice ->> I: Inputs a file and request chatGTP to look at it
-    Alice ->>+ D: Looks at Insights for respone
+    
+    User ->> I: Inputs a file and request chatGTP to look at it
+    User ->>+ D: Looks at Insights for respone
     I ->> S: Sends a request to OpenAI
     S ->>+ O: Sends request
     O -->>- S: returns request
     S -->> D: Displays Request
-    D ->>- Alice: Can veiw response on Insights screen 
-```
+    D ->>- Alice: Can veiw response on Insights screen
+ 
+````
+### Use Case 4: 
+
+ 
 ## Explaining key files and functions 
 
 #index.tsx
@@ -238,7 +280,6 @@ This will end the listening session
 getStats():
 
 This will calculate statistics for a given time period 
-
 
 
 
