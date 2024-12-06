@@ -181,27 +181,30 @@ actor User
     SpeechRecognition-->>Index/Homepage: End recognition session
 ```
 ### Use Case 3:
- This sequence diagram illustrates the process of a user uploading a file and requesting a response from OpenAI. The user inputs the file and request through an input field and views the display for the response. The input is sent to the server, which communicates with OpenAI. OpenAI processes the request, sends back a response to the server, and the server displays it to the user.
+ The user begins by recording their speech on the Index Page, where the AudioVisualizer captures the audio input and stores the transcript (fullTranscriptGlobal) in the database. The user then navigates to the Insights Page, which retrieves the transcript from the database and sends it to the server (chat.js) via a POST request. The server communicates with the OpenAI API, sending an analysis prompt and receiving AI feedback. The server then formats the analysis and sends it back to the Insights Page, where it is displayed to the user as analysis cards highlighting strengths, weaknesses, and other insights.
 
 
 ```mermaid
 sequenceDiagram
+    participant U as User
+    participant I as Index Page
+    participant A as AudioVisualizer
+    participant DB as Database
+    participant S as Server (chat.js)
+    participant O as OpenAI API
+    participant IN as Insights Page
 
-    actor User
-    participant D as Insights Screen
-    participant I as InputFeild
-    participant S as Server/Middleware
-    participant O as OpenAI
-    
-    User ->> I: Inputs a file and request chatGTP to look at it
-    User ->>+ D: Looks at Insights for respone
-    I ->> S: Sends a request to OpenAI
-    S ->>+ O: Sends request
-    O -->>- S: returns request
-    S -->> D: Displays Request
-    D ->>- Alice: Can veiw response on Insights screen
- 
-````
+    U->>I: Records speech
+    I->>A: Captures audio input
+    A->>DB: Stores transcript (fullTranscriptGlobal)
+    U->>IN: Navigates to Insights
+    IN->>DB: Retrieves transcript
+    IN->>S: Sends POST request with transcript
+    S->>O: Sends analysis prompt
+    O->>S: Returns AI feedback
+    S->>IN: Returns formatted analysis
+    IN->>U: Displays analysis cards (strengths, weaknesses, etc.)
+```
 ### Use Case 4: 
 Data Deletion<br>
 This Sequence diagram will go over how the user will go about deleting their personal data files associated with their speech patterns. In short, the user navigates to the page under settings called "Account Data" and selects and confirms their data deletion of their account, which then calls the function "deleetDatabase", which is a function in our database.js file, which deletes the data.
