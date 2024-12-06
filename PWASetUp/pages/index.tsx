@@ -1,13 +1,9 @@
-import Page from '../components/page'
-import Section from '../components/section'
-import { Button } from '@nextui-org/react'
-import RingDevice from '../components/Ring';
-import db from '../database.js';
-import MicCard from 'components/microphone-card';
+import Page from '../components/page';
+import Section from '../components/section';
 import ModifyBannedText from 'components/modify-banned';
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { MicrophoneIcon, PauseIcon, PlayIcon, StopIcon } from '@heroicons/react/24/solid';
 
-// Type definitions for Speech Recognition
 interface SpeechRecognitionEvent {
   results: SpeechRecognitionResultList;
 }
@@ -38,8 +34,21 @@ export let fullTranscriptGlobal: string = "";
 const Index = () => {
   const [wordbank, setWordbank] = useState<string[]>([]);
   const [fillerWords, setFillerWords] = useState<string[]>([]);
+  const [isRunning, setIsRunning] = useState(false); // Tracks if the stopwatch is running
+  const [timeElapsed, setTimeElapsed] = useState(0); // Stopwatch time in seconds
+  const [isPaused, setIsPaused] = useState(false); // Tracks if the stopwatch is paused
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [isBadWordDetected, setIsBadWordDetected] = useState(false);
+  const [bannedWords, setBannedWords] = useState<string[]>([]);
+  const [savedTranscript, setSavedTranscript] = useState<string>(""); // Saves the transcript on stop
 
-  // Load word lists function
+  useEffect(() => {
+    loadWordLists();
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, []);
+
   const loadWordLists = async () => {
     try {
       const response = await fetch('wordbank.json');
@@ -47,171 +56,153 @@ const Index = () => {
       const data = await response.json();
       setWordbank(data.curseWords || []);
       setFillerWords(data.fillerWords || []);
-      console.log("Word lists loaded:", { wordbank, fillerWords });
     } catch (error) {
-      console.error("Error loading word lists:", error);
+      console.error('Error loading word lists:', error);
     }
   };
 
-  useEffect(() => {
-    loadWordLists(); // Calls the function after component mounts
-  }, []);
-
-  const [isMicActive, setIsMicActive] = useState(false); 
-  const [isBadWordDetected, setIsBadWordDetected] = useState(false);
-  const [bannedWords, setBannedWords] = useState<string[]>([]);
-
-  const handleMicToggle = () => {
-    setIsMicActive((prevState) => !prevState);
-    speechToText(!isMicActive, handleBadWordDetected, wordbank); // Pass the new state to speechToText
+  const handleStart = () => {
+    setIsRunning(true);
+    setIsPaused(false);
+    startStopwatch();
+    startSpeechRecognition();
   };
+
+  const handlePause = () => {
+    setIsPaused(true);
+    stopStopwatch();
+    stopSpeechRecognition(false); // Stops but doesn't reset
+  };
+
+  const handleStop = () => {
+    setIsRunning(false);
+    setIsPaused(false);
+    setTimeElapsed(0);
+    stopStopwatch();
+    stopSpeechRecognition(true); // Stops and resets
+    setSavedTranscript(fullTranscriptGlobal); // Save the transcript
+    fullTranscriptGlobal = ""; // Clear global transcript
+  };
+
+  const startStopwatch = () => {
+    if (!intervalRef.current) {
+      intervalRef.current = setInterval(() => {
+        setTimeElapsed((prev) => prev + 1);
+      }, 1000);
+    }
+  };
+
+  const stopStopwatch = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  };
+
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60).toString().padStart(2, '0');
+    const seconds = (time % 60).toString().padStart(2, '0');
+    return `${minutes}:${seconds}`;
+  };
+
+  const startSpeechRecognition = () => {
+    if (!recognition) {
+      const SpeechRecognition =
+        (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+      if (!SpeechRecognition) {
+        alert('Your browser does not support SpeechRecognition.');
+        return;
+      }
+
+      recognition = new SpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.interimResults = true;
+      recognition.continuous = true;
+
+      recognition.addEventListener('result', (event: SpeechRecognitionEvent) => {
+        const fullTranscript = Array.from(event.results)
+          .map((result) => result[0].transcript)
+          .join(' ');
+
+        fullTranscriptGlobal = fullTranscript;
+        const output = document.getElementById('fullTranscript');
+        if (output) {
+          output.textContent = fullTranscript;
+        }
+
+        if (wordbank.some((word) => fullTranscript.includes(word))) {
+          handleBadWordDetected();
+        }
+      });
+
+      recognition.start();
+    } else {
+      recognition.start(); // Restart if paused
+    }
+  };
+
+  const stopSpeechRecognition = (reset: boolean) => {
+    if (recognition) {
+      recognition.stop();
+      if (reset) {
+        recognition = null; // Reset recognition instance
+      }
+    }
+  };
+
   const handleBadWordDetected = () => {
     setIsBadWordDetected(true);
-    setTimeout(() => setIsBadWordDetected(false), 1000); //reset after 1 sec
+    setTimeout(() => setIsBadWordDetected(false), 1000);
   };
-    
+
   return (
     <Page>
-      <div className='justify-center w-auto h-auto'>
-        <h2 className = 'text-center font-semibold text-2xl'>Welcome to SpeakSense.</h2>
-        <br></br>
-        <h3 className = 'text-center font-normal text-4xl'>record yourself speaking by pressing the button, and don't, seriously don't, say bad words... <span className='font-black'>or else.</span></h3>
+      <div className="justify-center w-auto h-auto">
+        <h2 className="text-center font-semibold text-2xl">Welcome to SpeakSense.</h2>
       </div>
       <Section>
-        <div id="micbutton" className='justify-center items-center w-auto'>
-          <MicCard isMicActive={isMicActive} isBadWordDetected = {isBadWordDetected} onToggleMic={handleMicToggle}/>
+        <div className="flex items-center justify-center space-x-4 m-12">
+          <MicrophoneIcon className="w-32 h-32 text-zinc-200" />
         </div>
-        <br></br>
-        <div id="speech">
-          <p id="output" className='text-center font-semibold text-2xl'></p>
-          <p id="detectedWords"></p>
+        <div className="text-center text-4xl mb-10">{formatTime(timeElapsed)}</div>
+        <div className="flex justify-center items-center space-x-6 mb-10">
+          {!isRunning || isPaused ? (
+            <button
+              className="w-16 h-16 rounded-full shadow-lg bg-emerald-500 text-white flex items-center justify-center"
+              onClick={handleStart}
+            >
+              <PlayIcon className="h-8 w-8" />
+            </button>
+          ) : (
+            <button
+              className="w-16 h-16 rounded-full shadow-lg bg-teal-600 text-white flex items-center justify-center"
+              onClick={handlePause}
+            >
+              <PauseIcon className="h-8 w-8" />
+            </button>
+          )}
+          <button
+            className="w-16 h-16 rounded-full shadow-lg bg-red-600 text-white flex items-center justify-center"
+            onClick={handleStop}
+          >
+            <StopIcon className="h-8 w-8" />
+          </button>
         </div>
-        <br/>
-        <p> this is where we test other functions bc otherwise this looks good i think</p>
-        <RingDevice/>
-        <br/>
-        <div>
-          <ModifyBannedText bannedWords={bannedWords} setBannedWords={setBannedWords}/>
+        {isBadWordDetected && (
+          <div className="mt-4 text-center text-red-500 font-semibold">
+            Bad word detected!
+          </div>
+        )}
+        <div className="mt-6">
+          <ModifyBannedText bannedWords={bannedWords} setBannedWords={setBannedWords} />
         </div>
-        <p id="fullTranscript" className='text-center font-semibold text-2xl'></p>
+        
       </Section>
     </Page>
   );
 };
 
 let recognition: any = null;
-
-function speechToText(isActive: boolean, handleBadWordDetected: () => void, wordbank: string[]): void {
-  const output = document.getElementById('output') as HTMLElement | null;
-  const detectedWordsOutput = document.getElementById('detectedWords') as HTMLElement | null;
-  const fullTranscript = document.getElementById('fullTranscript') as HTMLElement | null;
-
-
-  const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-
-  if (!SpeechRecognition) {
-    alert("Your browser does not support the SpeechRecognition API");
-    return;
-  }
-  if (!recognition) {
-    recognition = new SpeechRecognition();
-    recognition.lang = 'en-US';
-    recognition.interimResults = true;
-    recognition.continuous = true;
-
-  }
-  
-  let sessionWordCounts = new Map<string, number>();
-  let detectedWordsList: string[] = [];
-
-// Function to add or increment word count in the database
-async function updateWordCount(word: string) {
-  const wordEntry = await db.words.get({ word });
-  
-  if (wordEntry) {
-    // If word already exists in database, increment count
-    await db.words.update(wordEntry.id, { count: wordEntry.count + 1 });
-    console.log(`Incremented count for "${word}" to ${wordEntry.count + 1}`);
-  } else {
-    // If word is new, add it to the database with count 1
-    await db.words.add({ word, count: 1, timestamp: Date.now() });
-    console.log(`Added "${word}" with count 1`);
-  }
-}
-
-
-recognition.addEventListener('result', async (event: SpeechRecognitionEvent) => {
-  const fullTranscript = Array.from(event.results) //full transcript
-    .map(result => result[0].transcript)
-    .join(' ')
-    .toLowerCase();
-
-    fullTranscriptGlobal = fullTranscript; // Assigning to global variable
-
-  //get latest word 
-  const currentWord = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
-  // Display full transcript on the screen
-  if (output) {
-    output.innerText = currentWord;
-  }
-
-  const wordsInTranscript = fullTranscript.split(/\s+/);
-
-  for (const word of wordsInTranscript) {
-    const currentSessionCount = sessionWordCounts.get(word) || 0;
-  
-    // Count occurrences of the word in the current transcript
-    const currentTranscriptCount = wordsInTranscript.filter(w => w === word).length;
-  
-    // If the word appears more times than it was previously counted, process it
-    if (currentTranscriptCount > currentSessionCount) {
-      sessionWordCounts.set(word, currentTranscriptCount);
-      await updateWordCount(word); // Increment count for all words
-  
-      // Special handling for words in the wordbank
-      if (wordbank.includes(word)) {
-        vibrationPattern();
-        detectedWordsList.push(`${word} (${currentTranscriptCount})`);
-      }
-      handleBadWordDetected(); //trigger bad word detected color
-    }
-  };
-
-  if (detectedWordsOutput) {
-    detectedWordsOutput.innerText = "Detected words: " + detectedWordsList.join(', ');
-  }
-});
-
-  recognition.addEventListener('end', () => {
-    console.log("SpeechRecognition stopped")
-    console.log(fullTranscriptGlobal);
-  });
-
-  if (isActive) {
-      recognition.start();
-      console.log("SpeechRecognition Started. ");
-    }else{
-      recognition.stop();
-      console.log("SpeechRecognition Stopped. ");
-    };
-
-}
-
-function vibrationPattern(): void {
-  const patterns = [
-    2000,
-    [2000, 1000, 2000, 1000, 2000, 1000, 2000],
-    [400, 200, 400, 200, 400, 200, 800, 200, 800, 200, 400, 200, 400, 200, 200, 200],
-    [150, 50, 150, 50, 300, 100, 150, 50, 150, 50, 300, 100, 150, 50, 150, 50],
-    [300, 200, 300, 200, 300, 400, 300, 200, 300, 200, 300, 400, 300, 200, 600, 200]
-  ];
-
-  if (!window.navigator.vibrate) {
-    alert("Your device does not support the Vibration API. Try on an Android phone!");
-  } else {
-    window.navigator.vibrate(patterns[2]);
-    alert("This thing just vibrated!");
-  }
-}
 
 export default Index;
