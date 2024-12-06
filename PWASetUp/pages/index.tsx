@@ -121,7 +121,6 @@ const Index = () => {
         <div>
           <ModifyBannedText bannedWords={bannedWords} setBannedWords={setBannedWords}/>
         </div>
-        <p id="fullTranscript" className='text-center font-semibold text-2xl'></p>
       </Section>
     </Page>
   );

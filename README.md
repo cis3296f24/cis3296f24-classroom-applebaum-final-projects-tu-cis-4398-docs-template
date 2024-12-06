@@ -103,10 +103,8 @@ Here are instructions for installing on your local machine.
 ### Step 6: 
 now you have SpeakSense on your local computer
 
-## Conceptual Design
+## Design
 
-This is a template from Figma that is touched up. The intention is for the web app to also be accessible to mobile, but this gets the idea of what we want to display well.
-![image](https://github.com/user-attachments/assets/c2eeaaad-d67d-44dd-9542-12750150a1d5)
 
 
 ## Use Cases

@@ -30,7 +30,7 @@ const ModifyBannedText: React.FC<ModifyBannedTextProps> = ({bannedWords, setBann
             Save Changes
         </Button>
         <CardFooter>
-            <h4>Current Banned Words:</h4>
+            <h4>Additional Bad Words:</h4>
             <p>{ bannedWords.join(', ') || 'None' }</p>
         </CardFooter>
     </Card>
