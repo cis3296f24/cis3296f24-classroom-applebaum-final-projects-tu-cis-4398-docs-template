@@ -33,15 +33,67 @@ interface Window {
   webkitSpeechRecognition: any;
 }
 
+export let fullTranscriptGlobal: string = "";
+
 const Index = () => {
+  const [wordbank, setWordbank] = useState<string[]>([]);
+  const [fillerWords, setFillerWords] = useState<string[]>([]);
+  const [timer, setTimer] = useState(0); // Timer in seconds
+  const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null); // Interval ID
   const [isMicActive, setIsMicActive] = useState(false); 
   const [isBadWordDetected, setIsBadWordDetected] = useState(false);
   const [bannedWords, setBannedWords] = useState<string[]>([]);
 
+  // Load word lists function
+  const loadWordLists = async () => {
+    try {
+      const response = await fetch('wordbank.json');
+      if (!response.ok) throw new Error(`Failed to fetch wordbank.json: ${response.statusText}`);
+      const data = await response.json();
+      setWordbank(data.curseWords || []);
+      setFillerWords(data.fillerWords || []);
+      console.log("Word lists loaded:", { wordbank, fillerWords });
+    } catch (error) {
+      console.error("Error loading word lists:", error);
+    }
+  };
+
+  useEffect(() => {
+    loadWordLists(); // Calls the function after component mounts
+  }, []);
+
   const handleMicToggle = () => {
     setIsMicActive((prevState) => !prevState);
-    speechToText(!isMicActive, handleBadWordDetected); // Pass the new state to speechToText
+    if (!isMicActive) {
+      startTimer();  // Start timer when mic is activated
+    } else {
+      stopTimer();   // Stop timer when mic is deactivated
+    }
+    speechToText(!isMicActive, handleBadWordDetected, wordbank); // Pass the new state to speechToText
   };
+
+  const startTimer = () => {
+    setTimer(0); // Reset the timer
+    const interval = setInterval(() => {
+      setTimer((prev) => prev + 1); // Increment the timer every second
+    }, 1000);
+    setTimerInterval(interval); // Store the interval ID
+  };
+
+  const stopTimer = () => {
+    if (timerInterval) {
+      clearInterval(timerInterval); // Stop the timer when mic is turned off
+      setTimerInterval(null);
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    const hours = String(Math.floor(seconds / 3600)).padStart(2, '0');
+    const minutes = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+    const sec = String(seconds % 60).padStart(2, '0');
+    return `${hours}:${minutes}:${sec}`;
+  };
+
   const handleBadWordDetected = () => {
     setIsBadWordDetected(true);
     setTimeout(() => setIsBadWordDetected(false), 1000); //reset after 1 sec
@@ -50,26 +102,26 @@ const Index = () => {
   return (
     <Page>
       <div className='justify-center w-auto h-auto'>
-        <h2 className = 'text-center font-semibold text-2xl'>Welcome to SpeakSense.</h2>
+        <h2 className = 'text-center font-semibold text-2xl'>SpeakSense</h2>
         <br></br>
-        <h3 className = 'text-center font-normal text-4xl'>record yourself speaking by pressing the button, and don't, seriously don't, say bad words... <span className='font-black'>or else.</span></h3>
+        <h3 className = 'text-center font-normal text-3xl'>Bring Your Speech to Life</h3>
       </div>
       <Section>
         <div id="micbutton" className='justify-center items-center w-auto'>
           <MicCard isMicActive={isMicActive} isBadWordDetected = {isBadWordDetected} onToggleMic={handleMicToggle}/>
+          <div className="text-center font-semibold text-3xl mt-4">
+            <p>{formatTime(timer)}</p>
+          </div>
         </div>
         <br></br>
         <div id="speech">
           <p id="output" className='text-center font-semibold text-2xl'></p>
           <p id="detectedWords"></p>
         </div>
-        <br/>
-        <p> this is where we test other functions bc otherwise this looks good i think</p>
-        <RingDevice/>
-        <br/>
         <div>
           <ModifyBannedText bannedWords={bannedWords} setBannedWords={setBannedWords}/>
         </div>
+        <p id="fullTranscript" className='text-center font-semibold text-2xl'></p>
       </Section>
     </Page>
   );
@@ -77,9 +129,11 @@ const Index = () => {
 
 let recognition: any = null;
 
-function speechToText(isActive: boolean, handleBadWordDetected: () => void): void {
+function speechToText(isActive: boolean, handleBadWordDetected: () => void, wordbank: string[]): void {
   const output = document.getElementById('output') as HTMLElement | null;
   const detectedWordsOutput = document.getElementById('detectedWords') as HTMLElement | null;
+  const fullTranscript = document.getElementById('fullTranscript') as HTMLElement | null;
+
 
   const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
@@ -94,67 +148,6 @@ function speechToText(isActive: boolean, handleBadWordDetected: () => void): voi
     recognition.continuous = true;
 
   }
-  
-
-  const wordbank: string[] = [
-    "ass",
-    "bitch",
-    "chink",
-    "coon",
-    "crazy",
-    "crip",
-    "cuck",
-    "cunt",
-    "dick",
-    "douche",
-    "douchebag",
-    "dyke",
-    "fag",
-    "faggot",
-    "fatass",
-    "fuck",
-    "gook",
-    "gyp",
-    "gypsy",
-    "half-breed",
-    "halfbreed",
-    "homo",
-    "hooker",
-    "inbred",
-    "idiot",
-    "insane",
-    "insanity",
-    "lesbo",
-    "negress",
-    "negro",
-    "nig",
-    "nigga",
-    "nigger",
-    "pajeet",
-    "prostitute",
-    "pussie",
-    "pussy",
-    "retard",
-    "shemale",
-    "shit",
-    "skank",
-    "slut",
-    "soyboy",
-    "sperg",
-    "spic",
-    "tard",
-    "tits",
-    "tit",
-    "titty",
-    "trannie",
-    "tranny",
-    "twat",
-    "whore",
-    "wigger",
-    "hello",
-    "we",
-    "you"
-  ]
   
   let sessionWordCounts = new Map<string, number>();
   let detectedWordsList: string[] = [];
@@ -180,6 +173,8 @@ recognition.addEventListener('result', async (event: SpeechRecognitionEvent) => 
     .map(result => result[0].transcript)
     .join(' ')
     .toLowerCase();
+
+    fullTranscriptGlobal = fullTranscript; // Assigning to global variable
 
   //get latest word 
   const currentWord = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
@@ -217,6 +212,7 @@ recognition.addEventListener('result', async (event: SpeechRecognitionEvent) => 
 
   recognition.addEventListener('end', () => {
     console.log("SpeechRecognition stopped")
+    console.log(fullTranscriptGlobal);
   });
 
   if (isActive) {
@@ -228,6 +224,7 @@ recognition.addEventListener('result', async (event: SpeechRecognitionEvent) => 
     };
 
 }
+
 function vibrationPattern(): void {
   const patterns = [
     2000,
