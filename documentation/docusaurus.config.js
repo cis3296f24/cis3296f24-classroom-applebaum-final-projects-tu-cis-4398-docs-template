@@ -8,7 +8,7 @@
  * The URL or reference to your projects logo!
  * @type {string}
  */
-const logo = 'img/speaksenselogo.png';
+const logo = 'img/speaksenselogo.svg';
 
 const main_template_jira_scripts = () => {
   if (process.env.ORG_NAME === 'ApplebaumIan'){
