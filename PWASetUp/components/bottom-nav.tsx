@@ -86,6 +86,20 @@ const BottomNav = () => {
 							</span>
 						</Link>
 					))}
+					{/* Profile Picture */}
+					<Link
+						href='/profile'
+						className='flex h-full w-full flex-col items-center justify-center space-y-1'
+					>
+						<img
+							src='./images/Ian.png'
+							alt='Profile'
+							className='h-8 w-8 rounded-full border border-zinc-300 dark:border-zinc-700'
+						/>
+						<span className='text-xs text-zinc-600 dark:text-zinc-400'>
+							Profile
+						</span>
+					</Link>
 				</div>
 			</nav>
 		</div>
