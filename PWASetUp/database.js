@@ -125,4 +125,13 @@ export const getStats = async (timeRange) => {
     }
 };
 
+export const deleteDatabase = async () => {
+    try {
+        await db.delete(); // Deletes the database
+        console.log('Database deleted successfully.');
+    } catch (error) {
+        console.error('Error deleting database:', error);
+    }
+};
+
 export default db;

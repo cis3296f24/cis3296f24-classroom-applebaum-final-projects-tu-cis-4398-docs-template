@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import Page from '../../components/page';
 import Section from '../../components/section';
+import { deleteDatabase } from 'database.js'; // Adjust the path to your database.js file
+
 
 const AccountData = () => {
   const [isConfirming, setIsConfirming] = useState(false);
+  const [isDeleted, setIsDeleted] = useState(false);
 
   const handleDeleteRequest = () => {
     setIsConfirming(true);
@@ -16,7 +19,12 @@ const AccountData = () => {
   const handleConfirmDelete = () => {
     setIsConfirming(false);
     // Replace the below alert with the actual delete logic
-    alert('Your account data has been deleted.');
+    try {
+      deleteDatabase(); // Delete the database
+      setIsDeleted(true);
+    } catch (error) {
+        alert('Failed to delete account data: ' + error.message);
+    }
   };
 
   return (
@@ -60,6 +68,25 @@ const AccountData = () => {
                 className="px-4 py-2 text-zinc-700 bg-zinc-200 rounded-lg hover:bg-zinc-300 focus:ring-2 focus:ring-zinc-400 dark:text-zinc-300 dark:bg-zinc-700 dark:hover:bg-zinc-600"
               >
                 Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Success Popup */}
+        {isDeleted && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="p-6 bg-white rounded-lg shadow-lg dark:bg-zinc-800">
+              <h3 className="text-lg font-semibold">
+                Success
+              </h3>
+              <p className="mt-2 text-zinc-600 dark:text-zinc-400">
+                Your account data has been successfully deleted.
+              </p>
+              <button
+                onClick={() => setIsDeleted(false)}
+                className="mt-4 px-4 py-2 text-white bg-gray-600 rounded-lg focus:ring-2">
+                <a href="/" className="text-white">Close</a>
               </button>
             </div>
           </div>
