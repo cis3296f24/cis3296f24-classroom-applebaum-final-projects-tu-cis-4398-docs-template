@@ -80,7 +80,7 @@ const Statistics = () => {
   const [weeklyGoal, setWeeklyGoal] = useState(5000)
   const [speechData, setSpeechData] = useState<ChartData>({
     weeklyActivity: {
-      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
       datasets: [{
         label: 'Words Spoken',
         data: Array(7).fill(0),
@@ -221,7 +221,7 @@ const Statistics = () => {
       <Section>
         <div className="p-8 pt-20">
           {/* Header Section */}
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-between gap-4 items-center mb-6">
             <div>
               <h1 className="text-2xl font-bold">Speech Analytics Dashboard</h1>
               <p className="text-zinc-500">Real-time speech analysis and statistics</p>
@@ -230,8 +230,7 @@ const Statistics = () => {
               <Select 
                 defaultSelectedKeys={['week']}
                 className="w-36"
-                onChange={(e) => setTimeRange(e.target.value)}
-              >
+                onChange={(e) => setTimeRange(e.target.value)}>
                 <SelectItem key="day" value="day">Today</SelectItem>
                 <SelectItem key="week" value="week">This Week</SelectItem>
                 <SelectItem key="month" value="month">This Month</SelectItem>
