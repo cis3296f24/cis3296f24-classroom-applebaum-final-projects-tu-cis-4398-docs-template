@@ -16,6 +16,11 @@ Speech-Analysis, Word Frequency Tracking, Progressive Web App, Speech Pattern An
 ## Project Description
 **SpeakSense** is a progressive web application designed to provide real-time feedback on your speech. Whether you're preparing for a presentation, practicing for an interview, or refining a speech, SpeakSense helps you stay on track by monitoring your speech patterns and providing actionable insights.
 
+<img src="image-3.png" alt="Image1" width="200px">
+<img src="image-4.png" alt="Image2" width="200px">
+<img src="image-7.png" alt="Image2" height="500px">
+
+
 ### Key Features
 - **Banned Words Alerts**: Add words or phrases (e.g., profanity, filler words) to your "banned words" list, and get alerted if you say them while speaking.
 - **Statistics Dashboard**:
@@ -60,6 +65,17 @@ Here are instructions for installing on your local machine.
    ```
 
 ### Step 2: Set up GPT Functionality 
+Note: This requires a gpt key and .env file for GPT functionality
+
+#### Step 2a: Install Dependencies to download for ChatGTP Sever:
+    Run the following commands to install necessary dependencies: 
+    ```bash
+        npm i express
+        npm i dotenv
+        npm i cors
+        npm i openai
+
+#### Step 2b: Running the Server:
     Navigate to pages folders
     ```bash
     cd pages
@@ -70,16 +86,8 @@ Here are instructions for installing on your local machine.
     node chat.js 
     ```
     This will run the server and you should see a message on the terminal that the server is running
-
-### Step 3: Install Dependencies to download for ChatGTP Sever:
-    Run the following commands to install necessary dependencies: 
-    ```bash
-        npm i express
-        npm i dotenv
-        npm i cors
-        npm i openai
     ```
-### Step 4: Install other dependencies:
+### Step 3: Install other dependencies:
     Change back to PWASetUp
     
     NextUI: 
@@ -96,16 +104,20 @@ Here are instructions for installing on your local machine.
         npm i react-chartjs-2 chart.js
     ```
 
-### Step 5: Run it!
+### Step 4: Run it!
         ```bash
         npm run dev
         ```
-### Step 6: 
-now you have SpeakSense on your local computer
+### Step 5 Open SpeakSense: 
+Click and open the link:
+"https://localhost:3000" <br/>
+![alt text](image.png)
 
-## Design
-
-
+### Step 6: Installing SpeakSense:
+Select the download icon in the search bar<br/>
+![alt text](image-2.png) <br/>
+![alt text](image-1.png) <br/>
+This should prompt you to download SpeakSense, which should allow you to use the PWA properly!
 
 ## Use Cases
 
@@ -312,28 +324,28 @@ This will calculate statistics for a given time period
   <tr>
     <td align="center">
       <a href="https://github.com/JRheeTU">
-        <img src="https://avatars.githubusercontent.com/u/9451941?v=4" width="100;" alt="ApplebaumIan"/>
+        <img src="https://i1.sndcdn.com/artworks-ROHBctneQRwBzatg-udKsvQ-t500x500.jpg" width="100;" alt="ApplebaumIan"/>
         <br />
         <sub><b>Josh Rhee</b></sub>
       </a>
     </td>
     <td align="center">
       <a href="https://github.com/leighflagg">
-        <img src="https://avatars.githubusercontent.com/u/77810293?v=4" width="100;" alt="leighflagg"/>
+        <img src="https://masterpiecer-images.s3.yandex.net/1db2882b8a4311eeb30e2ab2a9c6ab46:upscaled" width="100;" alt="leighflagg"/>
         <br />
         <sub><b>Sophie Mettille</b></sub>
       </a>
     </td>
     <td align="center">
       <a href="https://github.com/Joshua-Varkey12">
-        <img src="https://avatars.githubusercontent.com/u/77810293?v=4" width="100;" alt="leighflagg"/>
+        <img src="https://static.wikia.nocookie.net/joke-battles/images/0/05/Ingernochad.jpeg/revision/latest/scale-to-width-down/340?cb=20240106053201" width="100;" alt="leighflagg"/>
         <br />
         <sub><b>Josh Varkey</b></sub>
       </a>
     </td>
     <td align="center">
       <a href="https://github.com/omarshakir8">
-        <img src="https://avatars.githubusercontent.com/u/77810293?v=4" width="100;" alt="leighflagg"/>
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTDB-F2rcJAUFk6ZR6fiJbINRrUX4nmgachg&s" width="100;" alt="leighflagg"/>
         <br />
         <sub><b>Omar Shakir</b></sub>
       </a>
