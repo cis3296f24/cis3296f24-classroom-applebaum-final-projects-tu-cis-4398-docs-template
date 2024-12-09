@@ -13,6 +13,7 @@ import {
 } from "@nextui-org/react";
 
 interface AIFeedback {
+  transcript: string[];
   strengths: string[];
   weaknesses: string[];
   tips: string[];
@@ -21,8 +22,9 @@ interface AIFeedback {
 }
 
 const Insights = () => {
+  const [transcript, setTranscript] = useState<string | null>(null);
   const [response, setResponse] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false); // Set loading state to false initially
+  const [loading, setLoading] = useState<boolean>(false); 
   const [error, setError] = useState<string | null>(null);
   const [processedFeedback, setProcessedFeedback] = useState<AIFeedback | null>(null);
 
@@ -48,14 +50,18 @@ const Insights = () => {
         },
         body: JSON.stringify({
           prompt: `Analyze the following speech transcript: "${fullTranscriptGlobal}". 
+                  Please note that areas with two spaces ("  ") are pauses in speech.
                   Please provide a detailed analysis in the following JSON format:
                   {
+                    "transcript": ["Full corrected transcript"]
                     "strengths": ["strength1", "strength2"],
                     "weaknesses": ["weakness1", "weakness2"],
                     "tips": ["tip1", "tip2"],
                     "toneAnalysis": "detailed tone analysis",
                     "confidenceScore": number between 0-100
-                  }`
+                  }
+                  Make sure to return responses as a mentor addressed to the user: Ian Tyler AppleBaum
+                  `
         }),
       }).catch(error => {
         console.error("Fetch error:", error);
@@ -90,6 +96,7 @@ const Insights = () => {
       console.log("Parsing response text:", text);
       const jsonResponse = JSON.parse(text);
       return {
+        transcript: jsonResponse.transcript || {},
         strengths: jsonResponse.strengths || [],
         weaknesses: jsonResponse.weaknesses || [],
         tips: jsonResponse.tips || [],
@@ -99,7 +106,8 @@ const Insights = () => {
     } catch (error) {
       console.error('Error parsing AI response:', error);
       return {
-        strengths: ["Clear communication"],
+        transcript: ["Error parsing response"],
+        strengths: ["N/A"],
         weaknesses: ["Areas for improvement not analyzed"],
         tips: ["Recording more samples will help provide better analysis"],
         toneAnalysis: "Analysis not available",
@@ -159,6 +167,20 @@ const Insights = () => {
                       color={processedFeedback.confidenceScore > 80 ? "success" : "primary"}
                       className="h-2"
                     />
+                  </div>
+                </CardBody>
+              </Card>
+              
+              <Card className="mb-6">
+                <CardHeader>
+                  <h3 className="text-xl font-bold">Transcript</h3>
+                </CardHeader>
+                <Divider />
+                <CardBody>
+                  <div className="overflow-y-auto max-h-96 p-2 bg-gray-50 rounded-lg">
+                    <p className="text-zinc-600 whitespace-pre-wrap">
+                      {processedFeedback.transcript.join(" ")}
+                    </p>
                   </div>
                 </CardBody>
               </Card>
