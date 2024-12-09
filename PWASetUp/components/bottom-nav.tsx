@@ -82,7 +82,7 @@ const BottomNav = () => {
 						className='flex h-full w-full flex-col items-center justify-center space-y-1'
 					>
 						<img
-							src='./images/Ian (1).png'
+							src='./images/Ian.png'
 							alt='Profile'
 							className='h-8 w-8 rounded-full border border-zinc-300 dark:border-zinc-700'
 						/>
