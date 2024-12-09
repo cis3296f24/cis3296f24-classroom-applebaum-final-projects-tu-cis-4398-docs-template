@@ -1,0 +1,70 @@
+{
+	"name": "next-pwa-template",
+	"version": "0.0.0",
+	"license": "MIT",
+	"type": "module",
+	"presets": [
+		"@babel/preset-env",
+		"@babel/preset-react"
+	],
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"lint": "next lint"
+	},
+	"dependencies": {
+		"@emotion/react": "^11.13.3",
+		"@heroicons/react": "^2.2.0",
+		"@nextui-org/navbar": "^2.0.37",
+		"@nextui-org/react": "^2.4.8",
+		"@nextui-org/system": "^2.2.6",
+		"@nextui-org/theme": "^2.2.11",
+		"chart.js": "^4.4.6",
+		"chartjs": "^0.3.24",
+		"cors": "^2.8.5",
+		"dotenv": "^16.4.7",
+		"express": "^4.21.2",
+		"framer-motion": "^11.11.11",
+		"next": "^15.0.3",
+		"next-pwa": "^5.6.0",
+		"next-themes": "^0.2.1",
+		"openai": "^4.76.0",
+		"react": "^18.3.1",
+		"react-chartjs-2": "^5.2.0",
+		"react-dom": "^18.3.1",
+		"react-remove-scroll": "^2.6.0",
+		"react-swipeable": "^7.0.2"
+	},
+	"devDependencies": {
+		"@babel/core": "^7.26.0",
+		"@babel/preset-env": "^7.26.0",
+		"@babel/preset-react": "^7.26.3",
+		"@babel/register": "^7.25.9",
+		"@types/node": "^20.8.4",
+		"@types/react": "^18.2.28",
+		"autoprefixer": "^10.4.16",
+		"babel-register": "^6.26.0",
+		"chai": "^5.1.2",
+		"enzyme": "^3.11.0",
+		"eslint": "^8.51.0",
+		"eslint-config-next": "^13.5.4",
+		"eslint-config-prettier": "^9.0.0",
+		"jsdom-global": "^3.0.2",
+		"mocha": "^11.0.1",
+		"postcss": "^8.4.31",
+		"prettier": "^3.0.3",
+		"prettier-plugin-tailwindcss": "^0.5.5",
+		"react-test-renderer": "^19.0.0",
+		"sinon": "^19.0.2",
+		"tailwindcss": "^3.3.3",
+		"tailwindcss-safe-area": "^0.4.1",
+		"typescript": "^5.2.2"
+	},
+	"prettier": {
+		"semi": false,
+		"singleQuote": true,
+		"jsxSingleQuote": true,
+		"useTabs": true
+	}
+}
