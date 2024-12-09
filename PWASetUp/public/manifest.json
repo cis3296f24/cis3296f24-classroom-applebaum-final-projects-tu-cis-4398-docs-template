@@ -1,0 +1,33 @@
+{
+	"name": "Speak Sense",
+	"short_name": "Speak Sense",
+	"description": "Fluffless jasmine rice for those cold winter nights",
+	"icons": [
+		{
+			"src": "/images/speaksenselogo.png",
+			"type": "image/png",
+			"sizes": "192x192"
+		},
+		{
+			"src": "/images/speaksenselogo.png",
+			"type": "image/png",
+			"sizes": "512x512"
+		},
+		{
+			"src": "/images/speaksenselogo.png",
+			"type": "image/png",
+			"sizes": "192x192",
+			"purpose": "maskable"
+		},
+		{
+			"src": "/images/speaksenselogo.png",
+			"type": "image/png",
+			"sizes": "512x512",
+			"purpose": "maskable"
+		}
+	],
+	"start_url": "/?source=pwa",
+	"orientation": "portrait",
+	"display": "standalone",
+	"scope": "/"
+}
