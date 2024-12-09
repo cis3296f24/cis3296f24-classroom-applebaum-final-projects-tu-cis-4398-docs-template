@@ -13,7 +13,7 @@ import {
 } from "@nextui-org/react";
 
 interface AIFeedback {
-  transcript: string[];
+  transcript: string;
   strengths: string[];
   weaknesses: string[];
   tips: string[];
@@ -22,7 +22,6 @@ interface AIFeedback {
 }
 
 const Insights = () => {
-  const [transcript, setTranscript] = useState<string | null>(null);
   const [response, setResponse] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false); 
   const [error, setError] = useState<string | null>(null);
@@ -50,17 +49,16 @@ const Insights = () => {
         },
         body: JSON.stringify({
           prompt: `Analyze the following speech transcript: "${fullTranscriptGlobal}". 
-                  Please note that areas with two spaces ("  ") are pauses in speech.
-                  Please provide a detailed analysis in the following JSON format:
+                  Note that areas with two spaces ("  ") are pauses in speech.
+                  Please provide a detailed analysis addressed to Ian Tyler Applebaum in the following JSON format:
                   {
-                    "transcript": ["Full corrected transcript"]
+                    "transcript": "Full corrected transcript",
                     "strengths": ["strength1", "strength2"],
                     "weaknesses": ["weakness1", "weakness2"],
                     "tips": ["tip1", "tip2"],
                     "toneAnalysis": "detailed tone analysis",
-                    "confidenceScore": number between 0-100
+                    "confidenceScore": number between 0-100, with 0 having no confidence and 100 being bold
                   }
-                  Make sure to return responses as a mentor addressed to the user: Ian Tyler AppleBaum
                   `
         }),
       }).catch(error => {
@@ -96,7 +94,7 @@ const Insights = () => {
       console.log("Parsing response text:", text);
       const jsonResponse = JSON.parse(text);
       return {
-        transcript: jsonResponse.transcript || {},
+        transcript: jsonResponse.transcript || "Transcript not available",
         strengths: jsonResponse.strengths || [],
         weaknesses: jsonResponse.weaknesses || [],
         tips: jsonResponse.tips || [],
@@ -106,7 +104,7 @@ const Insights = () => {
     } catch (error) {
       console.error('Error parsing AI response:', error);
       return {
-        transcript: ["Error parsing response"],
+        transcript: "Error parsing response",
         strengths: ["N/A"],
         weaknesses: ["Areas for improvement not analyzed"],
         tips: ["Recording more samples will help provide better analysis"],
@@ -179,7 +177,7 @@ const Insights = () => {
                 <CardBody>
                   <div className="overflow-y-auto max-h-96 p-2 bg-gray-50 rounded-lg">
                     <p className="text-zinc-600 whitespace-pre-wrap">
-                      {processedFeedback.transcript.join(" ")}
+                      {processedFeedback.transcript}
                     </p>
                   </div>
                 </CardBody>
