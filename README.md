@@ -238,10 +238,88 @@ sequenceDiagram
     User->>Statistics: Checks account details again
     Statistics-->>User: Display no available data
 
-````
+```
+## Class Diagram 
 
+```mermaid
+classDiagram
+    class _app
+    _app : +render()
+
+    class index
+    index : - String[] wordBank
+    index : - String[] fillerWords
+    index : - useState~number~ timer 
+    index : - userState~NodeJS.Timeout | null~ timerInterval
+    index : - boolean isMicActive
+    index : - booblean isBadWordDetected
+    index : - String[] BannedWords
+
+    index : + loadWordList()
+    index : + handdleMicToggle()
+    index : + startTimer()
+    index : + stopTimer()
+    index : + formatTimer(seconds number) String
+    index : + handleBadWordDetected()
+    index : + SpeechToText()
+
+    class insights
+    insights: -useState~string~ response
+    insights: -useState~boolean~ loading
+    insights: -useState~string | null~ error
+    insights: -useState~AIFeedback | null~ processedFeedback
+
+    insights : +fetchResponse()
+    insights : +parseAIResponse()
+
+    class profile
+    profile: +profilePage() return profilePage
+
+    
+    class chat
+    chat : -openai
+    chat : - app
+    chat : -PORT
+    chat : +post()
+
+    class statistics
+    statistics: -useState~string~ timeRange
+    statistics: -useState~wordDate[]~ wordStats
+    statistics: -useState~int~ profanityRate
+    statistics: -useState~int~ totalWords
+    statistics: -useState~int~ speechPace
+    statistics: -useState~boolean~ isLoading
+    statistics: -useState~int~ dailyProgress
+    statistics: -useState~int~ weeklyGoal
+    statistics: -useState~ChartData~ speechData
+
+    statistics: +calculateStats(wordData[])
+    statistics: +updateChartData(wordData[])
+    statistics: +exportStats()
+
+    class db
+    db: +calculateSeverity (string)
+    db: +determineCategory (string)
+    db: +addWord (string)
+    db: +startSession ()
+    db: +endSession (int, int)
+    db: +getStats ())
+    db: +deleteDataBase ()
+
+    _app <-- index
+    _app <-- insights
+    _app <-- profile
+    _app <-- statistics
+    insights o-- chat
+    db <-- index
+    db <-- statistics
+```
  
 ## Explaining key files and functions 
+
+#_app.tsx
+
+This is global wrapper for Next.js projects. This file runs the all of the diffrent files in the pages folder and makes sure that the styling is all the same. This file also makes sure you can render files dynamically. 
 
 #index.tsx
 
@@ -261,59 +339,59 @@ This function is an async function that helps the SpeechToText() function by che
 
 #chat.js
 
-This is the middleware that talks to openAI ChatGTP API. This will run in the background 
+This is the middleware that talks to openAI ChatGTP API. This will run in the background and make the API requests to openAI
 
 #insights.tsx
 
-This is the frontend that will display the response from chatGTP. Users are also able to input textiles of the speech that they said and get detailed responses from ChatGTP.
+This is the frontend that will display the response from chatGTP. This page is the users personal speach coach it will take the live speech that the user has said and give feed beack on diffrent measuring metrics.
 
 #statistics.tsx
 
-This file will display user statistics  like totalWords,  profanityRate, speechPace, wordStats
+This file will display user statistics  like totalWords,  profanityRate, speechPace, wordStats. The user will be able to reflect on their word chocies by anaylaing the diffrent data that is collected.
 
 #profile.tsx
 
-This file allows the user to view their profile page and veiw some highlight stats and profile image.
+This file allows the user to view their profile page and veiw some highlighted stats and profile image. This allows the user to feel more connted to the app.
 
 #modify-Bannedwords.tsx
 
-This file gives the user the functionality to modify the database and add their own banned words.
+This file gives the user the functionality to modify the database and add their own banned words. With the added functinality users can add their own costume banned words to the list so that the app can help best fit their specific needs.
 
 #Ring.js
 
-This file give the app the functionality to play a sound while the user isa saying a banned word 
+This file give the app the functionality to play a sound while the user is saying a banned word. The uploaded sound is a fart noise right now but in the future we hope to add aditional functionality to allow the user to add their own sounds.
 
 #AudioVisalizer.tsx
 
-This file gives the app the functionality to visualize the sound waves of the users voice.
+This file gives the app the functionality to visualize the sound waves of the users voice. The user will be able to see the fulcuation in the tone of voice however implmentation isnt implmented yet. 
 
 #database.js
 
-This is the database that will give the app the functionality to store words
+This is the database that will give the app the functionality to store words. This is a very important file becasue this holds the most functionality. All of the banned words that are used are stored here.
 
 calculateSeverity():
 
-This views the word that the user is saying and calculates the severity by comparing it to a couple of severity lists
+This views the word that the user is saying and calculates the severity by comparing it to diffrent metrics that the algoritium uses. 
 
 determineCategory():
 
-This function views the speech and filters it into two categories called filter words, and technical terms. 
+This function views the speech and filters it into difffent categories such as filler words. Some examples of filler words are 'like', and 'um'.  
 
 addWord():
 
-This function will add a new word and update the existing word count 
+calling this function will add a new word sand update the existing word count. 
 
 startSession():
 
-This will start a new listening session 
+calling this function will start a new listening session. 
 
 endSession(): 
 
-This will end the listening session 
+calling this function will end the listening session. 
 
 getStats():
 
-This will calculate statistics for a given time period 
+calling this function will calculate statistics for a given time period.
 
 
 
